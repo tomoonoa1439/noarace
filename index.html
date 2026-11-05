@@ -320,6 +320,9 @@ tr.rvrow td{background:#2a1515}
 .phx-ov b{display:block;font-size:54px;font-weight:900;background:linear-gradient(90deg,#ff9bd2,#ffd166,#7dffb0,#8fd3ff,#b18cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #b18cffaa)}
 .phx-ov span{font-size:13px;color:#e8ecff}
 @keyframes phxO{0%{opacity:0;transform:scale(1.3)}10%{opacity:1;transform:scale(1)}85%{opacity:1}100%{opacity:0}}
+.mk-act{display:flex;flex-direction:column;gap:5px}.fcard.mkt.mine{border-color:#ffd16677}.fcard.mkt.lead{border-color:#7dffb088;box-shadow:0 0 12px #7dffb033}
+.mk-in{display:flex;align-items:center;gap:8px;margin:12px 0 8px;font-weight:800}.mk-in input{width:150px}
+.vo-tag{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;padding:1px 7px;color:#8fd3ff;border:1px solid #8fd3ff66;background:#8fd3ff14}.vo-tag .ic{width:11px;height:11px}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -767,6 +770,7 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     <div class="sec-h"><i class="ic ic-gear"></i> パーツ<span class="hsub">馬に装着すると能力や作戦が強化される（頭・背・コアの3部位）</span></div><div class="panel"><div id="partList"></div></div>
     <div class="sec-h"><i class="ic ic-build"></i> 施設<span class="hsub">強化すると調教効果アップ・怪我が減る</span></div><div class="panel"><div id="facList" class="flist"></div></div>
     <div class="sec-h"><i class="ic ic-leaf"></i> 引退馬<span class="hsub">配合の親になり、毎週 種付け料・産駒の売却益が入ります</span><span id="incomeInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="retiredList"></div></div>
+    <div class="sec-h"><i class="ic ic-coin"></i> ホースマーケット<span class="hsub">引退馬をオークションで売買。落札されると馬のデータごと移籍します（現在はAI馬主と取引）</span></div><div class="panel"><div id="mktList" class="flist"></div></div>
   </section>
 
 
@@ -2036,8 +2040,8 @@ function runAwaken(){ if(awBusy||TR_BUSY||!AW_Q.length) return; awBusy=true; con
   el.onclick=()=>{ el.remove(); awBusy=false; if($('#s-farm').classList.contains('active')) renderFarm(); setTimeout(runAwaken,200); }; }
 const _mkF=makeFoal; makeFoal=function(s,d,R=Math.random){ const f=_mkF(s,d,R); f.st.hp=f.cap.hp; f.attr=inheritAttr(s,d,R); if(f.attr===(s.own?attrOf(s):legendAttr(s.name))&&f.attr===(d.own?attrOf(d):legendAttr(d.name))) STATS.forEach(([k])=>f.cap[k]=+Math.min(100,f.cap[k]+1.5).toFixed(1)); f.rank=rollRank(f,R,f.inbred?0.4:0); applyRankCap(f); return f; };
 const parentObj=m=>({name:m[0],sex:m[1],dMin:m[4],dMax:m[5],style:m[6],coat:m[7],tag:m[8],st:legendStats(m)});
-function sires(){ return [...ROSTER.filter(m=>m[1]==='牡').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牡').map(h=>({...h,own:true,tag:h.retired?'自家・種牡馬':'自家・現役'}))]; }
-function dams(){ return [...ROSTER.filter(m=>m[1]==='牝').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牝').map(h=>({...h,own:true,tag:h.retired?'自家・繁殖牝馬':'自家・現役'}))]; }
+function sires(){ return [...ROSTER.filter(m=>m[1]==='牡').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牡'&&!h.listed).map(h=>({...h,own:true,tag:h.retired?'自家・種牡馬':'自家・現役'}))]; }
+function dams(){ return [...ROSTER.filter(m=>m[1]==='牝').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牝'&&!h.listed).map(h=>({...h,own:true,tag:h.retired?'自家・繁殖牝馬':'自家・現役'}))]; }
 const avgSt=p=>(p.st.spd+p.st.pow+p.st.sta+p.st.gut+p.st.wis)/5;
 const studFee=p=>p.own?0:clamp(Math.round((avgSt(p)-60)*120/500)*500,500,6000);
 function nickOf(s,d){ return ((hash(s.name+'×'+d.name)%7)-2)*0.7; }
@@ -2147,7 +2151,7 @@ function renderFarm(){
   const act=stable.filter(h=>!h.retired), ret=stable.filter(h=>h.retired);
   $('#stableList').innerHTML = act.length? `<div class="tgrid">${act.map(horseCard).join('')}</div>`
     : '<div class="sub">まだ馬がいません。下の「配合」か「セリ」で最初の1頭を手に入れましょう。</div>';
-  $('#retiredList').innerHTML = ret.length? ret.map(h=>`<div class="retrow"><div><b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.races}戦${h.wins}勝${hall.some(x=>x.name===h.name)?'・<span class="gold">殿堂入り</span>':''}</span><div class="hsub">${h.sex==='牡'?'種付け料':'産駒の売却益'} 毎週 <b class="gold">+${fmt(studIncome(h))} NOA</b>${studIncome(h)?'':h.imported?'（輸入繁殖牝馬：配合の母として活躍します）':'（実績不足：3戦以上か1勝以上で収入が発生）'}</div></div><button class="btn" data-salv="${h.id}"><i class="ic ic-gear"></i>分解</button><button class="btn" data-sell="${h.id}"><i class="ic ic-coin"></i> 売却 ${fmt(horseValue(h))}</button></div>`).join('') : '<span class="hsub">まだいません</span>';
+  $('#retiredList').innerHTML = ret.length? ret.map(h=>`<div class="retrow"><div><b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.races}戦${h.wins}勝${hall.some(x=>x.name===h.name)?'・<span class="gold">殿堂入り</span>':''}</span><div class="hsub">${h.sex==='牡'?'種付け料':'産駒の売却益'} 毎週 <b class="gold">+${fmt(studIncome(h))} NOA</b>${studIncome(h)?'':h.listed?'（出品中は収入停止）':h.imported?'（輸入繁殖牝馬：配合の母として活躍します）':'（実績不足：3戦以上か1勝以上で収入が発生）'}</div>${h.listed?`<div class="hsub"><span class="vo-tag"><i class="ic ic-lock"></i> マーケット出品中・閲覧のみ</span></div>`:''}</div><button class="btn" data-view="${h.id}">詳細</button>${h.listed?'':`<button class="btn" data-salv="${h.id}"><i class="ic ic-gear"></i>分解</button><button class="btn" data-sell="${h.id}"><i class="ic ic-coin"></i> 売却 ${fmt(horseValue(h))}</button><button class="btn gold" data-mkl="${h.id}">出品</button>`}</div>`).join('') : '<span class="hsub">まだいません</span>';
   // 施設
   $('#facList').innerHTML=Object.entries(FAC).map(([k,[n,d]])=>{ const lv=fac[k]; return `<div class="fcard"><div><b>${n}</b> <span class="lv">${'★'.repeat(lv)}${'☆'.repeat(3-lv)}</span><div class="hsub">${d}</div></div>${lv<3?`<button class="btn" data-fac="${k}">強化 ${fmt(FAC_COST[lv])}</button>`:'<span class="gold">最大</span>'}</div>`; }).join('')+`<div class="fcard"><div><b>厩舎の拡張</b> <span class="lv">${'★'.repeat(expand)}${'☆'.repeat(3-expand)}</span><div class="hsub">現役馬の上限 ${CAP()}頭${expand<3?` → ${CAP()+2}頭`:''}</div></div>${expand<3?`<button class="btn" id="expBtn">拡張 ${fmt(EXP_COST[expand])}</button>`:'<span class="gold">最大</span>'}</div>`;
   if($('#expBtn')) $('#expBtn').onclick=buyExpand;
@@ -2156,7 +2160,9 @@ function renderFarm(){
   $('#marketList').innerHTML = !lots? `<span class="hsub">セリは毎月第1週に開催されます（次回：${Math.floor(cal.w/4)+2>12?'1':Math.floor(cal.w/4)+2}月 第1週）</span>`
     : lots.map((l,k)=>`<div class="fcard ${l.phantom?'phx':''}"><div>${l.phantom?'<div class="phx-tag">幻の逸材</div>':''}<b>${l.foal.dam}の仔</b> <span class="hsub">${l.foal.sex}・${l.foal.coat}</span><div class="hsub">父 ${l.foal.sire}（${l.foal.line}）・母父系 ${l.foal.damLine}</div><div class="hsub">馬体評価 ${l.phantom?'<b class="phx-t">測定不能</b>':srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[l.est])}・開始 ${fmt(l.price)} NOA</div></div>${l.sold?'<span class="hsub">終了</span>':`<button class="btn gold" data-lot="${k}"><i class="ic ic-hammer"></i> セリに参加</button>`}</div>`).join('');
   const inc=ret.reduce((a,h)=>a+studIncome(h),0); $('#incomeInfo').innerHTML=inc?`引退馬からの収入 毎週 <b class="gold">+${fmt(inc)} NOA</b>`:'';
-  renderShop(); renderParts(); bindHorseCtl();
+  renderShop(); renderParts(); renderMarket(); bindHorseCtl();
+  document.querySelectorAll('[data-mkl]').forEach(b=>b.onclick=()=>mktList(b.dataset.mkl));
+  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ const h=stable.find(x=>x.id===b.dataset.view); const L=h&&h.listed?mkt.list.find(x=>x.id===h.listed):null; viewHorse(h,L?`マーケット出品中：現在 ${mktHigh(L)?fmt(mktHigh(L).amt)+' NOA':'入札なし'}・即落札 ${fmt(L.buyout)} NOA・${mktLeft(L)}`:h.bought?`${h.bought.from} から ${fmt(h.bought.price)} NOA で購入`:''); });
   document.querySelectorAll('[data-open]').forEach(c=>c.onclick=e=>{ if(e.target.closest('select,.fsel,.trbtn')) return; openHorse(c.dataset.open); });
   document.querySelectorAll('[data-fac]').forEach(b=>b.onclick=()=>upgradeFac(b.dataset.fac));
   document.querySelectorAll('[data-lot]').forEach(b=>b.onclick=()=>bidLot(+b.dataset.lot));
@@ -2499,7 +2505,7 @@ function horseValue(h){ return Math.round(_hv(h)*(0.75+rkIdx(h)*0.09)/100)*100; 
 function _hv(h){ const capAvg=(h.cap.spd+h.cap.pow+h.cap.sta+h.cap.gut+h.cap.wis)/5, base=Math.max(avg5(h),h.age<=3?capAvg*0.6:0);
   let v=Math.pow(Math.max(0,base-35),1.7)*30+h.wins*2500+(h.gw||0)*8000+(h.g1w||0)*25000+h.earn*0.15;
   v*=AGEMUL[clamp(h.age-2,0,6)]*(h.retired?0.6:1)*(h.races===0?0.5:1)*((h.injury||0)>0?0.7:1); return Math.max(1000,Math.round(v/100)*100); }
-function studIncome(h){ if(h.races<3&&!h.wins) return 0; const v=(avg5(h)-45)*14+h.wins*120+(h.gw||0)*500+(h.g1w||0)*1500; return Math.max(100,Math.round((h.sex==='牡'?v:v*0.6)/10)*10); }
+function studIncome(h){ if(h.listed||(h.races<3&&!h.wins)) return 0; const v=(avg5(h)-45)*14+h.wins*120+(h.gw||0)*500+(h.g1w||0)*1500; return Math.max(100,Math.round((h.sex==='牡'?v:v*0.6)/10)*10); }
 function sellHorse(id){ const h=stable.find(x=>x.id===id); if(!h) return; const v=horseValue(h);
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> ${h.name} を売却しますか？</div><div class="sub">${h.sex}・${h.age}歳・${h.retired?'引退馬':classOf(h)}・${h.races}戦${h.wins}勝</div>
     <div class="ownres" style="font-size:18px">売却価格 <b class="gold">${fmt(v)} NOA</b></div><div class="hsub">売却すると厩舎からいなくなり、配合にも使えなくなります。</div>
@@ -3169,6 +3175,96 @@ function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; cons
   $('#resModal').classList.add('on'); $('#onBack').onclick=()=>{ $('#resModal').classList.remove('on'); openOnline(); }; $('#onRep').onclick=()=>{ $('#resModal').classList.remove('on'); onlineWatch(key,false); }; }
 $('#navOnline').onclick=openOnline;
 $('#rescue').onclick=doRescue;
+// ======================= ホースマーケット（引退馬の売買） =======================
+// いまはAIの馬主が入札・出品する仮運用。Firebase導入後にプレイヤー同士の売買へ切り替える。
+const MKT_DUR=24*3600e3, MKT_FEE=0.05, MKT_CAP=1.4, MKT_NPC=4;
+let mkt=store.get('mkt',{list:[],log:[]}); const saveMkt=()=>store.set('mkt',mkt);
+const mktStep=c=>Math.max(500,Math.round(c*0.05/100)*100);
+const mktCapOf=est=>Math.floor(est*MKT_CAP/100)*100;
+const mktHigh=L=>L.bids.length?L.bids[L.bids.length-1]:null;
+const mktMin=L=>{ const h=mktHigh(L); return h?h.amt+mktStep(h.amt):L.start; };
+const mktLeft=L=>{ const m=Math.max(0,L.ends-Date.now())/60e3; return m>=60?`残り${Math.floor(m/60)}時間${Math.floor(m%60)}分`:`残り${Math.ceil(m)}分`; };
+const mktHorse=L=>L.seller==='me'?stable.find(h=>h.id===L.horseId):L.horse;
+const NPC_NM1=['ネオ','クロム','ステラ','ギャラクシ','サイバー','ルミナ','ヴォルト','ノクス','アストラ','ゼニス','オーロラ','プリズム','ミラージュ','シリウス','ネビュラ'];
+const NPC_NM2=['ブレイヴ','ランナー','ファントム','ハート','クラウン','ストーム','ウイング','ドリーム','ソウル','フレア','ナイト','スター','アロー','エッジ','ロード'];
+function mktAI(L){ const R=rng(hash(L.id+'ai')), n=3+Math.floor(R()*3), ai=[];
+  for(let i=0;i<n;i++){ const who=OWNERS[Math.floor(R()*OWNERS.length)][0]; ai.push({who,val:Math.round(L.est*(0.7+R()*0.78)/100)*100,t:L.t0+(i===0?(5+R()*55)*60e3:R()*MKT_DUR),done:false}); }
+  return ai.sort((a,b)=>a.t-b.t); }
+function mktNpcHorse(R){ const S=ROSTER.filter(m=>m[1]==='牡'), D=ROSTER.filter(m=>m[1]==='牝');
+  const f=makeFoal(parentObj(S[Math.floor(R()*S.length)]),parentObj(D[Math.floor(R()*D.length)]),R);
+  f.id='m'+Date.now().toString(36)+Math.floor(R()*1e6); f.name=NPC_NM1[Math.floor(R()*NPC_NM1.length)]+NPC_NM2[Math.floor(R()*NPC_NM2.length)];
+  STATS_ALL.forEach(([k])=>f.st[k]=+(f.cap[k]*(0.82+R()*0.15)).toFixed(1)); f.st.hp=f.cap.hp;
+  const q=(avg5(f)-60)/35; f.age=5+Math.floor(R()*4); f.retired=true; f.races=8+Math.floor(R()*18); f.wins=Math.max(0,Math.round(f.races*clamp(q,0.05,0.6)*(0.6+R()*0.6)));
+  f.top3=Math.min(f.races,f.wins*2+Math.floor(R()*4)); f.gw=q>0.5?Math.floor(R()*4):0; f.g1w=f.gw&&q>0.7?Math.floor(R()*3):0; f.earn=f.wins*9000+f.gw*25000+f.g1w*70000; f.born='—'; return f; }
+function mktFill(){ const now=Date.now(); let open=mkt.list.filter(L=>L.status==='open'&&L.seller!=='me').length;
+  while(open<MKT_NPC){ const id='L'+now.toString(36)+Math.floor(Math.random()*1e5), R=rng(hash(id)), h=mktNpcHorse(R), est=horseValue(h);
+    const L={id,seller:OWNERS[Math.floor(R()*OWNERS.length)][0],horse:h,est,start:Math.max(1000,Math.round(est*(0.8+R()*0.45)/100)*100),buyout:mktCapOf(est),t0:now-Math.floor(R()*MKT_DUR*0.6),bids:[],status:'open'};
+    L.start=Math.min(L.start,L.buyout); L.ends=L.t0+MKT_DUR; L.ai=mktAI(L); mkt.list.push(L); open++; } }
+function mktTick(){ const now=Date.now(); let ch=false;
+  mkt.list.filter(L=>L.status==='open').forEach(L=>{
+    for(const a of L.ai){ if(a.done||a.t>now||a.t>L.ends||L.status!=='open') continue; a.done=true; ch=true; const hi=mktHigh(L); if(hi&&hi.who===a.who) continue;
+      if(a.val>=L.buyout){ mktOutbid(L); L.bids.push({who:a.who,amt:L.buyout,t:a.t}); mktClose(L,a.t); break; }
+      const mn=mktMin(L); if(a.val>=mn){ mktOutbid(L); L.bids.push({who:a.who,amt:Math.min(a.val,mn+mktStep(mn)*Math.floor(Math.random()*2)),t:a.t}); } }
+    if(L.status==='open'&&now>=L.ends){ mktClose(L,L.ends); ch=true; } });
+  const cut=now-3*86400e3; mkt.list=mkt.list.filter(L=>L.status==='open'||(L.closed||0)>cut||L.seller==='me'&&(L.closed||0)>cut);
+  if(ch) saveMkt(); return ch; }
+function mktOutbid(L){ const hi=mktHigh(L); if(hi&&hi.me){ setBal(balance+hi.amt); mkt.log.unshift(`${L.horse?L.horse.name:''}：他の馬主に競り負け、${fmt(hi.amt)} NOAを返金`); toast(`マーケット：${mktHorse(L)?.name||''} で競り負けました（${fmt(hi.amt)} NOA返金）`); } }
+function mktClose(L,t){ const hi=mktHigh(L); L.closed=t||Date.now();
+  if(L.seller==='me'){ const h=stable.find(x=>x.id===L.horseId);
+    if(hi){ L.status='sold'; const get=Math.round(hi.amt*(1-MKT_FEE)); setBal(balance+get); if(h){ stable=stable.filter(x=>x.id!==h.id); saveStable(); } L.snap=h?JSON.parse(JSON.stringify(h)):L.snap;
+      const m=`${h?h.name:'出品馬'} が ${hi.who} に ${fmt(hi.amt)} NOA で落札されました（手数料5%引き後 +${fmt(get)} NOA）`; mkt.log.unshift(m); toast('マーケット：'+m); }
+    else { L.status='expired'; if(h){ delete h.listed; saveStable(); } mkt.log.unshift(`${h?h.name:'出品馬'}：入札がなく出品期間が終了しました`); } }
+  else { if(hi&&hi.me){ L.status='won'; const h=JSON.parse(JSON.stringify(L.horse)); h.id='b'+Date.now().toString(36)+Math.floor(Math.random()*1e4); h.retired=true; h.bought={from:L.seller,price:hi.amt}; stable.push(h); saveStable();
+      const m=`${h.name} を ${fmt(hi.amt)} NOA で落札！ 引退馬として厩舎に加わりました`; mkt.log.unshift(m); toast('マーケット：'+m); }
+    else L.status=hi?'sold':'expired'; }
+  mkt.log=mkt.log.slice(0,20); saveMkt(); }
+function mktList(id){ const h=stable.find(x=>x.id===id); if(!h||!h.retired||h.listed) return; const est=horseValue(h), cap=mktCapOf(est);
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> ${h.name} をマーケットに出品</div>
+    <div class="sub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.age}歳・${h.races}戦${h.wins}勝　推定売却額 <b class="gold">${fmt(est)} NOA</b></div>
+    <label class="mk-in">開始価格 <input type="number" id="mkStart" min="1000" max="${cap}" step="100" value="${est}"> NOA</label>
+    <div class="hsub">・開始価格は推定売却額の140%（<b>${fmt(cap)} NOA</b>）まで<br>・<b>${fmt(cap)} NOA</b> 以上の入札が入るとその場で即落札<br>・出品期間は24時間。入札があれば最高額で落札、なければ手元に戻ります<br>・落札されると馬のデータごと落札者へ移籍します（手数料5%）<br>・出品中は閲覧のみで、配合・分解・売却はできません</div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="mkNo">やめる</button><button class="btn gold" id="mkYes">出品する</button></div>`;
+  $('#resModal').classList.add('on'); $('#mkNo').onclick=()=>$('#resModal').classList.remove('on');
+  $('#mkYes').onclick=()=>{ const v=Math.round(+$('#mkStart').value/100)*100; if(!(v>=1000)){ toast('開始価格は1,000 NOA以上にしてください'); return; } if(v>cap){ toast(`推定売却額の140%（${fmt(cap)} NOA）を超える金額は登録できません`); return; }
+    const now=Date.now(), L={id:'L'+now.toString(36)+Math.floor(Math.random()*1e5),seller:'me',horseId:h.id,name:h.name,est,start:v,buyout:cap,t0:now,ends:now+MKT_DUR,bids:[],status:'open'}; L.ai=mktAI(L);
+    mkt.list.push(L); h.listed=L.id; saveStable(); saveMkt(); $('#resModal').classList.remove('on'); toast(`${h.name} を ${fmt(v)} NOA から出品しました`); renderFarm(); }; }
+function mktCancel(lid){ const L=mkt.list.find(x=>x.id===lid); if(!L||L.status!=='open'||L.bids.length){ toast('入札が入っている出品は取り下げできません'); return; } L.status='cancel'; L.closed=Date.now(); const h=stable.find(x=>x.id===L.horseId); if(h) delete h.listed; saveStable(); saveMkt(); toast('出品を取り下げました'); renderFarm(); }
+function mktBid(lid,buy){ mktTick(); const L=mkt.list.find(x=>x.id===lid); if(!L||L.status!=='open'){ toast('このオークションは終了しました'); renderFarm(); return; } const h=L.horse, hi=mktHigh(L), mn=mktMin(L);
+  const place=amt=>{ const prev=mktHigh(L), refund=prev&&prev.me?prev.amt:0; if(balance+refund<amt){ toast('NOAが足りません'); return false; }
+    if(refund) setBal(balance+refund); setBal(balance-amt); L.bids.push({who:'あなた',me:true,amt,t:Date.now()}); if(amt>=L.buyout) mktClose(L); else saveMkt(); return true; };
+  if(buy){ if(place(L.buyout)){ $('#resModal').classList.remove('on'); renderFarm(); } return; }
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-hammer"></i> ${h.name} に入札</div><div class="sub">出品者 ${L.seller}・${mktLeft(L)}</div>
+    <div class="ownres">現在 <b class="gold">${hi?fmt(hi.amt)+' NOA（'+hi.who+'）':'入札なし'}</b>　最低入札額 <b>${fmt(mn)} NOA</b>　即落札 <b class="gold">${fmt(L.buyout)} NOA</b></div>
+    <label class="mk-in">入札額 <input type="number" id="mkBid" min="${mn}" step="100" value="${Math.min(mn,L.buyout)}"> NOA</label>
+    <div class="hsub">入札額は一時的に預かり、他の馬主に競り負けたら全額返金されます。即落札額以上なら、その場で落札です。</div>
+    <div class="wlog">${L.bids.slice(-6).reverse().map(b=>`${b.who}：${fmt(b.amt)} NOA`).join('<br>')||'まだ入札はありません'}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" id="mbNo">やめる</button><button class="btn" id="mbBuy">即落札 ${fmt(L.buyout)}</button><button class="btn gold" id="mbYes">入札する</button></div>`;
+  $('#resModal').classList.add('on'); $('#mbNo').onclick=()=>$('#resModal').classList.remove('on');
+  $('#mbBuy').onclick=()=>{ if(place(L.buyout)){ $('#resModal').classList.remove('on'); renderFarm(); } };
+  $('#mbYes').onclick=()=>{ let v=Math.round(+$('#mkBid').value/100)*100; if(!(v>=mn)){ toast(`${fmt(mn)} NOA以上で入札してください`); return; } v=Math.min(v,L.buyout); if(place(v)){ $('#resModal').classList.remove('on'); toast(v>=L.buyout?'即落札しました！':`${fmt(v)} NOA で入札しました`); renderFarm(); } }; }
+function viewHorse(h,sub){ if(!h) return;
+  $('#resBox').innerHTML=`<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px"><div>${rkBadge(h,true)} <span class="vo-tag"><i class="ic ic-lock"></i> 閲覧のみ</span></div><button class="btn" id="vhClose">✕ 閉じる</button></div>
+    <div class="art-big" style="--rc:${RK_COL[rkIdx(h)]}">${cardArt(h)}</div>
+    <div class="hname" style="font-size:18px">${attrChip(attrOf(h))} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''} <span class="hsub">${h.sex}・${h.age}歳・${h.coat}・${h.sex==='牡'?'種牡馬':'繁殖牝馬'}</span></div>
+    <div class="hsub">父 ${h.sire}（${h.line}）× 母 ${h.dam}　母父系 ${h.damLine||'—'}</div>${sub?`<div class="ownres">${sub}</div>`:''}
+    ${statGrid(h,true)}
+    <div class="hsub">距離 ${h.dMin}〜${h.dMax}m・脚質 ${STYLE_N[h.style]}・ダート ${aptMark(h.dirt??-2)}・道悪 ${aptMark(h.mud||0)}・体質 <b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b></div>
+    <div class="hsub">戦績 ${h.races}戦${h.wins}勝（重賞${h.gw||0}・G1 ${h.g1w||0}）　賞金 ${fmt(h.earn||0)} NOA${(h.skills||[]).length?`　特性 <span class="gold">${h.skills.join('・')}</span>`:''}</div>
+    <div class="sub" style="margin:10px 0 4px">血統</div>${pedTable(h)}`;
+  $('#resModal').classList.add('on'); $('#vhClose').onclick=()=>$('#resModal').classList.remove('on'); }
+function renderMarket(){ const el=$('#mktList'); if(!el) return; mktTick(); mktFill(); saveMkt();
+  const row=L=>{ const h=mktHorse(L); if(!h) return ''; const hi=mktHigh(L), mine=L.seller==='me', meHi=hi&&hi.me;
+    return `<div class="fcard mkt ${mine?'mine':''} ${meHi?'lead':''}"><div style="flex:1;min-width:0"><div>${rkBadge(h)} ${attrChip(attrOf(h),true)} <b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.age}歳・${h.races}戦${h.wins}勝${h.g1w?`・G1 ${h.g1w}勝`:''}</span></div>
+      <div class="hsub">${mine?'<b class="gold">あなたの出品</b>':`出品者 ${L.seller}`}・推定 ${fmt(L.est)}・${mktLeft(L)}</div>
+      <div class="hsub">現在 <b class="${meHi?'plus':'gold'}">${hi?fmt(hi.amt)+(meHi?'（あなたが最高額）':'（'+hi.who+'）'):'入札なし（開始 '+fmt(L.start)+'）'}</b>　即落札 ${fmt(L.buyout)}</div></div>
+      <div class="mk-act"><button class="btn sm" data-mkv="${L.id}">詳細</button>${mine?(L.bids.length?'':`<button class="btn sm" data-mkc="${L.id}">取り下げ</button>`):`<button class="btn sm gold" data-mkb="${L.id}">入札</button>`}</div></div>`; };
+  const open=mkt.list.filter(L=>L.status==='open').sort((a,b)=>(b.seller==='me')-(a.seller==='me')||a.ends-b.ends);
+  el.innerHTML=(open.length?open.map(row).join(''):'<span class="hsub">出品はありません</span>')+(mkt.log.length?`<div class="wlog" style="margin-top:8px">${mkt.log.slice(0,5).join('<br>')}</div>`:'');
+  el.querySelectorAll('[data-mkv]').forEach(b=>b.onclick=()=>{ const L=mkt.list.find(x=>x.id===b.dataset.mkv); viewHorse(mktHorse(L),`推定売却額 ${fmt(L.est)} NOA・開始 ${fmt(L.start)}・即落札 ${fmt(L.buyout)} NOA・${mktLeft(L)}`); });
+  el.querySelectorAll('[data-mkb]').forEach(b=>b.onclick=()=>mktBid(b.dataset.mkb));
+  el.querySelectorAll('[data-mkc]').forEach(b=>b.onclick=()=>mktCancel(b.dataset.mkc)); }
+setInterval(()=>{ try{ if(mktTick()&&document.body.dataset.scr==='s-farm') renderFarm(); }catch(e){} },30000);
+
 loginBonus(); updRescue(); setTimeout(settleAll,1500); setInterval(()=>{ try{ settleAll(); }catch(e){} },30000);
 
 renderList();
