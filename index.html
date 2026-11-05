@@ -1551,7 +1551,7 @@ function buildWorld(){
   const hexT=CYB.hex||(CYB.hex=canvasTex(256,222,(c,w,h)=>{ c.fillStyle='#0a1330'; c.fillRect(0,0,w,h); c.strokeStyle='rgba(120,160,255,.35)'; c.lineWidth=2; const r=37; for(let row=-1;row<4;row++) for(let col=-1;col<5;col++){ const x=col*r*1.5*1.155+(row%2?r*0.866:0)*0, X=col*64+(row%2?32:0), Y=row*55.5; c.beginPath(); for(let k=0;k<6;k++){ const a=Math.PI/6+k*Math.PI/3; c.lineTo(X+Math.cos(a)*r,Y+Math.sin(a)*r); } c.closePath(); c.stroke(); } }));
   const ht=hexT.clone(); ht.needsUpdate=true; ht.wrapS=ht.wrapT=THREE.RepeatWrapping;
   const ig=flatGeo(add=>{ for(let s=0;s<G.C;s+=6){ const a=V3(s,-24,0.02), b=V3(s+6.1,-24,0.02), c=[cx,0.02,-cz]; [c,a,b].forEach(p=>add(p,[p[0]/14,p[2]/14],[1,1,1])); } });
-  const inf=new THREE.Mesh(ig,new THREE.MeshStandardMaterial({map:ht,emissive:0x0a1440,emissiveMap:ht,emissiveIntensity:1,roughness:0.5,metalness:0.3,side:THREE.DoubleSide})); inf.receiveShadow=true; sc.add(inf);
+  const inf=new THREE.Mesh(ig,new THREE.MeshStandardMaterial({map:ht,emissive:0x0a1440,emissiveMap:ht,emissiveIntensity:1,roughness:0.5,metalness:0.3,side:THREE.DoubleSide})); inf.receiveShadow=true; sc.add(inf); T.infMesh=inf;
   // 内馬場のホログラム・リング
   const ringM=(col,op)=>new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false,fog:false});
   const hr=new THREE.Mesh(new THREE.TorusGeometry(1,0.012,6,96),ringM(0x4db8ff,0.9)); hr.rotation.x=Math.PI/2; hr.scale.set(G.r*0.55,G.r*0.55,G.r*0.55); hr.position.set(cx,0.3,-cz); sc.add(hr);
@@ -1562,7 +1562,7 @@ function buildWorld(){
   // ダート（夜間照明で暗め）
   const dm=new THREE.Mesh(ring(-24,-4,0.03,4,5),new THREE.MeshLambertMaterial({map:A.dirt,color:0xb4a8c4,emissive:0x0c0a1a,side:THREE.DoubleSide})); dm.receiveShadow=true; sc.add(dm);
   // 芝（ナイター照明の色）
-  const tm=new THREE.Mesh(ring(0,27,0.04,4,5,s=>Math.floor(s/12)%2?[0.78,0.95,1.0]:[0.92,1.08,1.12]),new THREE.MeshLambertMaterial({map:A.grass,vertexColors:true,color:0xbfe8d8,emissive:0x02120e,side:THREE.DoubleSide})); tm.receiveShadow=true; sc.add(tm);
+  const tm=new THREE.Mesh(ring(0,27,0.04,4,5,s=>Math.floor(s/12)%2?[0.78,0.95,1.0]:[0.92,1.08,1.12]),new THREE.MeshLambertMaterial({map:A.grass,vertexColors:true,color:0xbfe8d8,emissive:0x02120e,side:THREE.DoubleSide})); tm.receiveShadow=true; sc.add(tm); T.turfMesh=tm; T.dirtMesh=dm;
   // コース縁のネオンライン
   const edge=(off,col)=>{ const g=flatGeo(add=>{ for(let s=0;s<G.C;s+=4){ const s2=s+4.02, a=V3(s,off-0.3,0.07),b=V3(s2,off-0.3,0.07),c=V3(s2,off+0.3,0.07),d=V3(s,off+0.3,0.07); [a,b,c,a,c,d].forEach(p=>add(p,[0,0],[1,1,1])); } }); sc.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide,fog:false}))); };
   edge(0.2,0x4db8ff); edge(26.8,0xa77bff); edge(-23.8,0x4db8ff); edge(-4.2,0x6d7bff);
@@ -1881,7 +1881,7 @@ function showResults(){
     if(hk>=0&&b.odds[hk]>=100) unlock('manba');
     const ot = b.mode!=='normal'? `${b.combos.length}点${hk>=0?`（${b.odds[hk].toFixed(1)}倍）`:''}` : b.odds[0].toFixed(1)+'倍';
     return `<tr><td>${labelItem(b)}</td><td class="num">${ot}</td><td class="num">${fmt(cost)}</td><td class="num ${pay?'hit':'miss'}">${pay?'的中 '+fmt(pay):'—'}</td></tr>`; }).join('');
-  setBal(balance+ret);
+  const tax=bigWinTax(ret); ret-=tax; setBal(balance+ret);
   // 自分の馬
   let ownMsg=''; const oh=hs.find(h=>h.own);
   if(RACE.weekly){ cal.done[RACE.id]=hs[ord[0]].name; saveCal(); }
@@ -1920,7 +1920,7 @@ function showResults(){
     <div class="sub" style="margin:0">${rTitle()}　${RACE.venue}${RACE.surface}${RACE.dist}m・${RACE.going}</div>
     <div class="win"><i class="ic ic-trophy"></i> ${w.name}　<span style="font-size:16px;color:var(--muted)">${w.jockey}／${w.pop}番人気</span></div>
     ${ownMsg}
-    ${slip.length?`<div class="res-sum"><div>購入<b>${fmt(spent)}</b></div><div>払戻<b>${fmt(ret)}</b></div><div>収支<b class="${diff>=0?'plus':'minus'}">${diff>=0?'+':''}${fmt(diff)}</b></div><div>残高<b>${fmt(balance)}</b></div></div>
+    ${slip.length?`<div class="res-sum"><div>購入<b>${fmt(spent)}</b></div><div>払戻<b>${fmt(ret)}</b>${tax?`<small class="bad" style="display:block;font-size:10px">高額配当納付 -${fmt(tax)}</small>`:''}</div><div>収支<b class="${diff>=0?'plus':'minus'}">${diff>=0?'+':''}${fmt(diff)}</b></div><div>残高<b>${fmt(balance)}</b></div></div>
     <div class="tblwrap"><table><thead><tr><th>馬券</th><th class="num">オッズ</th><th class="num">購入</th><th class="num">結果</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="sub">馬券なし</div>'}
     <h3 style="margin:18px 0 6px">着順</h3>
     <div class="tblwrap"><table><thead><tr><th>着</th><th>枠</th><th>馬番</th><th>馬名</th><th>騎手</th><th class="num">タイム</th><th class="num">着差</th><th class="num">単勝</th><th class="num">人気</th></tr></thead><tbody>${resRows}</tbody></table></div>
@@ -2753,6 +2753,91 @@ function raceTheme(R){ if(R._theme) return R._theme; let t;
 function gradTex(stops,stars){ return canvasTex(1024,512,(c,w,h)=>{ const g=c.createLinearGradient(0,0,0,h); stops.forEach(([o,col])=>g.addColorStop(o,col)); c.fillStyle=g; c.fillRect(0,0,w,h);
   if(stars){ const R=rng(41); for(let i=0;i<stars;i++){ const y=R()*h*0.75, a=0.3+R()*0.7*(1-y/h); c.fillStyle=`rgba(${200+R()*55|0},${210+R()*45|0},255,${a})`; const s=R()<0.05?2:R()*1.2+0.3; c.fillRect(R()*w,y,s,s); } } }); }
 function eqBg(t){ t.mapping=THREE.EquirectangularReflectionMapping; return t; }
+// ---------------------------------------------------------------- 宇宙会場（惑星の地平線・恒星フレア・星雲）
+const SPACE_TEX={};
+function noise2(seed){ const P=new Uint8Array(512), R=rng(seed); const p=[...Array(256).keys()]; for(let i=255;i>0;i--){ const j=Math.floor(R()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; } for(let i=0;i<512;i++) P[i]=p[i&255];
+  const G=[]; for(let i=0;i<256;i++){ const a=R()*6.2832; G.push([Math.cos(a),Math.sin(a)]); } const f=t=>t*t*t*(t*(t*6-15)+10);
+  return (x,y,wrap)=>{ let X=Math.floor(x), Y=Math.floor(y); const xf=x-X, yf=y-Y; const w=wrap||256; const g=(i,j)=>G[P[(P[((i%w)+w)%w&255]+(j&255))&511]];
+    const d=(gx,gy,dx,dy)=>gx*dx+gy*dy; const a=g(X,Y),b=g(X+1,Y),c=g(X,Y+1),e=g(X+1,Y+1);
+    const u=f(xf),v=f(yf); const x1=d(a[0],a[1],xf,yf)*(1-u)+d(b[0],b[1],xf-1,yf)*u, x2=d(c[0],c[1],xf,yf-1)*(1-u)+d(e[0],e[1],xf-1,yf-1)*u; return x1*(1-v)+x2*v; }; }
+function planetTex(seed,W,H,pal){ const k=seed+'|'+W+'|'+(pal.k||''); if(SPACE_TEX[k]) return SPACE_TEX[k];
+  const n=noise2(seed), n2=noise2(seed+7), c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d'), im=x.createImageData(W,H), L=document.createElement('canvas'); L.width=W; L.height=H; const lx=L.getContext('2d'), li=lx.createImageData(W,H);
+  const per=8, fb=(u,v,o,nn)=>{ let s=0,a=0.5,f=1; for(let i=0;i<o;i++){ s+=a*nn(u*f,v*f,per*f); a*=0.5; f*=2; } return s; };
+  for(let j=0;j<H;j++){ const v=j/H*per/2, lat=Math.abs(j/H-0.5)*2; for(let i=0;i<W;i++){ const u=i/W*per; const h=fb(u,v,6,n)+(pal.land?0:-1), cl=fb(u*1.6+3,v*2.4,5,n2), o=(j*W+i)*4;
+      let r,g,b; if(h>0.04){ const t=Math.min(1,(h-0.04)*3.2); r=pal.land[0]+(pal.land2[0]-pal.land[0])*t; g=pal.land[1]+(pal.land2[1]-pal.land[1])*t; b=pal.land[2]+(pal.land2[2]-pal.land[2])*t; }
+      else { const t=Math.min(1,Math.max(0,(0.04-h)*3)); r=pal.sea[0]*(1-t*0.5); g=pal.sea[1]*(1-t*0.45); b=pal.sea[2]*(1-t*0.3); }
+      if(lat>0.86){ const t=(lat-0.86)/0.14; r+= (235-r)*t; g+=(245-g)*t; b+=(255-b)*t; }
+      const cv=Math.max(0,cl-0.02)*2.6; const ca=Math.min(0.92,cv); r=r+(250-r)*ca; g=g+(252-g)*ca; b=b+(255-b)*ca;
+      im.data[o]=r; im.data[o+1]=g; im.data[o+2]=b; im.data[o+3]=255;
+      const dens=Math.max(0,n(u*6+5,v*6,per*6)+0.1); const city=h>0.05&&lat<0.8&&Math.random()<dens*0.35&&n(u*70,v*70,per*70)>0.05?1:0; const lv=city*(1-ca*0.8)*(120+Math.random()*135);
+      li.data[o]=lv; li.data[o+1]=lv*0.78; li.data[o+2]=lv*0.45; li.data[o+3]=255; } }
+  x.putImageData(im,0,0); lx.putImageData(li,0,0); const T1=new THREE.CanvasTexture(c), T2=new THREE.CanvasTexture(L); [T1,T2].forEach(t=>{ t.encoding=THREE.sRGBEncoding; t.anisotropy=4; });
+  return SPACE_TEX[k]=[T1,T2]; }
+function spaceSky(){ if(SPACE_TEX.sky) return SPACE_TEX.sky; const W=2048,H=1024, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#010208'); g.addColorStop(.35,'#020a1a'); g.addColorStop(.5,'#04182c'); g.addColorStop(.62,'#031020'); g.addColorStop(1,'#010206'); x.fillStyle=g; x.fillRect(0,0,W,H);
+  const n=noise2(77), n2=noise2(91), w=512, h=256, nc=document.createElement('canvas'); nc.width=w; nc.height=h; const nx=nc.getContext('2d'), im=nx.createImageData(w,h);
+  for(let j=0;j<h;j++){ for(let i=0;i<w;i++){ const u=i/w*6, v=j/h*3; let s=0,a=.5,f=1; for(let o=0;o<5;o++){ s+=a*n(u*f,v*f,6*f); a*=.5; f*=2; } const band=Math.exp(-Math.pow((j/h-0.33)*4.2,2));
+      const d=Math.max(0,s+0.15)*band, e=Math.max(0,n2(u*2,v*2,12)+.1)*band, o=(j*w+i)*4; im.data[o]=d*40+e*25; im.data[o+1]=d*150+e*90; im.data[o+2]=d*210+e*150; im.data[o+3]=255; } }
+  nx.putImageData(im,0,0); x.globalCompositeOperation='lighter'; x.imageSmoothingEnabled=true; x.drawImage(nc,0,0,W,H); x.globalCompositeOperation='source-over'; const R=rng(13);
+  for(let i=0;i<9000;i++){ const yy=R()*H*0.72, a=0.25+R()*0.6, sz=R()<0.04?1.6:R()*0.9+0.3; x.fillStyle=`rgba(${190+R()*65|0},${215+R()*40|0},255,${a})`; x.fillRect(R()*W,yy,sz,sz); }
+  for(let i=0;i<140;i++){ const px=R()*W, py=R()*H*0.7, r=2+R()*5, gg=x.createRadialGradient(px,py,0,px,py,r*3); gg.addColorStop(0,'rgba(220,240,255,.95)'); gg.addColorStop(.3,'rgba(120,200,255,.35)'); gg.addColorStop(1,'rgba(80,160,255,0)'); x.fillStyle=gg; x.fillRect(px-r*3,py-r*3,r*6,r*6); }
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; t.mapping=THREE.EquirectangularReflectionMapping; return SPACE_TEX.sky=t; }
+function atmoMat(col,pow,str){ return new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color(col)},p:{value:pow},s:{value:str}},transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.BackSide,fog:false,
+  vertexShader:'varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+  fragmentShader:'uniform vec3 c;uniform float p;uniform float s;varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.0-abs(dot(vN,vV)),p);gl_FragColor=vec4(c*f*s,f*s);}'}); }
+function planetMat(tex,lights,sunDir,amb){ return new THREE.ShaderMaterial({uniforms:{map:{value:tex},lights:{value:lights},sd:{value:sunDir.clone().normalize()},atm:{value:new THREE.Color(0x5ac8ff)},amb:{value:amb||0.04}},fog:false,
+  vertexShader:'varying vec2 vU;varying vec3 vW;varying vec3 vN;void main(){vU=uv;vN=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
+  fragmentShader:'uniform sampler2D map;uniform sampler2D lights;uniform vec3 sd;uniform vec3 atm;uniform float amb;varying vec2 vU;varying vec3 vW;varying vec3 vN;void main(){vec3 n=normalize(vN);float l=dot(n,sd);float day=smoothstep(-0.12,0.25,l);vec3 col=texture2D(map,vU).rgb;vec3 v=normalize(cameraPosition-vW);float fr=pow(1.0-max(dot(n,v),0.0),2.5);vec3 c=col*(amb+1.15*max(l,0.0))*max(day,amb*2.0)+texture2D(lights,vU).rgb*(1.0-day)*1.4+atm*fr*(0.25+0.9*smoothstep(-0.3,0.4,l));gl_FragColor=vec4(c,1.0);}'}); }
+function spaceTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  sc.background=spaceSky(); sc.fog=new THREE.Fog(0x031428,2600,9000);
+  const C=new THREE.Vector3(cx,0,-cz);
+  // 恒星：コースの正面奥（直線の先）
+  const starPos=new THREE.Vector3(cx+400,620,-cz-5200), sunDir=starPos.clone().sub(C).normalize();
+  // 下の惑星（地平線）
+  const [t1,l1]=planetTex(311,1024,512,{k:'low',sea:[34,96,178],land:[70,128,96],land2:[176,160,120]});
+  const PR=9000, low=add(new THREE.Mesh(new THREE.SphereGeometry(PR,128,80),planetMat(t1,l1,sunDir,0.75))); low.position.set(cx,-PR-140,-cz); low.rotation.set(Math.PI/2,0,0.3);
+  if(T.infMesh) T.infMesh.visible=false; (T.cyRings||[]).forEach(r=>r.visible=false);
+  // 主役の背景（恒星・大きな惑星・衛星）はカメラの向きにゆっくり追従させ、どのカメラでも画面に入るようにする
+  const hero=new THREE.Group(); add(hero); const heroAdd=o=>{ hero.add(o); return o; };
+  const la=add(new THREE.Mesh(new THREE.SphereGeometry(PR+70,128,80),atmoMat(0x3ab8ff,6.0,0.9))); la.position.copy(low.position);
+  // 上の大きな惑星（左上）＋衛星
+  const [t2,l2]=planetTex(522,1024,512,{k:'big',sea:[14,40,96],land:[60,86,96],land2:[120,140,150]});
+  const LS=new THREE.Vector3(650,520,-5200), bp=new THREE.Vector3(-1700,980,-4700), mp=new THREE.Vector3(-650,430,-3900);
+  const big=heroAdd(new THREE.Mesh(new THREE.SphereGeometry(1150,72,48),planetMat(t2,l2,LS.clone().sub(bp),0.06))); big.position.copy(bp); big.rotation.set(0.25,2.4,0.1);
+  const ba=heroAdd(new THREE.Mesh(new THREE.SphereGeometry(1150*1.05,72,48),atmoMat(0x6ad0ff,3.2,1.3))); ba.position.copy(bp);
+  const moon=heroAdd(new THREE.Mesh(new THREE.SphereGeometry(230,48,32),planetMat(planetTex(733,512,256,{k:'moon',sea:[70,74,84],land:[96,100,108],land2:[150,150,156]})[0],l1,LS.clone().sub(mp)))); moon.position.copy(mp);
+  // 恒星のフレア（核・光輪・十字の光芒）
+  const streak=CYB.streak||(CYB.streak=canvasTex(512,32,(c,w,h)=>{ const g=c.createLinearGradient(0,0,w,0); g.addColorStop(0,'rgba(120,200,255,0)'); g.addColorStop(.5,'rgba(235,248,255,1)'); g.addColorStop(1,'rgba(120,200,255,0)'); c.fillStyle=g; const gy=c.createLinearGradient(0,0,0,h); c.fillRect(0,h*0.42,w,h*0.16); }));
+  const sp=(map,sx,sy,col,op,rot)=>{ const m=new THREE.Sprite(new THREE.SpriteMaterial({map,color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:true,fog:false,rotation:rot||0})); m.position.copy(LS); m.scale.set(sx,sy,1); m.renderOrder=5; return heroAdd(m); };
+  const core=sp(CYB.glow,420,420,0xffffff,1), halo=sp(CYB.glow,1500,1500,0x5ab8ff,.6), halo2=sp(CYB.glow,3200,3200,0x1a5aa8,.25);
+  const sh=sp(streak,7200,180,0xdff4ff,.95,0), sv=sp(streak,3800,140,0xbfe6ff,.8,Math.PI/2), sd1=sp(streak,2400,90,0x9fd8ff,.45,Math.PI/4), sd2=sp(streak,2400,90,0x9fd8ff,.45,-Math.PI/4);
+  const key=new THREE.DirectionalLight(0xbfe6ff,0.55); key.position.copy(starPos); key.target.position.copy(C); sc.add(key); sc.add(key.target); let yaw=null; const wS=new THREE.Vector3(), wP=new THREE.Vector3();
+  // 瞬く明るい星
+  const tw=[]; for(let i=0;i<60;i++){ const a=R()*6.283, e=0.15+R()*0.9, d=7000; const s=glowSprite(cx+Math.cos(a)*Math.cos(e)*d,Math.sin(e)*d*0.8,-cz+Math.sin(a)*Math.cos(e)*d,40+R()*70,new THREE.Color().setHSL(0.56+R()*0.06,0.6,0.85),.8); tw.push({s,ph:R()*6,sp:1+R()*3,b:s.scale.x}); }
+  // 宇宙の塵（カメラの周り）
+  const dn=900, dg=new THREE.BufferGeometry(), da=new Float32Array(dn*3); for(let i=0;i<dn;i++){ da[i*3]=(R()-.5)*300; da[i*3+1]=R()*80; da[i*3+2]=(R()-.5)*300; } dg.setAttribute('position',new THREE.BufferAttribute(da,3));
+  const dust=add(new THREE.Points(dg,new THREE.PointsMaterial({map:CYB.glow,color:0x9fd8ff,size:0.7,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})));
+  // ガラスの軌道コース
+  if(T.turfMesh){ T.turfMesh.material=new THREE.MeshStandardMaterial({color:0x0a2a48,metalness:0.92,roughness:0.12,envMap:sc.background,envMapIntensity:1.4,transparent:true,opacity:0.6,emissive:0x05304a,emissiveIntensity:0.6,side:THREE.DoubleSide,
+    emissiveMap:CYB.lane||(CYB.lane=canvasTex(256,256,(c,w,h)=>{ c.fillStyle='#000'; c.fillRect(0,0,w,h); c.strokeStyle='rgba(90,200,255,.55)'; c.lineWidth=2; for(let i=0;i<=w;i+=32){ c.beginPath(); c.moveTo(i,0); c.lineTo(i,h); c.stroke(); } c.strokeStyle='rgba(90,200,255,.18)'; for(let j=0;j<=h;j+=64){ c.beginPath(); c.moveTo(0,j); c.lineTo(w,j); c.stroke(); } }))});
+    T.turfMesh.material.emissiveMap.wrapS=T.turfMesh.material.emissiveMap.wrapT=THREE.RepeatWrapping; }
+  if(T.dirtMesh) T.dirtMesh.material=new THREE.MeshStandardMaterial({color:0x14102a,metalness:0.9,roughness:0.18,envMap:sc.background,envMapIntensity:1.1,transparent:true,opacity:0.62,emissive:0x1a0a3a,emissiveIntensity:0.5,side:THREE.DoubleSide});
+  // コースの下面ライン（地平線の上に浮いて見えるように）
+  const ul=[]; for(let s=0;s<G.C;s+=18){ const p=V3(s,13,0); ul.push({p:[p[0],-5,p[2]],s:[1.2,1.2,1.2],c:new THREE.Color(0x5ad0ff)}); } add(inst(new THREE.SphereGeometry(1,8,6),new THREE.MeshBasicMaterial({color:0xffffff}),ul,false));
+  // 遠くを行き交う宇宙船（2機）
+  const ships=[0,1].map(i=>{ const g=new THREE.Group(); const hull=new THREE.Mesh(new THREE.CylinderGeometry(2,2.6,12,10),new THREE.MeshStandardMaterial({color:0xc8d4ee,metalness:.8,roughness:.3})); hull.rotation.z=Math.PI/2; g.add(hull);
+    const tr=new THREE.Sprite(new THREE.SpriteMaterial({map:CYB.glow,color:0x5ad0ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})); tr.scale.set(22,9,1); tr.position.x=-8; g.add(tr); return {g:add(g),r:RB+200+i*260,h:90+i*70,sp:(0.04+i*0.02)*(i%2?-1:1),ph:i*2.2}; });
+  const cam=new THREE.Vector3(), dir=new THREE.Vector3(), toS=new THREE.Vector3();
+  ticks.push((dt,S)=>{ big.rotation.y+=dt*0.004; low.rotation.z+=dt*0.0015; moon.rotation.y+=dt*0.01;
+    const c0=T.cam; if(c0){ c0.getWorldPosition(cam); c0.getWorldDirection(dir); const ty=Math.atan2(-dir.x,-dir.z); if(yaw==null) yaw=ty; let dy=ty-yaw; dy=Math.atan2(Math.sin(dy),Math.cos(dy)); yaw+=dy*Math.min(1,dt*0.8);
+      hero.position.copy(cam); hero.rotation.set(0,yaw,0); hero.updateMatrixWorld(); wS.copy(LS).applyMatrix4(hero.matrixWorld);
+      [[big,bp],[moon,mp]].forEach(([m,p])=>{ wP.copy(p).applyMatrix4(hero.matrixWorld); m.material.uniforms.sd.value.copy(wS).sub(wP).normalize(); });
+      low.material.uniforms.sd.value.copy(wS).sub(C).normalize(); key.position.copy(wS); toS.copy(wS).sub(cam).normalize(); const f=Math.max(0,dir.dot(toS)), k=Math.pow(f,6);
+      sh.material.opacity=.35+.65*k; sv.material.opacity=.25+.6*k; sd1.material.opacity=sd2.material.opacity=.1+.4*k; halo.material.opacity=.35+.35*k; const fl=1+Math.sin(S.rt*7)*0.02; core.scale.set(420*fl,420*fl,1);
+      dust.position.set(cam.x,0,cam.z); }
+    tw.forEach(t=>{ const v=t.b*(0.7+0.3*Math.sin(S.rt*t.sp+t.ph)); t.s.scale.set(v,v,1); });
+    ships.forEach(o=>{ o.ph+=dt*o.sp; const x=cx+Math.cos(o.ph)*o.r, z=-cz+Math.sin(o.ph)*o.r; o.g.position.set(x,o.h+Math.sin(o.ph*3)*10,z); o.g.rotation.y=-o.ph+(o.sp>0?-Math.PI/2:Math.PI/2); }); });
+  o.meteors(true); }
 function applyTheme(sc){ const th=raceTheme(RACE); T.themeTick=null; T.theme=th; let cx=G.Lt/2; if(G.mirror) cx=-cx; const cz=G.r;
   const hide=l=>sc.children.forEach(o=>{ if(o.userData.layer===l) o.visible=false; });
   const add=o=>{ sc.add(o); return o; }, ticks=[];
@@ -2775,23 +2860,7 @@ function applyTheme(sc){ const th=raceTheme(RACE); T.themeTick=null; T.theme=th;
   ticks.push((dt,S,rk)=>{ if(!rk||!rk[0]||!rk[0].obj) return; drones.forEach((d,i)=>{ const h=rk[Math.min(i*2,rk.length-1)].obj.root.position, t=S.rt; const tx=h.x+Math.sin(t*0.7+i)*6, ty=9+i*3+Math.sin(t*1.3+i)*1.5, tz=h.z+Math.cos(t*0.6+i*2)*6;
     d.position.x+= (tx-d.position.x)*Math.min(1,dt*2); d.position.y+=(ty-d.position.y)*Math.min(1,dt*2); d.position.z+=(tz-d.position.z)*Math.min(1,dt*2); d.rotation.y+=dt*2; }); });
   if(th==='city'){ meteors(true); }
-  if(th==='space'){ hide('city'); hide('moon'); hide('ground');
-    sc.background=eqBg(gradTex([[0,'#000004'],[.4,'#05041a'],[.62,'#1a0c3a'],[.75,'#0a0820'],[1,'#000004']],1400)); sc.fog=new THREE.Fog(0x05041a,1400,6000);
-    stars(1500);
-    const nb=add(new THREE.Mesh(new THREE.PlaneGeometry(3000,1500),new THREE.MeshBasicMaterial({map:canvasTex(512,256,(c,w,h)=>{ const RR=rng(5); [['255,90,216',.35],['77,184,255',.35],['167,123,255',.3]].forEach(([col,a])=>{ for(let i=0;i<6;i++){ const x=RR()*w,y=RR()*h,r=40+RR()*90, g=c.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,`rgba(${col},${a})`); g.addColorStop(1,`rgba(${col},0)`); c.fillStyle=g; c.fillRect(0,0,w,h); } }); }),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})));
-    nb.position.set(cx+300,500,-cz-2600); nb.lookAt(cx,0,-cz);
-    const p1=planet(cx-1500,420,-cz-2200,380,'#7a5cff','#1a0c4a',true), p2=planet(cx+1700,160,-cz+1400,180,'#4db8ff','#0a2a5a',false); planet(cx+900,700,-cz-2600,90,'#ff9a6a','#5a1a2a',false);
-    // 小惑星帯
-    const ast=new THREE.Group(); add(ast); const al=[]; for(let i=0;i<140;i++){ const a=R()*6.283, d=RB+R()*500; al.push({p:[Math.cos(a)*d,(R()-.5)*160-30,Math.sin(a)*d],s:[3+R()*14,3+R()*12,3+R()*14],ry:R()*6,c:new THREE.Color(0x5a5f78)}); }
-    ast.add(inst(new THREE.IcosahedronGeometry(1,0),new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:.9}),al,false)); ast.position.set(cx,0,-cz);
-    // 浮遊コースの下面ライト
-    const ul=[]; for(let s=0;s<G.C;s+=25){ const p=V3(s,13,0); ul.push({p:[p[0],-6,p[2]],s:[1.5,1.5,1.5],c:new THREE.Color(0x4db8ff)}); } add(inst(new THREE.SphereGeometry(1,8,6),new THREE.MeshBasicMaterial({color:0xffffff}),ul,false));
-    // 宇宙船
-    const ships=[0,1,2,3].map(i=>{ const g=new THREE.Group(); const hull=new THREE.Mesh(new THREE.CylinderGeometry(2,2.6,12,10),new THREE.MeshStandardMaterial({color:0xc8d4ee,metalness:.8,roughness:.3})); hull.rotation.z=Math.PI/2; g.add(hull);
-      const wing=new THREE.Mesh(new THREE.BoxGeometry(6,.4,14),new THREE.MeshStandardMaterial({color:0x2a3354,metalness:.7})); g.add(wing);
-      const tr=new THREE.Sprite(new THREE.SpriteMaterial({map:CYB.glow,color:i%2?0xff5ad8:0x4db8ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})); tr.scale.set(18,8,1); tr.position.x=-8; g.add(tr); return {g:add(g),r:RB+i*160,h:60+i*45,sp:(0.05+i*0.02)*(i%2?-1:1),ph:i*1.6}; });
-    ticks.push((dt,S)=>{ ast.rotation.y+=dt*0.01; p1.rotation.y+=dt*0.02; ships.forEach(o=>{ o.ph+=dt*o.sp; const x=cx+Math.cos(o.ph)*o.r, z=-cz+Math.sin(o.ph)*o.r; o.g.position.set(x,o.h+Math.sin(o.ph*3)*10,z); o.g.rotation.y=-o.ph+(o.sp>0?-Math.PI/2:Math.PI/2); }); });
-    meteors(true); }
+  if(th==='space'){ hide('city'); hide('moon'); hide('ground'); spaceTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
   if(th==='moon'){ hide('city'); hide('moon'); sc.background=eqBg(gradTex([[0,'#000002'],[.6,'#05061a'],[.8,'#0a0d24'],[1,'#000']],1600)); sc.fog=new THREE.Fog(0x07081a,900,5000);
     sc.children.forEach(o=>{ if(o.userData.layer==='ground'){ o.material=new THREE.MeshLambertMaterial({map:canvasTex(256,256,(c,w,h)=>{ c.fillStyle='#6b6e7a'; c.fillRect(0,0,w,h); const RR=rng(9); for(let i=0;i<500;i++){ c.fillStyle=`rgba(${RR()<.5?30:200},${RR()<.5?30:200},${RR()<.5?40:210},${RR()*0.12})`; c.beginPath(); c.arc(RR()*w,RR()*h,RR()*10,0,7); c.fill(); } }),color:0x9a9cab}); o.material.map.wrapS=o.material.map.wrapT=THREE.RepeatWrapping; o.material.map.repeat.set(300,300); } });
     stars(1600); const dome=[]; for(let k=0;k<14;k++){ const a=R()*6.283, d=RB+R()*400; dome.push({p:[cx+Math.cos(a)*d,0,-cz+Math.sin(a)*d],s:[30+R()*40,20+R()*30,30+R()*40],c:new THREE.Color(0x8fd3ff)}); }
@@ -3233,6 +3302,10 @@ function onlineWatch(key,live){ const sp=onlineSpec(key), t=Date.now();
 function openOnline(){ renderOnline(); show('s-online'); }
 // ---- 経済：ログインボーナス・再起支援 ----
 function jstDay(){ const d=jstNow(); return d.toISOString().slice(0,10); }
+// 高額配当の納付（オンライン経済のときのみ）：1レースの払戻のうち、10万超〜50万は10%・50万超〜100万は20%・100万超は30%をマスターへ
+const BIGWIN=[[100000,0.1],[500000,0.2],[1000000,0.3]];
+function bigWinTax(ret){ if(!(window.NET&&NET.on)||ret<=BIGWIN[0][0]) return 0; let t=0; BIGWIN.forEach(([th,r],i)=>{ const top=BIGWIN[i+1]?BIGWIN[i+1][0]:Infinity; if(ret>th) t+=(Math.min(ret,top)-th)*r; }); t=Math.floor(t);
+  if(t) setTimeout(()=>toast(`高額配当のため ${fmt(t)} NOA をマスターに納めました（手取り ${fmt(ret-t)} NOA）`),800); return t; }
 function prizeMult(){ return window.NET&&NET.on?NET.mult:1; }
 function loginBonus(){ const d=jstDay(); if(store.get('loginDay','')===d) return; store.set('loginDay',d); const m=prizeMult(); if(m<=0.4){ setTimeout(()=>toast('マスターの残高が少ないため、今日のログインボーナスはお休みです'),1200); return; } const v=Math.round(3000*m); setBal(balance+v); setTimeout(()=>toast(`ログインボーナス +${fmt(v)} NOA`),1200); }
 function rescueOK(){ return balance<5000 && Date.now()-store.get('rescueAt',0)>7*86400e3; }

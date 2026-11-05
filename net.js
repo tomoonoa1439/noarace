@@ -13,7 +13,6 @@
 (function(){
 const db=firebase.firestore(), FV=firebase.firestore.FieldValue, inc=n=>FV.increment(Math.round(n));
 const TOTAL=10000000, BOT_N=20, BOT_CAP=200000, BOT_FLOOR=30000, BOT_REFILL=100000, RAKE=0.2, SEND_FEE=0.05, MKT_FEE_N=0.1;
-const DAY_CAP=50000;
 const FLUSH_MS=5*60e3, MAINT_MS=10*60e3, INBOX_MS=2*60e3, MASTER_MS=5*60e3, BOARD_MS=60e3, RANK_MS=5*60e3;
 const now=()=>Date.now();
 const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
@@ -51,8 +50,7 @@ const NET=window.NET={on:false,down:0,uid:null,name:'',code:'',master:null,maste
     const row=(this.rankDoc.rows||{})[this.uid];
     if(row){ this.name=row.name||user.displayName||'プレイヤー'; this.lastBal=+row.balance||0; } else { this.name=(user.displayName||'プレイヤー').slice(0,16); this.lastBal=0; }
     this.on=true; hookGame();
-    if(row&&balance>this.lastBal){ const gain=balance-this.lastBal; this._skip=0; _setRaw(this.lastBal); this.capGive(gain,'ログインしていない間に増えた分'); }
-    this.release(); await this.flush(true); await this.applyInbox(true);
+ await this.flush(true); await this.applyInbox(true);
     setInterval(()=>this.flush().catch(()=>{}),FLUSH_MS);
     setTimeout(()=>this.tryMaint(),3000);
     try{ if($('#s-online').classList.contains('active')) renderOnline(); if($('#s-farm').classList.contains('active')) renderFarm(); }catch(e){} },
@@ -73,14 +71,7 @@ const NET=window.NET={on:false,down:0,uid:null,name:'',code:'',master:null,maste
       if(d) b.update(R_('master/v2'),{balance:inc(-d)}); await b.commit(); this.lastBal=bal; this.p2pAcc-=p2p; this.flushAt=now(); if(d&&this.master) this.master.balance-=d;
     }catch(e){ console.warn('flush',e); try{ this.guard(e); }catch(_){} } this.busy=false; },
   p2p(delta){ this.p2pAcc+=Math.round(delta); this._skip=(this._skip||0)+Math.round(delta); },
-  // ---- 1日の受け取り上限（マスターからの純受取。日本時間0時リセット）
-  led(){ let L=store.get('capled',null); const d=jstDay(); if(!L||L.d!==d) L={d,net:0,pending:L?L.pending||0:0}; return L; },
-  saveLed(L){ store.set('capled',L); },
-  room(){ const L=this.led(); return Math.max(0,DAY_CAP-L.net); },
-  // マスターからの受け取りを上限内で反映し、超えた分は未受取へ
-  capGive(amt,why){ if(amt<=0) return; const L=this.led(), ok=Math.min(amt,Math.max(0,DAY_CAP-L.net)), over=amt-ok; L.net+=ok; L.pending+=over; this.saveLed(L); this._inCap=true; try{ if(ok) _setRaw(balance+ok); } finally{ this._inCap=false; }
-    if(over) toast(`本日のマスターからの受け取り上限（${fmt(DAY_CAP)} NOA）に達したため、${why?why+'の':''}${fmt(over)} NOA は未受取になりました（明日以降に自動で受け取れます）`); },
-  release(){ const L=this.led(); if(!L.pending) return; const x=Math.min(L.pending,Math.max(0,DAY_CAP-L.net)); if(!x) return; L.pending-=x; L.net+=x; this.saveLed(L); this._inCap=true; try{ _setRaw(balance+x); } finally{ this._inCap=false; } toast(`未受取の ${fmt(x)} NOA を受け取りました${L.pending?`（残り ${fmt(L.pending)} NOA は明日以降）`:''}`); },
+
   async applyInbox(force){ if(!this.on||this.isDown()) return; if(!force&&now()-this.inboxAt<INBOX_MS) return; this.inboxAt=now();
     const q=await db.collection('players/'+this.uid+'/inbox').get().catch(e=>this.guard(e)); if(!q.docs.length) return;
     for(const d of q.docs){ const x=d.data(); try{ await d.ref.delete(); }catch(e){ continue; }
@@ -210,11 +201,7 @@ function myStats(){ const st=stable||[]; return {wins:st.reduce((a,h)=>a+(h.wins
 // ---------------------------------------------------------------- ゲームへの組み込み
 let _setRaw=null;
 function hookGame(){
-  _setRaw=setBal; setBal=function(v){ const old=balance, nv=Math.max(0,Math.round(v)); if(NET._inCap) return _setRaw(nv);
-    const delta=nv-old, skip=NET._skip||0; NET._skip=0; const mp=delta-skip;
-    if(mp>0){ _setRaw(old+skip); NET.capGive(mp); return; }
-    if(mp<0){ const L=NET.led(); L.net+=mp; NET.saveLed(L); }
-    _setRaw(nv); if(mp<0) NET.release(); };
+  _setRaw=setBal; setBal=function(v){ NET._skip=0; return _setRaw(v); };
   const _entry=onlineEntry; onlineEntry=function(key){ _entry(key);
     document.querySelectorAll('[data-oeh]').forEach(b=>{ const f=b.onclick; b.onclick=async()=>{ const h=stable.find(x=>x.id===b.dataset.oeh); try{ await NET.enter(key,entrySnap(h)); }catch(e){ toast('エントリーできませんでした：'+e.message); return; } f(); }; });
     const c=$('#oeCancel'); if(c){ const f=c.onclick; c.onclick=async()=>{ try{ await NET.unenter(key); }catch(e){} f(); }; } };
@@ -226,18 +213,18 @@ NET.settleMine=async function(key){ const sp=onlineSpec(key); if(now()<sp.post) 
   const mine=(online.bets[key]||[]).map(b=>({type:b.type,amount:b.amount,keys:b.combos.map(c=>this.comboKey(b.type,c))}));
   const ret=this.payoutOf(P,mine,o.ord), spent=mine.reduce((a,it)=>a+it.amount*it.keys.length,0);
   const pl=(o.netPlaces||{})[this.uid]||0; let prize=0; if(pl) prize=Math.round((ON_FEE+(ON_PRIZE[pl-1]||0)*(sp.legend?2:1))*this.mult);
-  const dust=Math.round(this.payoutOf(P,mine,o.ord,true)-ret); if(ret||dust) this.p2p(ret+dust); setBal(balance+ret+prize);
-  online.done[key]={...o,ownPlace:pl,settled:true,ret,spent,prize}; saveOnline();
+  const dust=Math.round(this.payoutOf(P,mine,o.ord,true)-ret), tax=bigWinTax(ret); if(ret||dust) this.p2p(ret+dust); setBal(balance+ret-tax+prize);
+  online.done[key]={...o,ownPlace:pl,settled:true,ret:ret-tax,tax,spent,prize}; saveOnline();
   if(online.entries[key]&&!pl) toast(`オンライン${sp.hour}時：抽選に外れたため出走できませんでした`);
   if(ret||prize) toast(`オンライン${sp.hour}時のレース確定：払戻 ${fmt(ret)}・出走賞金 ${fmt(prize)} NOA`); await this.flush(true); return online.done[key]; };
 
 // ---------------------------------------------------------------- 画面
 NET.tryMaint=function(){ if(now()-(this.maintTry||0)<2*60e3) return; this.maintTry=now(); this.maint().catch(e=>console.warn('maint',e)); };
-NET.renderTop=async function(){ const el=$('#netTop'); if(!el) return; this.release(); this.applyInbox().catch(()=>{}); this.tryMaint(); await this.refreshMaster().catch(()=>{});
+NET.renderTop=async function(){ const el=$('#netTop'); if(!el) return; this.applyInbox().catch(()=>{}); this.tryMaint(); await this.refreshMaster().catch(()=>{});
   const M=this.master||{balance:0,total:TOTAL}, r=M.balance/M.total, u=USAGE.get();
   el.innerHTML=`<div class="net-grid">
    <div class="net-card"><small>MASTER</small><b>${fmt(Math.round(M.balance))} <span>NOA</span></b><div class="net-bar"><i style="width:${Math.max(0,Math.min(100,r*100)).toFixed(1)}%"></i></div><div class="hsub">総量 ${fmt(M.total)} のうち ${(r*100).toFixed(1)}% を保有・賞金倍率 <b class="gold">×${this.mult}</b>${this.mult<=0.4?'（ログインボーナス停止中）':''}</div></div>
-   <div class="net-card"><small>YOU</small><b style="font-size:17px">${esc(this.name)}</b><div class="hsub">フレンドコード <b class="gold">${this.code}</b>　<a href="#" class="lnk" id="netRename">名前を変更</a></div><div class="hsub">今日のマスターからの受け取り：あと <b>${fmt(this.room())}</b> NOA${this.led().pending?`・未受取 <b class="gold">${fmt(this.led().pending)}</b>`:''}</div><div class="hsub">今日の通信：読み ${fmt(u.r)}・書き ${fmt(u.w)}${this.isDown()?'　<b class="bad">無料枠切れ・17時ごろ復旧</b>':''}</div></div></div>
+   <div class="net-card"><small>YOU</small><b style="font-size:17px">${esc(this.name)}</b><div class="hsub">フレンドコード <b class="gold">${this.code}</b>　<a href="#" class="lnk" id="netRename">名前を変更</a></div><div class="hsub">今日の通信：読み ${fmt(u.r)}・書き ${fmt(u.w)}${this.isDown()?'　<b class="bad">無料枠切れ・17時ごろ復旧</b>':''}</div></div></div>
    <div class="row" style="gap:8px;margin-top:8px"><button class="btn" id="netRankBtn"><i class="ic ic-trophy"></i> ランキング</button><button class="btn" id="netSendBtn"><i class="ic ic-coin"></i> 送金</button></div>`;
   $('#netRename').onclick=e=>{ e.preventDefault(); const n=prompt('表示名（16文字まで）',this.name); if(n&&n.trim()){ this.name=n.trim().slice(0,16); this.flush(true); this.renderTop(); } };
   $('#netRankBtn').onclick=()=>this.openRank(); $('#netSendBtn').onclick=()=>this.openSend(); };
