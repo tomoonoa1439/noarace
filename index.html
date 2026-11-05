@@ -324,6 +324,11 @@ tr.rvrow td{background:#2a1515}
 .mk-in{display:flex;align-items:center;gap:8px;margin:12px 0 8px;font-weight:800}.mk-in input{width:150px}
 .vo-tag{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;padding:1px 7px;color:#8fd3ff;border:1px solid #8fd3ff66;background:#8fd3ff14}.vo-tag .ic{width:11px;height:11px}
 .acct{border-left:3px solid #8fd3ff}#saveBtn.acct-on{box-shadow:0 0 0 1px #7dffb088 inset}
+.net-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:8px 0}
+.net-card{background:linear-gradient(135deg,#0b1240cc,#2a1a6a99);border:1px solid #8fd3ff55;padding:10px 14px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.net-card small{letter-spacing:.3em;color:#8fd3ff;font-weight:900;font-size:10px}.net-card>b{display:block;font-size:22px;color:#fff}.net-card>b span{font-size:12px;color:#9fb0d8}
+.net-bar{height:6px;background:#ffffff14;margin:6px 0}.net-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff5a7a,#ffd166,#7dffb0)}
+.botmk{display:inline-block;font-size:9px;font-weight:900;padding:0 4px;color:#0a0618;background:#9fb0d8;vertical-align:middle}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -771,13 +776,14 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     <div class="sec-h"><i class="ic ic-gear"></i> パーツ<span class="hsub">馬に装着すると能力や作戦が強化される（頭・背・コアの3部位）</span></div><div class="panel"><div id="partList"></div></div>
     <div class="sec-h"><i class="ic ic-build"></i> 施設<span class="hsub">強化すると調教効果アップ・怪我が減る</span></div><div class="panel"><div id="facList" class="flist"></div></div>
     <div class="sec-h"><i class="ic ic-leaf"></i> 引退馬<span class="hsub">配合の親になり、毎週 種付け料・産駒の売却益が入ります</span><span id="incomeInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="retiredList"></div></div>
-    <div class="sec-h"><i class="ic ic-coin"></i> ホースマーケット<span class="hsub">引退馬をオークションで売買。落札されると馬のデータごと移籍します（現在はAI馬主と取引）</span></div><div class="panel"><div id="mktList" class="flist"></div></div>
+    <div class="sec-h"><i class="ic ic-coin"></i> ホースマーケット<span class="hsub" id="mktSub">引退馬をオークションで売買。落札されると馬のデータごと移籍します（ログイン中はみんなと取引・未ログイン時はAI馬主と取引）</span></div><div class="panel"><div id="mktList" class="flist"></div></div>
   </section>
 
 
   <section class="screen" id="s-online">
     <h2><i class="ic ic-globe"></i> オンラインレース</h2>
-    <div class="sub">毎日10時〜21時、毎時0分に発走（全12R）。発走60分前〜15分前にエントリー（1人1頭）、30分前に会場発表、15分前にオッズ公開、5分前に投票締切。見逃したレースはリプレイで見られます。<br><span class="hsub">※現在はみんなの出走登録を共有する仕組み（サーバー）がないため、空き枠は名馬・過去の馬で埋まります。あなたのエントリーはあなたの画面のレースに反映されます。</span></div>
+    <div class="sub">毎日10時〜21時、毎時0分に発走（全12R）。発走60分前〜15分前にエントリー（1人1頭）、30分前に会場発表、15分前にオッズ公開、5分前に投票締切。見逃したレースはリプレイで見られます。<br><span class="hsub">ログイン中は、みんなと運用アカウントのエントリーが共有され、定員16頭を超えたら抽選。空き枠は過去の馬で埋まります。馬券はパリミュチュエル方式（賭け金の合計から控除20%をマスターへ・残りを的中者で分配）。</span></div>
+    <div id="netTop"></div>
     <div id="onNext"></div>
     <div class="wlist" id="onList" style="margin-top:12px"></div>
   </section>
@@ -1035,7 +1041,8 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
     return new Promise(res=>{ let first=true; firebase.auth().onAuthStateChanged(async u=>{ this.user=u||null; renderAcct();
       if(!first) return; first=false;
       if(!u){ this.setState('未ログイン（この端末のみに保存）'); if(!localStorage.getItem('noasys_loginAsk')){ localStorage.setItem('noasys_loginAsk','1'); setTimeout(openLogin,1800); } res(true); return; }
-      this.db=firebase.firestore(); this.uid=u.uid; this.path='users/'+u.uid+'/save'; await this.sync(); res(true); }); }); },
+      this.db=firebase.firestore(); this.uid=u.uid; this.path='users/'+u.uid+'/save'; await this.sync(); res(true);
+      if(!this.restoring){ try{ await this.loadScript('net.js?v='+Date.now().toString(36).slice(0,-4)); await NET.start(u); }catch(e){ console.warn('net',e); toast('オンライン機能に接続できませんでした'); } } }); }); },
   async login(){ try{ const pv=new this.fb.auth.GoogleAuthProvider(); pv.setCustomParameters({prompt:'select_account'});
       try{ await this.fb.auth().signInWithPopup(pv); }catch(e){ if(e&&/popup-blocked|operation-not-supported/.test(e.code||'')){ await this.fb.auth().signInWithRedirect(pv); return; } throw e; }
       toast('ログインしました。データを同期します…'); setTimeout(()=>location.reload(),700);
@@ -1118,7 +1125,7 @@ function mkEnt(m,race,kind){ const sk=kind==='gen'?(m.skills||[]):(m.skills||LSK
   return {name:m[0],sex:m[1],jockeys:m[2],fit:kind==='gen'?distFit(m,race.dist)+mudAdj(m.mud||0,race.going):legendFit(m,race),style:m[6],coatName:m[7],tag:m[8],skills:sk,sd:4.2*(sk.includes('気性難')?1.4:1),hall:!!m.hall}; }
 function ownEnt(own,race,opt){ const style=opt.strat||own.style;
   return {name:own.name,sex:own.sex,jockeys:[],jockeyFixed:opt.jockey||null,fit:ownFit(own,race,style)+jockeyBonus(own,opt.jockey),style,coatName:own.coat,tag:`${own.age}歳・父${own.sire}`,own:true,stableId:own.id,ownForm:own.cond||0,skills:own.skills||[],
-    sd:4.2*(1.12-own.st.wis/420)*((own.skills||[]).includes('気性難')?1.4:1)*(1-0.1*partSum(own,'calm'))}; }
+    sd:4.2*(1.12-own.st.wis/420)*((own.skills||[]).includes('気性難')?1.4:1)*(1-0.1*partSum(own,'calm')),startB:partSum(own,'start')}; }
 function generateRace(tpl,own,opt={}){
   if(!tpl._cache){
     const gw=rollGoing(tpl), race0={...tpl,going:gw.going,weather:gw.weather}, ents=[];
@@ -1135,15 +1142,17 @@ function generateRace(tpl,own,opt={}){
   }
   const c=tpl._cache, race={...tpl,wx:c.wx,going:c.going,weather:c.weather,goingAdd:c.add};
   const ents=c.ents.map(e=>({...e}));
-  const add= own? ownEnt(own,race,opt) : (c.extra?{...c.extra}:null);
+  let add= own? ownEnt(own,race,opt) : (c.extra?{...c.extra}:null);
+  if(tpl.netSnaps&&tpl.netSnaps.length){ const ne=tpl.netSnaps.map(x=>{ const sn=x.snap, e=ownEnt(sn,race,{jockey:mainJockey(sn)||sn.lastJ||'田辺裕信',strat:sn.style}); e.own=false; e.stableId=null; e.netUid=x.uid; e.netAttr=attrOf(sn); e.netRank=rkIdx(sn); e.tag=`${x.bot?'運用：':'馬主：'}${x.owner}`; return e; });
+    const room=ents.length; ents.splice(0,Math.min(ne.length,room),...ne.slice(0,room)); if(!own&&ne.length>room) add=ne[room]; }
   if(add) ents.splice(Math.min(c.slot,ents.length),0,add);
   const n=ents.length, used=new Set(); ents.forEach(e=>{ if(e.jockeyFixed) used.add(e.jockeyFixed); });
   const hs=ents.map((e,i)=>({...e,no:i+1,rating:e.fit}));
   [...hs].sort((a,b)=>b.rating-a.rating).forEach(h=>{ if(h.jockeyFixed){ h.jockey=h.jockeyFixed; return; } let j=(h.jockeys||[]).find(x=>!used.has(x)); if(!j){ const pool=JOCKEY_POOL.filter(x=>!used.has(x)); j=pool[hash(h.name+tpl.id)%Math.max(1,pool.length)]||'見習い騎手'; } used.add(j); h.jockey=j; });
-  hs.forEach(h=>{ const st_=h.own?stable.find(x=>x.id===h.stableId):null; h.attr=st_?attrOf(st_):legendAttr(h.name); h.venueB=venueBonus(h.attr,race); h.fit+=h.venueB; h.sd=(h.sd||4.2)*attrBuff(h.attr,'sd'); });
+  hs.forEach(h=>{ const st_=h.own?stable.find(x=>x.id===h.stableId):null; h.attr=st_?attrOf(st_):h.netAttr||legendAttr(h.name); h.venueB=venueBonus(h.attr,race); h.fit+=h.venueB; h.sd=(h.sd||4.2)*attrBuff(h.attr,'sd'); });
   { const W=WX[race.wx]||WX.clear; hs.forEach(h=>{ h.wxAttr=W.attr.includes(h.attr); h.wxB=(h.wxAttr?1.0:0)+((W.sty||{})[h.style]||0); h.fit+=h.wxB; if(W.sd) h.sd=(h.sd||4.2)*W.sd(race); }); }
   if(tpl.gimmick==='moon') hs.forEach(h=>h.sd=(h.sd||4.2)*1.25);
-  hs.forEach(h=>{ const r=h.formR??0.5; let f= r<0.08?0: r<0.28?1: r<0.72?2: r<0.92?3:4; if(h.own) f=2+clamp(h.ownForm,-2,2); h.form=FORM[f]; h.base=h.fit+h.form[2]*0.9; h.waku=wakuOf(h.no,n); });
+  hs.forEach(h=>{ const r=h.formR??0.5; let f= r<0.08?0: r<0.28?1: r<0.72?2: r<0.92?3:4; if(h.own||h.netUid) f=2+clamp(h.ownForm||0,-2,2); h.form=FORM[f]; h.base=h.fit+h.form[2]*0.9; h.waku=wakuOf(h.no,n); });
   // オッズ＝「予想上の強さ（能力・距離・馬場・調子・適性）」から算出。実際の着順はレース時に別途抽選する。
   const mR=rng(hash((tpl.id||'')+n)), mk=hs.map(h=>h.base+(mR()-0.5)*1.6), mx=Math.max(...mk), TAU=3.4;
   const w=mk.map(v=>Math.exp((v-mx)/TAU)+0.0025), ws=w.reduce((a,b)=>a+b,0);
@@ -1205,11 +1214,11 @@ function isSlots(){ const t=bt(); return t.ordered && t.need>1 && buyMode==='nor
 const isForm=()=>bt().need>1 && buyMode==='form';
 function resetPicks(){ const t=bt(); picks = isSlots()? new Array(t.need).fill(null) : isForm()? Array.from({length:t.need},()=>[]) : []; }
 let CUR=null, OWN=null;
-function curOwn(){ if(CUR&&CUR.online) return entryHorse(CUR.id); if(!CUR||!CUR.weekly||!ownId) return null; const h=stable.find(x=>x.id===ownId); return h&&eligible(h,CUR)?h:null; }
+function curOwn(){ if(CUR&&CUR.online){ const F=window.NET&&NET.on?NET.fieldOf(CUR.id):null; return F&&!F.mine?null:entryHorse(CUR.id); } if(!CUR||!CUR.weekly||!ownId) return null; const h=stable.find(x=>x.id===ownId); return h&&eligible(h,CUR)?h:null; }
 const jockeyFee=(j,spec)=>{ if(!j) return 0; const m=spec&&spec.intl?1:((CLS[spec&&spec.cls]||{}).jm||1); return Math.max(100,Math.round(j[2]*m/100)*100); };
 const entryFee=spec=>spec&&spec.weekly?(spec.fee||0):0;
 function ownFee(){ if(!OWN||(CUR&&CUR.online)) return 0; const j=JOCKEYS.find(x=>x[0]===ownOpt.jockey); return jockeyFee(j,CUR)+entryFee(CUR); }
-function rebuildRace(keepSlip){ OWN=curOwn(); if(CUR.online){ RACE=onlineRace(CUR.id); } else RACE=generateRace(CUR,OWN,ownOpt); ODDS=oddsCalc(RACE); if(keepSlip) slip.forEach(b=>b.odds=b.combos.map(c=>ODDS.get(b.type,c))); }
+function rebuildRace(keepSlip){ OWN=curOwn(); if(CUR.online){ RACE=onlineRace(CUR.id); } else RACE=generateRace(CUR,OWN,ownOpt); ODDS=oddsCalc(RACE); if(CUR.online&&window.NET&&NET.on) ODDS=NET.wrapOdds(CUR.id,ODDS); if(keepSlip) slip.forEach(b=>b.odds=b.combos.map(c=>ODDS.get(b.type,c))); }
 function openBet(spec){
   SIM=null; if(typeof spec==='string') spec=RACES.find(r=>r.id===spec); if(CUR!==spec) delete spec._cache; CUR=spec;
   const elig=spec.weekly? stable.filter(h=>eligible(h,spec)) : [];
@@ -1367,7 +1376,7 @@ function setupSim(){
   const vEnd=vAvg*kf*(1-Math.exp(-T/tau));
   const SP=1.35;
   const E0=hs.map(h=>(h.early-1)*SP + h.eg + rnd()*0.8);
-  hs.forEach((h,i)=>{ if(h.own){ const st=stable.find(x=>x.id===h.stableId); if(st) E0[i]-=3.5*partSum(st,'start'); } if(R.gimmick==='moon') E0[i]+=rnd()*3; });
+  hs.forEach((h,i)=>{ if(h.startB!=null) E0[i]-=3.5*h.startB; else if(h.own&&!R.online){ const st=stable.find(x=>x.id===h.stableId); if(st) E0[i]-=3.5*partSum(st,'start'); } if(R.gimmick==='moon') E0[i]+=rnd()*3; });
   const mn=Math.min(...E0);
   hs.forEach((h,i)=>{
     const E=E0[i]-mn;
@@ -1852,15 +1861,15 @@ function showResults(){
   // 自分の馬
   let ownMsg=''; const oh=hs.find(h=>h.own);
   if(RACE.weekly){ cal.done[RACE.id]=hs[ord[0]].name; saveCal(); }
-  if(oh){ const place=ord.indexOf(oh.i)+1, st=stable.find(x=>x.id===oh.stableId), prize=Math.round((RACE.prize||20000)*(PRATE[place-1]||0)*(st?attrBuff(attrOf(st),'prize'):1)), fee=0; let extra='', bonus=0; const inc=[];
+  if(oh){ const place=ord.indexOf(oh.i)+1, st=stable.find(x=>x.id===oh.stableId), prize=Math.round((RACE.prize||20000)*(PRATE[place-1]||0)*(st?attrBuff(attrOf(st),'prize'):1)*prizeMult()), fee=0; let extra='', bonus=0; const inc=[];
     inc.push(prize?`賞金 ${fmt(prize)}`:'賞金なし（1〜5着のみ）');
     if(st){ const cls0=classOf(st); st.races++; if(place===1) st.wins++; if(place<=3) st.top3++; const Y=ryr(st);
       st.jh=st.jh||{}; st.jh[oh.jockey]=(st.jh[oh.jockey]||0)+1; if(place===1){ st.jw=st.jw||{}; st.jw[oh.jockey]=(st.jw[oh.jockey]||0)+1; if(st.jw[oh.jockey]>=5) unlock('jockey'); Y.wins++; }
       if(place===1){ const gr=['G3','G2','G1'].includes(RACE.cls);
-        if(st.wins===1){ bonus+=3000; inc.push('初勝利ボーナス 3,000'); }
-        if(classOf(st)!==cls0){ bonus+=2000; inc.push('昇級ボーナス 2,000'); }
-        if(gr&&!st.gw){ bonus+=10000; inc.push('重賞初制覇ボーナス 10,000'); }
-        if(RACE.cls==='G1'&&!st.g1w){ bonus+=30000; inc.push('G1初制覇ボーナス 30,000'); }
+        if(st.wins===1){ bonus+=Math.round(3000*prizeMult()); inc.push('初勝利ボーナス'); }
+        if(classOf(st)!==cls0){ bonus+=Math.round(2000*prizeMult()); inc.push('昇級ボーナス'); }
+        if(gr&&!st.gw){ bonus+=Math.round(10000*prizeMult()); inc.push('重賞初制覇ボーナス'); }
+        if(RACE.cls==='G1'&&!st.g1w){ bonus+=Math.round(30000*prizeMult()); inc.push('G1初制覇ボーナス'); }
         if(gr){ st.gw=(st.gw||0)+1; Y.gw++; unlock('grade'); st.bigWins=(st.bigWins||[]).concat([RACE.name]); }
         if(RACE.cls==='G1'){ st.g1w=(st.g1w||0)+1; Y.g1w++; unlock('g1'); gstat.g1w=(gstat.g1w||0)+1; if(gstat.g1w>=10) unlock('g1x10'); if(RACE.surface==='ダ') unlock('dirtg1');
           if(RACE.name==='凱旋門賞') unlock('arc'); if(RACE.name.includes('ドバイ')) unlock('dubai'); if(RACE.name==='香港カップ') unlock('hk');
@@ -2837,7 +2846,7 @@ const RAR={N:[1,'N','#9fb0d8',8000],R:[1.6,'R','#4db8ff',24000],SR:[2.4,'SR','#f
 let parts=store.get('parts',null); if(!parts){ parts=[{uid:'p0',k:['fin','spikes','core'][Math.floor(Math.random()*3)],r:'N'}]; store.set('parts',parts); }
 const saveParts=()=>store.set('parts',parts);
 const partByUid=u=>parts.find(p=>p.uid===u);
-function eqList(h){ const e=h.eq||{}; return Object.keys(SLOTS).map(s=>partByUid(e[s])).filter(Boolean).map(p=>({...p,def:PARTS[p.k],m:RAR[p.r][0]})); }
+function eqList(h){ if(h.partsEq) return h.partsEq.filter(p=>PARTS[p.k]).map(p=>({...p,def:PARTS[p.k],m:RAR[p.r][0]})); const e=h.eq||{}; return Object.keys(SLOTS).map(s=>partByUid(e[s])).filter(Boolean).map(p=>({...p,def:PARTS[p.k],m:RAR[p.r][0]})); }
 function partSum(h,key){ return eqList(h).reduce((a,p)=>a+(p.def[key]||0)*p.m,0); }
 function partStatBonus(h){ return eqList(h).reduce((a,p)=>a+Object.values(p.def.eff).reduce((x,y)=>x+y,0)*p.m,0); }
 function newPart(k,r){ const p={uid:'p'+Date.now().toString(36)+Math.floor(Math.random()*1e4),k,r}; parts.push(p); saveParts(); return p; }
@@ -3134,10 +3143,12 @@ function onlineSpec(key){ if(ON_SPECS[key]) return ON_SPECS[key]; const r=rng(ha
 function onPhase(sp,t=Date.now()){ const P=sp.post, m=60e3;
   if(t<P-60*m) return 'soon'; if(t<P-30*m) return 'entry'; if(t<P-15*m) return 'entry2'; if(t<P-5*m) return 'bet'; if(t<P) return 'closed'; if(t<P+3*m) return 'live'; return 'done'; }
 const PH_LBL={soon:'受付前',entry:'エントリー受付中',entry2:'エントリー受付中（会場発表済み）',bet:'オッズ公開・投票受付中',closed:'投票締切・まもなく発走',live:'発走中',done:'確定'};
+function entrySnap(h){ const s=JSON.parse(JSON.stringify(h)); s.partsEq=eqList(h).map(p=>({uid:p.uid,k:p.k,r:p.r})); delete s.log; return s; }
 function entryHorse(key){ const e=online.entries[key]; return e?Object.assign(JSON.parse(JSON.stringify(e.snap)),{id:e.id}):null; }
-function onlineRace(key){ const sp=onlineSpec(key); delete sp._cache; const own=entryHorse(key);
+function onlineRace(key){ const sp=onlineSpec(key); delete sp._cache; const F=(window.NET&&NET.on)?NET.fieldOf(key):null; sp.netSnaps=F?F.ents:null; const own=F?null:entryHorse(key);
   const opt=own?{jockey:mainJockey(own)||own.lastJ||'田辺裕信',strat:own.style}:{};
-  return withSeed(hash(key),()=>generateRace(sp,own,opt)); }
+  const sw=cal.w; cal.w=(+key.slice(7,9)-1)*4; let R; try{ R=withSeed(hash(key),()=>generateRace(sp,own,opt)); } finally{ cal.w=sw; }
+  if(F) R.hs.forEach(h=>{ if(h.netUid===NET.uid){ h.own=true; h.stableId=(online.entries[key]||{}).id||null; } }); return R; }
 function onlineOutcome(key){ if(online.done[key]&&online.done[key].order) return online.done[key];
   const R=onlineRace(key), sR=RACE, sS=SIM; let out;
   try{ RACE=R; withSeed(hash(key)+7,()=>setupSim()); out={order:SIM.order.map(i=>SIM.hs[i].no),names:SIM.order.slice(0,5).map(i=>SIM.hs[i].name),ownPlace:SIM.hs.findIndex(h=>h.own)<0?0:SIM.order.indexOf(SIM.hs.find(h=>h.own).i)+1,ord:SIM.order.slice(),odds:R.hs.map(h=>h.odds)}; }
@@ -3148,11 +3159,12 @@ function onlineSettle(key){ const sp=onlineSpec(key); if(Date.now()<sp.post) ret
   let prize=0; if(online.entries[key]){ prize=ON_FEE+Math.round((ON_PRIZE[o.ownPlace-1]||0)*(sp.legend?2:1)); }
   setBal(balance+ret+prize); online.done[key]={...o,settled:true,ret,spent,prize}; saveOnline();
   if(ret||prize) toast(`オンライン${sp.hour}時のレース確定：払戻 ${fmt(ret)}・出走賞金 ${fmt(prize)} NOA`); return online.done[key]; }
-function settleAll(){ Object.keys({...online.bets,...online.entries}).forEach(k=>{ try{ onlineSettle(k); }catch(e){ console.warn(e); } }); }
+function settleAll(){ Object.keys({...online.bets,...online.entries}).forEach(k=>{ try{ if(window.NET&&NET.on){ if(Date.now()>=onlineSpec(k).post&&!(online.done[k]&&online.done[k].settled)) NET.settleMine(k).catch(e=>console.warn(e)); } else onlineSettle(k); }catch(e){ console.warn(e); } }); }
 // ---- 画面 ----
 function fmtCD(ms){ if(ms<=0) return '00:00'; const s=Math.floor(ms/1000); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+':':'')+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'); }
 function onlineDayKeys(){ const d=jstNow(), t=Date.now(); let keys=ON_HOURS.map(h=>jstKey(d,h)); if(t>onlineSpec(keys[keys.length-1]).post+3*60e3){ const n=new Date(d.getTime()+86400e3); keys=keys.concat(ON_HOURS.slice(0,3).map(h=>jstKey(n,h))); } return keys; }
 function renderOnline(){ settleAll(); const t=Date.now(), keys=onlineDayKeys();
+  { const nt=$('#netTop'); if(window.NET&&NET.on) NET.renderTop(); else if(nt) nt.innerHTML=CLOUD.fb?`<div class="ownres acct"><b>ログインするとオンライン機能が使えます</b><div class="hsub">マスター残高・ランキング・送金・みんなとのレースやマーケット。右上の雲マークからGoogleでログインしてください。</div><div class="row" style="margin-top:6px"><button class="btn gold" onclick="CLOUD.login()">Googleでログイン</button></div></div>`:''; }
   const next=keys.map(onlineSpec).find(s=>t<s.post+3*60e3);
   $('#onNext').innerHTML=next?`<div class="on-hero"><div><small>NEXT RACE</small><b>${next.hour}:00 発走　${next.name}</b><div class="hsub">${PH_LBL[onPhase(next)]}</div></div><div class="on-cd" data-cd="${next.post}">${fmtCD(next.post-t)}</div></div>`:'<div class="sub">本日のオンラインレースは終了しました。明日10時から開催します。</div>';
   $('#onList').innerHTML=keys.map(k=>{ const sp=onlineSpec(k), ph=onPhase(sp), e=online.entries[k], bets=online.bets[k]||[], dn=online.done[k];
@@ -3180,28 +3192,31 @@ function onlineEntry(key){ const sp=onlineSpec(key), ph=onPhase(sp); if(!['entry
     <div class="flist">${act.length?act.map(h=>`<div class="fcard"><div>${attrChip(attrOf(h),true)} <b>${h.name}</b> ${rkBadge(h)}<div class="hsub">${h.sex}・${h.age}歳・${classOf(h)}・${h.dMin}〜${h.dMax}m</div></div><button class="btn ${cur&&cur.id===h.id?'':'gold'}" data-oeh="${h.id}">${cur&&cur.id===h.id?'エントリー中':'この馬で出走'}</button></div>`).join(''):'<span class="hsub">出走できる馬がいません</span>'}</div>
     <div class="row" style="justify-content:space-between;margin-top:12px">${cur?'<button class="btn" id="oeCancel">取り消す</button>':'<span></span>'}<button class="btn gold" id="oeClose">閉じる</button></div>`;
   $('#resModal').classList.add('on');
-  document.querySelectorAll('[data-oeh]').forEach(b=>b.onclick=()=>{ const h=stable.find(x=>x.id===b.dataset.oeh); online.entries[key]={id:h.id,snap:JSON.parse(JSON.stringify(h)),at:Date.now()}; saveOnline(); toast(`${h.name}をエントリーしました（抽選：当選）`); $('#resModal').classList.remove('on'); renderOnline(); });
+  document.querySelectorAll('[data-oeh]').forEach(b=>b.onclick=()=>{ const h=stable.find(x=>x.id===b.dataset.oeh); online.entries[key]={id:h.id,snap:entrySnap(h),at:Date.now()}; saveOnline(); toast(`${h.name}をエントリーしました`); $('#resModal').classList.remove('on'); renderOnline(); });
   if(cur) $('#oeCancel').onclick=()=>{ delete online.entries[key]; saveOnline(); $('#resModal').classList.remove('on'); renderOnline(); };
   $('#oeClose').onclick=()=>$('#resModal').classList.remove('on'); }
 function onlineBet(key){ const sp=onlineSpec(key); if(onPhase(sp)!=='bet'){ toast('馬券は発走15分前〜5分前に購入できます'); return; } delete sp._cache; openBet(sp); }
 function onlineBuy(){ const key=CUR.id, sp=CUR; if(onPhase(sp)!=='bet'){ toast('投票は締め切られました'); return; } if(!slip.length){ toast('馬券を組んでください'); return; }
   const tot=slipTotal(), prev=(online.bets[key]||[]).reduce((a,b)=>a+itemCost(b),0), cap=Math.floor((balance+prev)*0.3/100)*100;
   if(tot>balance){ toast('NOAが足りません'); return; } if(prev+tot>cap){ toast(`1レースの馬券は所持金の30%まで（このレースはあと ${fmt(Math.max(0,cap-prev))} NOA）`); return; }
-  setBal(balance-tot); online.bets[key]=(online.bets[key]||[]).concat(JSON.parse(JSON.stringify(slip))); saveOnline(); slip=[]; toast('馬券を購入しました。発走をお楽しみに！'); openOnline(); }
+  const doLocal=()=>{ setBal(balance-tot); online.bets[key]=(online.bets[key]||[]).concat(JSON.parse(JSON.stringify(slip))); saveOnline(); slip=[]; toast('馬券を購入しました。発走をお楽しみに！'); openOnline(); };
+  if(window.NET&&NET.on){ const b=$('#startRace'); b.disabled=true; NET.placeBets(key,slip).then(doLocal).catch(e=>toast('購入できませんでした：'+e.message)).finally(()=>b.disabled=false); return; }
+  doLocal(); }
 function onlineWatch(key,live){ const sp=onlineSpec(key), t=Date.now();
   if(live&&t<sp.post){ toast(`発走まで ${fmtCD(sp.post-t)}。時間になったら自動で始まります`); const w=setInterval(()=>{ if(Date.now()>=sp.post){ clearInterval(w); onlineWatch(key,true); } },1000); return; }
   slip=[]; CUR=sp; OWN=entryHorse(key); RACE=onlineRace(key); ODDS=oddsCalc(RACE); RACE.liveFrom=live?sp.post:null; startRace(); }
 function openOnline(){ renderOnline(); show('s-online'); }
 // ---- 経済：ログインボーナス・再起支援 ----
 function jstDay(){ const d=jstNow(); return d.toISOString().slice(0,10); }
-function loginBonus(){ const d=jstDay(); if(store.get('loginDay','')===d) return; store.set('loginDay',d); setBal(balance+3000); setTimeout(()=>toast('ログインボーナス +3,000 NOA'),1200); }
+function prizeMult(){ return window.NET&&NET.on?NET.mult:1; }
+function loginBonus(){ const d=jstDay(); if(store.get('loginDay','')===d) return; store.set('loginDay',d); const m=prizeMult(); if(m<=0.4){ setTimeout(()=>toast('マスターの残高が少ないため、今日のログインボーナスはお休みです'),1200); return; } const v=Math.round(3000*m); setBal(balance+v); setTimeout(()=>toast(`ログインボーナス +${fmt(v)} NOA`),1200); }
 function rescueOK(){ return balance<5000 && Date.now()-store.get('rescueAt',0)>7*86400e3; }
 function updRescue(){ const b=$('#rescue'); if(b) b.style.display=rescueOK()?'':'none'; }
 function doRescue(){ if(!rescueOK()){ toast('再起支援は所持金5,000 NOA未満のとき、週1回使えます'); return; } store.set('rescueAt',Date.now()); setBal(balance+20000);
   const act=stable.filter(h=>!h.retired); if(!act.length){ const S=sires(), D=dams(); const f=makeFoal(S[Math.floor(Math.random()*S.length)],D[Math.floor(Math.random()*D.length)]); f.rank=Math.min(f.rank,3); nameFoal(f,'再起支援で若駒を1頭支給しました'); }
   toast('再起支援：20,000 NOA を受け取りました'); updRescue(); }
 
-function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; const d=onlineSettle(key)||online.done[key]||{};
+function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; if(window.NET&&NET.on&&(online.bets[key]||online.entries[key])&&!(online.done[key]&&online.done[key].settled)){ NET.settleMine(key).catch(()=>{}).finally(()=>onlineAfterRace()); return; } const d=(window.NET&&NET.on?null:onlineSettle(key))||online.done[key]||{};
   const bets=online.bets[key]||[]; const rows=bets.map(b=>{ const pay=payout(b,ord); return `<tr><td>${labelItem(b)}</td><td class="num">${fmt(itemCost(b))}</td><td class="num ${pay?'hit':'miss'}">${pay?'的中 '+fmt(pay):'—'}</td></tr>`; }).join('');
   const oh=hs.find(h=>h.own);
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-trophy"></i> ${hs[ord[0]].name}</div><div class="sub">オンライン ${RACE.hour}:00 ${RACE.name}　確定</div>
@@ -3255,7 +3270,7 @@ function mktClose(L,t){ const hi=mktHigh(L); L.closed=t||Date.now();
       const m=`${h.name} を ${fmt(hi.amt)} NOA で落札！ 引退馬として厩舎に加わりました`; mkt.log.unshift(m); toast('マーケット：'+m); }
     else L.status=hi?'sold':'expired'; }
   mkt.log=mkt.log.slice(0,20); saveMkt(); }
-function mktList(id){ const h=stable.find(x=>x.id===id); if(!h||!h.retired||h.listed) return; const est=horseValue(h), cap=mktCapOf(est);
+function mktList(id){ if(window.NET&&NET.on) return NET.openList(id); const h=stable.find(x=>x.id===id); if(!h||!h.retired||h.listed) return; const est=horseValue(h), cap=mktCapOf(est);
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> ${h.name} をマーケットに出品</div>
     <div class="sub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.age}歳・${h.races}戦${h.wins}勝　推定売却額 <b class="gold">${fmt(est)} NOA</b></div>
     <label class="mk-in">開始価格 <input type="number" id="mkStart" min="1000" max="${cap}" step="100" value="${est}"> NOA</label>
@@ -3289,7 +3304,7 @@ function viewHorse(h,sub){ if(!h) return;
     <div class="hsub">戦績 ${h.races}戦${h.wins}勝（重賞${h.gw||0}・G1 ${h.g1w||0}）　賞金 ${fmt(h.earn||0)} NOA${(h.skills||[]).length?`　特性 <span class="gold">${h.skills.join('・')}</span>`:''}</div>
     <div class="sub" style="margin:10px 0 4px">血統</div>${pedTable(h)}`;
   $('#resModal').classList.add('on'); $('#vhClose').onclick=()=>$('#resModal').classList.remove('on'); }
-function renderMarket(){ const el=$('#mktList'); if(!el) return; mktTick(); mktFill(); saveMkt();
+function renderMarket(){ if(window.NET&&NET.on) return NET.renderMarket(); const el=$('#mktList'); if(!el) return; mktTick(); mktFill(); saveMkt();
   const row=L=>{ const h=mktHorse(L); if(!h) return ''; const hi=mktHigh(L), mine=L.seller==='me', meHi=hi&&hi.me;
     return `<div class="fcard mkt ${mine?'mine':''} ${meHi?'lead':''}"><div style="flex:1;min-width:0"><div>${rkBadge(h)} ${attrChip(attrOf(h),true)} <b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.age}歳・${h.races}戦${h.wins}勝${h.g1w?`・G1 ${h.g1w}勝`:''}</span></div>
       <div class="hsub">${mine?'<b class="gold">あなたの出品</b>':`出品者 ${L.seller}`}・推定 ${fmt(L.est)}・${mktLeft(L)}</div>
