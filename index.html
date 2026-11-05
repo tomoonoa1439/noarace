@@ -999,14 +999,38 @@ const store = {
   set(k,v){ if(CLOUD.restoring) return; try{ const j=JSON.stringify(v); if(localStorage.getItem('noa_'+k)===j) return; localStorage.setItem('noa_'+k,j); localStorage.setItem('noasys_t',String(Date.now())); }catch(e){} CLOUD.mark(k); }
 };
 // ======================= クラウドセーブ =======================
+// ---- 無料枠の使用量メーター（この端末の分・米国太平洋時間の日付ごと＝日本時間17時ごろリセット）
+const USAGE={ day(){ try{ return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles'}).format(new Date()); }catch(e){ return new Date(Date.now()-8*3600e3).toISOString().slice(0,10); } },
+  get(){ let u; try{ u=JSON.parse(localStorage.getItem('noasys_use')||'null'); }catch(e){} if(!u||u.d!==this.day()) u={d:this.day(),r:0,w:0}; return u; },
+  add(r,w){ const u=this.get(); u.r+=r; u.w+=w; try{ localStorage.setItem('noasys_use',JSON.stringify(u)); }catch(e){} },
+  install(fb){ const F=fb.firestore; if(!F||!F.DocumentReference||this.done) return; this.done=true; const me=this;
+    const wrap=(P,name,fn)=>{ if(!P||!P[name]) return; const o=P[name]; P[name]=function(...a){ fn.call(this,a); return o.apply(this,a); }; };
+    const DR=F.DocumentReference.prototype; wrap(DR,'set',()=>me.add(0,1)); wrap(DR,'update',()=>me.add(0,1)); wrap(DR,'delete',()=>me.add(0,1));
+    { const o=DR.get; DR.get=function(...a){ me.add(1,0); return o.apply(this,a); }; }
+    { const Q=F.Query.prototype, o=Q.get; Q.get=function(...a){ return o.apply(this,a).then(r=>{ me.add(Math.max(1,r.docs?r.docs.length:1),0); return r; }); }; }
+    const WB=F.WriteBatch&&F.WriteBatch.prototype; ['set','update','delete'].forEach(n=>wrap(WB,n,()=>me.add(0,1)));
+    const TX=F.Transaction&&F.Transaction.prototype; if(TX){ wrap(TX,'get',()=>me.add(1,0)); ['set','update','delete'].forEach(n=>wrap(TX,n,()=>me.add(0,1))); } } };
+addEventListener('pagehide',()=>{ try{ if(CLOUD.path&&CLOUD.db) CLOUD.push(); if(window.NET&&NET.on) NET.flush(true); }catch(e){} });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState!=='hidden') return; try{ if(CLOUD.path&&CLOUD.db&&CLOUD.timer){ clearTimeout(CLOUD.timer); CLOUD.timer=null; CLOUD.push(); } if(window.NET&&NET.on) NET.flush(true); }catch(e){} });
 const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接続中…',last:0,
   keys(){ const o=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('noa_')) o.push(k.slice(4)); } }catch(e){} return o; },
   localT(){ try{ return +(localStorage.getItem('noasys_t')||0); }catch(e){ return 0; } },
   col(){ return this.db.collection(this.path||('data/users/'+this.uid)); },
   setState(t){ this.state=t; const b=document.getElementById('saveBtn'); if(b) b.title='セーブ：'+t; if(b) b.innerHTML=t.startsWith('保存済')?'<i class="ic ic-cloud"></i>':t.includes('失敗')||t.includes('オフ')?'<i class="ic ic-warn"></i>':'<i class="ic ic-cloud"></i>'; },
-  mark(k){ if(!this.db) return; this.dirty.add(k); clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),2500); },
+  mark(k){ if(!this.db) return; this.dirty.add(k); if(this.path){ if(!this.timer) this.timer=setTimeout(()=>{ this.timer=null; this.push(); },60000); return; } clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),2500); },
+  // ---- 共通：クラウドの読み出し（Firebase版は1ドキュメント形式、旧形式・Claude版は1キー1ドキュメント）
+  async cloudMeta(){ if(this.path){ const m=await this.col().doc('main').get(); if(m.exists){ this._main=m.data(); return {exists:true,t:m.data().t}; } }
+    this._main=null; const m=await this.col().doc('meta').get(); return {exists:m.exists,t:m.exists?m.data().t:0}; },
+  async cloudMap(){ if(this._main){ const M=this._main; let d=M.d||''; if(M.n>1){ for(let i=1;i<M.n;i++){ const c=await this.col().doc('main_'+i).get(); d+=c.exists?c.data().d:''; } } return JSON.parse(d||'{}'); }
+    const q=await this.col().get(), m={}; q.docs.forEach(d=>{ if(d.id.startsWith('k_')) m[d.id.slice(2)]=d.data().v; }); return m; },
+  async pushMain(){ const o={}; this.keys().forEach(k=>o[k]=localStorage.getItem('noa_'+k)); const d=JSON.stringify(o), t=this.localT()||Date.now(), C=850000, n=Math.max(1,Math.ceil(d.length/C));
+    const b=this.db.batch(); b.set(this.col().doc('main'),{t,n,d:d.slice(0,C),sm:this.summary(k=>o[k])}); for(let i=1;i<n;i++) b.set(this.col().doc('main_'+i),{d:d.slice(i*C,(i+1)*C)});
+    const now=Date.now(), last=+(localStorage.getItem('noasys_snap')||0), sm=this.summary(k=>o[k]);
+    if(now-last>=2*3600e3&&(sm.act||sm.ret)&&d.length<C){ b.set(this.col().doc('snap_'+(Math.floor(now/(2*3600e3))%6)),{t:now,d,sm}); localStorage.setItem('noasys_snap',String(now)); }
+    await b.commit(); localStorage.setItem('noasys_sync',String(t)); },
   async push(all){ if(!this.db||this.busy){ if(this.db) this.timer=setTimeout(()=>this.push(all),1500); return; }
     this.busy=true; const ks=all?this.keys():[...this.dirty]; this.dirty.clear();
+    if(this.path){ try{ await this.pushMain(); this.last=Date.now(); this.setState('保存済み（'+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})+'）'); }catch(e){ ks.forEach(k=>this.dirty.add(k)); this.setState(e&&e.code==='resource-exhausted'?'本日の無料枠を使い切りました（17時ごろ復旧・この端末には保存中）':'クラウド保存に失敗（'+(e&&e.code||'error')+'）'); } this.busy=false; return; }
     try{ for(const k of ks){ const v=localStorage.getItem('noa_'+k); if(v==null) continue; if(v.length>240000){ continue; } await this.col().doc('k_'+k).set({v,t:Date.now()}); }
       const t=this.localT()||Date.now(); await this.col().doc('meta').set({t,keys:this.keys()}); localStorage.setItem('noasys_sync',String(t));
       await this.snap(); this.last=Date.now(); this.setState('保存済み（'+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})+'）');
@@ -1018,10 +1042,10 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
     const d=JSON.stringify(o); if(d.length>240000) return; const slot=Math.floor(now/(20*60*1000))%12;
     await this.col().doc('snap_'+slot).set({t:now,d,sm}); localStorage.setItem('noasys_snap',String(now)); },
   async snaps(){ if(!this.db) return []; const q=await this.col().get(); return q.docs.filter(d=>d.id.startsWith('snap_')).map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.t-a.t); },
-  async restoreCloud(){ const snap=await this.col().get(); let n=0; const meta=snap.docs.find(d=>d.id==='meta');
-    snap.docs.forEach(d=>{ if(d.id.startsWith('k_')){ try{ localStorage.setItem('noa_'+d.id.slice(2),d.data().v); n++; }catch(e){} } });
-    { const ct=String(meta?meta.data().t:Date.now()); localStorage.setItem('noasys_t',ct); localStorage.setItem('noasys_sync',ct); } localStorage.removeItem('noasys_fo'); this.restoring=true; this.db=null; try{ location.reload(); }catch(e){} },
-  async askConflict(meta){ const q=await this.col().get(), m={}; q.docs.forEach(d=>{ if(d.id.startsWith('k_')) m[d.id.slice(2)]=d.data().v; });
+  async restoreCloud(){ const mt=await this.cloudMeta(), map=await this.cloudMap();
+    Object.entries(map).forEach(([k,v])=>{ try{ localStorage.setItem('noa_'+k,v); }catch(e){} });
+    { const ct=String(mt.exists?mt.t:Date.now()); localStorage.setItem('noasys_t',ct); localStorage.setItem('noasys_sync',ct); } localStorage.removeItem('noasys_fo'); this.restoring=true; this.db=null; try{ location.reload(); }catch(e){} },
+  async askConflict(meta){ const m=await this.cloudMap();
     const c=this.summary(k=>m[k]), l=this.summary(k=>localStorage.getItem('noa_'+k)), row=(x)=>`${x.y}年目 ${Math.floor(x.w/4)+1}月・${fmt(x.bal)} NOA・現役${x.act}頭${x.names.length?`（${x.names.join('、')}）`:''}`;
     $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cloud"></i> どちらのデータで遊びますか？</div><div class="sub">この端末のデータと、クラウドのデータが違います。</div>
       <div class="fcard" style="margin:8px 0"><div><b>クラウドのデータ</b><div class="hsub">${row(c)}</div></div><button class="btn gold" id="cfC">こちらを使う</button></div>
@@ -1036,7 +1060,7 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
     if(!window.NOA_FIREBASE_CONFIG) await this.loadScript('firebase-config.js').catch(()=>{});
     if(!window.NOA_FIREBASE_CONFIG) return false;
     await this.loadScript(B+'firebase-app-compat.js'); await this.loadScript(B+'firebase-auth-compat.js'); await this.loadScript(B+'firebase-firestore-compat.js');
-    if(!firebase.apps.length) firebase.initializeApp(window.NOA_FIREBASE_CONFIG);
+    if(!firebase.apps.length) firebase.initializeApp(window.NOA_FIREBASE_CONFIG); USAGE.install(firebase);
     this.fb=firebase; await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
     return new Promise(res=>{ let first=true; firebase.auth().onAuthStateChanged(async u=>{ this.user=u||null; renderAcct();
       if(!first) return; first=false;
@@ -1056,7 +1080,7 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
     }catch(e){ this.setState('クラウド接続に失敗（この端末のみに保存）'); } },
   async sync(){
     try{
-      const meta=await this.col().doc('meta').get();
+      const mt=await this.cloudMeta(), meta={exists:mt.exists,data:()=>({t:mt.t})};
       const firstHere=this.path&&localStorage.getItem('noasys_fbuid')!==this.uid;
       if(this.path&&!meta.exists){ localStorage.setItem('noasys_fbuid',this.uid); localStorage.removeItem('noasys_fo'); if(this.keys().length){ if(!this.localT()) localStorage.setItem('noasys_t',String(Date.now())); await this.push(true); } else this.setState('保存済み'); return; }
       if(this.path&&firstHere&&meta.exists&&!this.fresh){ localStorage.setItem('noasys_fbuid',this.uid); this.askConflict(meta); return; }
@@ -1069,8 +1093,8 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
       if(cloudNew&&localNew&&last){ this.askConflict(meta); return; }
       if(cloudNew&&(ct>lt||!last)){
         try{ const o={}; this.keys().forEach(k=>o[k]=localStorage.getItem('noa_'+k)); if(this.keys().length) localStorage.setItem('noasys_prev',JSON.stringify(o)); }catch(e){}
-        const snap=await this.col().get(); let n=0;
-        snap.docs.forEach(d=>{ if(d.id.startsWith('k_')){ try{ localStorage.setItem('noa_'+d.id.slice(2),d.data().v); n++; }catch(e){} } });
+        const map=await this.cloudMap(); let n=0;
+        Object.entries(map).forEach(([k,v])=>{ try{ localStorage.setItem('noa_'+k,v); n++; }catch(e){} });
         localStorage.setItem('noasys_t',String(ct)); localStorage.setItem('noasys_sync',String(ct));
         if(n){ this.restoring=true; this.db=null; try{ location.reload(); }catch(e){}
           setTimeout(()=>{ $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cloud"></i> セーブデータを読み込みました</div><div class="sub">続きから遊ぶため、ページを再読み込みします。</div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn gold" onclick="location.reload()">再読み込み</button></div>`; $('#resModal').classList.add('on'); },1500); return; }
@@ -3075,8 +3099,9 @@ function openLogin(){ if(!CLOUD.fb||CLOUD.user||$('#resModal').classList.contain
 function openSave(){
   const dump=()=>{ const o={}; CLOUD.keys().forEach(k=>o[k]=localStorage.getItem('noa_'+k)); return btoa(unescape(encodeURIComponent(JSON.stringify({v:1,t:Date.now(),d:o})))); };
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-save"></i> セーブデータ</div>${acctBlock()}
+    ${CLOUD.fb&&CLOUD.user?(()=>{ const u=USAGE.get(); return `<div class="hsub" style="margin:4px 0">今日この端末が使ったデータベース：読み取り <b>${fmt(u.r)}</b>／書き込み <b>${fmt(u.w)}</b>（無料枠はみんなの合計で1日 読み5万・書き2万。日本時間17時ごろリセット）</div>`; })():''}
     <div class="ownres"><i class="ic ic-cloud"></i> クラウドセーブ：<b>${CLOUD.state}</b><div class="hsub">${CLOUD.fb&&!CLOUD.user?'ログインすると自動でクラウドに保存されます。':'ログイン中のアカウントに自動保存されます。別の端末やアプリ更新後も続きから遊べます。'}</div></div>
-    <div class="sub" style="margin:10px 0 4px"><i class="ic ic-clock"></i> 自動バックアップ（20分ごと・最大12件）</div><div id="snapList" class="flist"><span class="hsub">${CLOUD.db?'読み込み中…':'クラウドに接続していません'}</span></div>
+    <div class="sub" style="margin:10px 0 4px"><i class="ic ic-clock"></i> 自動バックアップ（${CLOUD.path?'2時間ごと・最大6件':'20分ごと・最大12件'}）</div><div id="snapList" class="flist"><span class="hsub">${CLOUD.db?'読み込み中…':'クラウドに接続していません'}</span></div>
     <div class="sub" style="margin:10px 0 4px"><i class="ic ic-clip"></i> バックアップコード（念のための控え。メモ帳などに保存しておくと安心）</div>
     <textarea id="bkCode" class="txt" style="width:100%;height:80px;font-size:11px" readonly>${dump()}</textarea>
     <div class="row" style="margin-top:6px"><button class="btn" id="bkCopy">コピー</button></div>

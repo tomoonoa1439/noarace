@@ -2,39 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
-
-    // 自分のセーブデータ（本人のみ）
     match /users/{uid}/{document=**} {
-      allow read, write: if isMe(uid);
+      allow read, write: if signedIn() && request.auth.uid == uid;
     }
-    // プレイヤー情報（ランキング・送金先の検索に使うので、ログイン済みなら閲覧可。書き込みは本人のみ）
-    match /players/{uid} {
-      allow read: if signedIn();
-      allow write: if isMe(uid);
-      // 受け取り箱：誰でも入れられる（送金・返金・売上）、読む・消すのは本人のみ
-      match /inbox/{id} {
-        allow create: if signedIn();
-        allow read, delete: if isMe(uid);
-      }
+    match /players/{uid}/inbox/{id} {
+      allow create: if signedIn();
+      allow read, delete: if signedIn() && request.auth.uid == uid;
     }
-    // マスター・運用アカウント・自動処理の記録（ログイン済みの端末が代行処理する）
     match /master/{id} { allow read: if true; allow write: if signedIn(); }
-    match /bots/{id}   { allow read, write: if signedIn(); }
     match /meta/{id}   { allow read, write: if signedIn(); }
-    // オンラインレース
-    match /online/{key} {
-      allow read, write: if signedIn();
-      match /entries/{uid} {
-        allow read: if signedIn();
-        allow write: if isMe(uid) || (signedIn() && uid.matches('bot_.*'));
-      }
-      match /bets/{id} {
-        allow read: if signedIn();
-        allow create: if signedIn() && (request.resource.data.uid == request.auth.uid || request.resource.data.uid.matches('bot_.*'));
-      }
-    }
-    // ホースマーケット
+    match /bots/{id}   { allow read, write: if signedIn(); }
+    match /race/{key}  { allow read, write: if signedIn(); }
     match /market/{id} { allow read, write: if signedIn(); }
   }
 }
