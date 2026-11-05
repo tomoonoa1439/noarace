@@ -3177,7 +3177,7 @@ $('#navOnline').onclick=openOnline;
 $('#rescue').onclick=doRescue;
 // ======================= ホースマーケット（引退馬の売買） =======================
 // いまはAIの馬主が入札・出品する仮運用。Firebase導入後にプレイヤー同士の売買へ切り替える。
-const MKT_DUR=24*3600e3, MKT_FEE=0.05, MKT_CAP=1.4, MKT_NPC=4;
+const MKT_DUR=24*3600e3, MKT_FEE=0.1, MKT_CAP=1.4, MKT_NPC=4;
 let mkt=store.get('mkt',{list:[],log:[]}); const saveMkt=()=>store.set('mkt',mkt);
 const mktStep=c=>Math.max(500,Math.round(c*0.05/100)*100);
 const mktCapOf=est=>Math.floor(est*MKT_CAP/100)*100;
@@ -3212,7 +3212,7 @@ function mktOutbid(L){ const hi=mktHigh(L); if(hi&&hi.me){ setBal(balance+hi.amt
 function mktClose(L,t){ const hi=mktHigh(L); L.closed=t||Date.now();
   if(L.seller==='me'){ const h=stable.find(x=>x.id===L.horseId);
     if(hi){ L.status='sold'; const get=Math.round(hi.amt*(1-MKT_FEE)); setBal(balance+get); if(h){ stable=stable.filter(x=>x.id!==h.id); saveStable(); } L.snap=h?JSON.parse(JSON.stringify(h)):L.snap;
-      const m=`${h?h.name:'出品馬'} が ${hi.who} に ${fmt(hi.amt)} NOA で落札されました（手数料5%引き後 +${fmt(get)} NOA）`; mkt.log.unshift(m); toast('マーケット：'+m); }
+      const m=`${h?h.name:'出品馬'} が ${hi.who} に ${fmt(hi.amt)} NOA で落札されました（手数料10%引き後 +${fmt(get)} NOA）`; mkt.log.unshift(m); toast('マーケット：'+m); }
     else { L.status='expired'; if(h){ delete h.listed; saveStable(); } mkt.log.unshift(`${h?h.name:'出品馬'}：入札がなく出品期間が終了しました`); } }
   else { if(hi&&hi.me){ L.status='won'; const h=JSON.parse(JSON.stringify(L.horse)); h.id='b'+Date.now().toString(36)+Math.floor(Math.random()*1e4); h.retired=true; h.bought={from:L.seller,price:hi.amt}; stable.push(h); saveStable();
       const m=`${h.name} を ${fmt(hi.amt)} NOA で落札！ 引退馬として厩舎に加わりました`; mkt.log.unshift(m); toast('マーケット：'+m); }
@@ -3222,7 +3222,7 @@ function mktList(id){ const h=stable.find(x=>x.id===id); if(!h||!h.retired||h.li
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> ${h.name} をマーケットに出品</div>
     <div class="sub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.age}歳・${h.races}戦${h.wins}勝　推定売却額 <b class="gold">${fmt(est)} NOA</b></div>
     <label class="mk-in">開始価格 <input type="number" id="mkStart" min="1000" max="${cap}" step="100" value="${est}"> NOA</label>
-    <div class="hsub">・開始価格は推定売却額の140%（<b>${fmt(cap)} NOA</b>）まで<br>・<b>${fmt(cap)} NOA</b> 以上の入札が入るとその場で即落札<br>・出品期間は24時間。入札があれば最高額で落札、なければ手元に戻ります<br>・落札されると馬のデータごと落札者へ移籍します（手数料5%）<br>・出品中は閲覧のみで、配合・分解・売却はできません</div>
+    <div class="hsub">・開始価格は推定売却額の140%（<b>${fmt(cap)} NOA</b>）まで<br>・<b>${fmt(cap)} NOA</b> 以上の入札が入るとその場で即落札<br>・出品期間は24時間。入札があれば最高額で落札、なければ手元に戻ります<br>・落札されると馬のデータごと落札者へ移籍します（手数料10%）<br>・出品中は閲覧のみで、配合・分解・売却はできません</div>
     <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="mkNo">やめる</button><button class="btn gold" id="mkYes">出品する</button></div>`;
   $('#resModal').classList.add('on'); $('#mkNo').onclick=()=>$('#resModal').classList.remove('on');
   $('#mkYes').onclick=()=>{ const v=Math.round(+$('#mkStart').value/100)*100; if(!(v>=1000)){ toast('開始価格は1,000 NOA以上にしてください'); return; } if(v>cap){ toast(`推定売却額の140%（${fmt(cap)} NOA）を超える金額は登録できません`); return; }
