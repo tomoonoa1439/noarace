@@ -627,6 +627,34 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
 .atc .ic{width:1em;height:1em}.atc.sm{font-size:10px;padding:0 5px 0 3px}
 .atc.rainbow{background:linear-gradient(90deg,#ff5a8a,#ffd34f,#5aff9a,#4db8ff,#b06aff)}
 .attrbox{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;margin:8px 0;border:1px solid color-mix(in srgb,var(--ac) 60%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 18%,transparent),transparent);font-size:13px}
+.wxb{background:linear-gradient(90deg,#9fe8ff,#b18cff)!important}
+.wxc{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;padding:1px 7px 1px 5px;color:var(--wc);border:1px solid color-mix(in srgb,var(--wc) 55%,transparent);background:color-mix(in srgb,var(--wc) 12%,transparent);white-space:nowrap}
+.wxc .ic{width:12px;height:12px}
+.wxdesc{margin-top:6px;font-size:12px;padding:6px 10px;border-left:3px solid var(--wc);background:linear-gradient(90deg,color-mix(in srgb,var(--wc) 16%,transparent),transparent)}
+.wxdesc b{color:var(--wc)}
+#wxFx{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+#wxFx::before,#wxFx::after{content:'';position:absolute;inset:0;opacity:0}
+.wx-sun::before{opacity:1!important;background:radial-gradient(circle at 78% 8%,#fff3d0aa,#ff9a4055 25%,transparent 60%);mix-blend-mode:screen;animation:wxPulse 3s ease-in-out infinite}
+.wx-sun::after{opacity:1!important;box-shadow:inset 0 0 120px #ff7a2a66}
+.wx-storm::before{background:#d8c8ff;mix-blend-mode:screen;animation:wxFlash 7s steps(1) infinite}
+.wx-storm::after{opacity:.12!important;inset:-50% 0!important;background:repeating-linear-gradient(0deg,#b18cff 0 1px,transparent 1px 4px);animation:wxScan 1.2s linear infinite}
+.wx-fog::before{opacity:1!important;background:linear-gradient(0deg,#cfeeff70,#9fe8ff33 45%,#cfeeff22)}
+.wx-meteor::before{opacity:1!important;background:radial-gradient(ellipse at 50% 0%,#ffe08a22,transparent 60%)}
+.wx-sakura::before{opacity:1!important;box-shadow:inset 0 0 110px #ff6ab055}
+.wx-acid::before{opacity:1!important;background:#30ff9010;box-shadow:inset 0 0 120px #20c07055}
+.wx-acid::after{opacity:.5!important;inset:-100% 0 0 0!important;background:repeating-linear-gradient(100deg,transparent 0 22px,#7dffb02e 22px 23px);animation:wxRain .5s linear infinite}
+@keyframes wxPulse{50%{opacity:.75}}
+@keyframes wxFlash{0%,100%{opacity:0}41%{opacity:.45}42%{opacity:0}43.5%{opacity:.3}44.5%{opacity:0}78%{opacity:.35}79%{opacity:0}}
+@keyframes wxScan{to{transform:translateY(25%)}}
+@keyframes wxRain{to{transform:translate(-8%,50%)}}
+#wxAlert{position:absolute;left:50%;top:22%;transform:translate(-50%,0);z-index:6;pointer-events:none;opacity:0;text-align:center;padding:12px 26px;min-width:260px;background:rgba(6,8,24,.86);border-top:2px solid var(--wc);border-bottom:2px solid var(--wc);clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+#wxAlert small{display:block;font-size:11px;letter-spacing:.35em;color:var(--wc);font-weight:900}
+#wxAlert b{display:flex;align-items:center;justify-content:center;gap:6px;font-size:26px;color:#fff;text-shadow:0 0 14px var(--wc);margin:2px 0}
+#wxAlert b .ic{width:24px;height:24px;background:var(--wc)}
+#wxAlert span{font-size:12px;color:#d8e2ff}
+#wxAlert.on{animation:wxIn 3.4s ease forwards}
+@keyframes wxIn{0%{opacity:0;transform:translate(-50%,10px) scaleX(1.4)}8%{opacity:1;transform:translate(-50%,0) scaleX(1)}12%,20%{opacity:.6}16%,24%,82%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px)}}
+@media(max-width:720px){#wxAlert{min-width:0;width:86%;padding:10px 14px}#wxAlert b{font-size:20px}}
 .vb{display:inline-block;font-size:10px;font-weight:900;padding:1px 5px;margin-left:4px;color:#1a0a00;background:linear-gradient(90deg,#ffd166,#ff8a3d)}
 .on-hero{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border:1px solid #8fd3ff66;background:linear-gradient(90deg,rgba(77,184,255,.18),rgba(167,123,255,.12));clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)}
 .on-hero small{font:900 11px ui-monospace,Menlo,monospace;letter-spacing:.3em;color:#8fd3ff}.on-hero b{display:block;font-size:17px;margin:2px 0}
@@ -755,7 +783,7 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
         <button class="ghost" id="sndBtn"><i class="ic ic-sound"></i></button><button class="ghost" id="tixBtn"><i class="ic ic-ticket"></i> 馬券</button><button class="ghost" id="skip">結果へ ▶▶</button>
       </div>
     </div>
-    <div class="stage"><canvas id="gl"></canvas><canvas id="cv" class="ov"></canvas><div id="boostFx"></div>
+    <div class="stage"><canvas id="gl"></canvas><canvas id="cv" class="ov"></canvas><div id="wxFx"></div><div id="wxAlert"></div><div id="boostFx"></div>
       <div id="opsBar"><div class="ops-g"><small>NEON BOOST</small><div class="ops-bar"><i id="opsGauge"></i></div><span id="opsMsg"></span></div>
       <button id="opsIn" class="ops-b">内を突け</button><button id="opsOut" class="ops-b">外に出せ</button><button id="opsBoost" class="ops-b boost"><i class="ic ic-bolt"></i>BOOST</button></div></div>
     <div class="race-grid">
@@ -1021,9 +1049,25 @@ function legendMud(m){ return m.mud!=null?m.mud:(MUD[m[0]]!=null?MUD[m[0]]:((has
 const surfAdj=(apt,surface)=>surface==='ダ'? apt*0.9 : (apt>0? -apt*0.8 : 0);
 const mudAdj=(m,going)=>m*({'良':0,'稍重':0.4,'重':0.8,'不良':1.2}[going]||0);
 const skillAdj=(sk,h,race)=>(sk||[]).reduce((a,k)=>a+((SKILLS[k]&&SKILLS[k].f(h,race))||0),0);
-function rollGoing(tpl){ const r=Math.random(), w=r<0.55?'晴':r<0.8?'曇':r<0.92?'小雨':'雨';
-  const g= w==='晴'?(Math.random()<0.92?'良':'稍重') : w==='曇'?(Math.random()<0.75?'良':'稍重') : w==='小雨'?(Math.random()<0.5?'稍重':'重') : (Math.random()<0.5?'重':'不良');
-  return {weather:w,going:g,add:({'良':0,'稍重':0.8,'重':1.8,'不良':2.8})[g]*(tpl.surface==='ダ'?-0.4:1)}; }
+// ======================= 宇宙気象 =======================
+const WX={
+ clear:{n:'クリア',ic:'moon',col:'#8fd3ff',d:'宇宙気象は安定。影響なし',attr:[]},
+ sun:{n:'太陽接近中',ic:'sun',col:'#ffb347',d:'灼熱でスタミナを消耗。逃げ・先行が苦しく、2000m以上は荒れやすい',attr:['fire','light'],sty:{'逃':-0.8,'先':-0.3,'差':0.3,'追':0.5},sd:R=>R.dist>=2000?1.25:1.08},
+ storm:{n:'磁気嵐',ic:'bolt',col:'#b18cff',d:'電磁ノイズで展開が乱れ、後方一気が決まりやすい。ブーストゲージ1.3倍',attr:['thunder'],sty:{'逃':-0.4,'差':0.4,'追':0.9},sd:()=>1.15},
+ fog:{n:'氷霧',ic:'cloud',col:'#9fe8ff',d:'視界不良で後続が仕掛けにくい。逃げ・先行が有利',attr:['ice'],sty:{'逃':1.0,'先':0.4,'追':-0.6}},
+ meteor:{n:'流星雨',ic:'star',col:'#ffe08a',d:'展開が読めず、人気薄の激走が増える',attr:['moon','rainbow'],sd:()=>1.4},
+ sakura:{n:'桜嵐',ic:'leaf',col:'#ff9bd2',d:'追い風の花吹雪。差し馬がよく伸びる',attr:['sakura'],sty:{'逃':-0.3,'差':0.8,'追':0.3}},
+ acid:{n:'酸性雨',ic:'rain',col:'#7dffb0',d:'馬場が重くなり、パワー型・道悪巧者が有利',attr:['forest']},
+};
+const WX_KEYS=Object.keys(WX);
+const wxPick=sd=>{ const r=(sd%1000)/1000; return r<0.4?'clear':WX_KEYS[1+Math.min(5,Math.floor((r-0.4)/0.6*6))]; };
+const wxBucket=tpl=>tpl.online?0:tpl.weekly?wIdx():Math.floor(Date.now()/600000);
+const wxForecast=tpl=>wxPick(hash((tpl.id||'')+'|wxF|'+wxBucket(tpl)));
+function wxActual(tpl){ const f=wxForecast(tpl), h=hash((tpl.id||'')+'|wxA|'+wxBucket(tpl)); return h%100<75?f:wxPick(h>>>7); }
+const wxChip=(k,txt)=>{ const W=WX[k]||WX.clear; return `<span class="wxc" style="--wc:${W.col}"><i class="ic ic-${W.ic}"></i>${txt||W.n}</span>`; };
+function rollGoing(tpl){ const wx=wxActual(tpl), w=WX[wx].n, q=Math.random();
+  const g= wx==='acid'?(q<0.55?'重':'不良') : wx==='clear'||wx==='sun'?(q<0.92?'良':'稍重') : (q<0.75?'良':'稍重');
+  return {wx,weather:w,going:g,add:({'良':0,'稍重':0.8,'重':1.8,'不良':2.8})[g]*(tpl.surface==='ダ'?-0.4:1)}; }
 function legendFit(m,race){ const sk=m.skills||LSK[m[0]]||[];
   return distFit(m,race.dist)+surfAdj(legendSurf(m),race.surface)+mudAdj(legendMud(m),race.going)+skillAdj(sk,{style:m[6]},race)+(race.intl?(FOREIGN.has(m[0])?0.6:-0.4):0); }
 function legendPool(tpl){ let p=ROSTER.filter(m=>tpl.intl||!FOREIGN.has(m[0])); if(!tpl.weekly&&!tpl.online) p=p.concat(hallEntries()); if(tpl.sex) p=p.filter(m=>m[1]===tpl.sex); return p; }
@@ -1044,9 +1088,9 @@ function generateRace(tpl,own,opt={}){
     if(rv) ents.push(rivalEnt(rv,race0));
     for(let i=ents.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ents[i],ents[j]]=[ents[j],ents[i]]; }
     ents.forEach(e=>e.formR=Math.random()); if(extra) extra.formR=Math.random();
-    tpl._cache={going:gw.going,weather:gw.weather,add:gw.add,ents,extra,slot:Math.floor(Math.random()*(ents.length+1))};
+    tpl._cache={wx:gw.wx,going:gw.going,weather:gw.weather,add:gw.add,ents,extra,slot:Math.floor(Math.random()*(ents.length+1))};
   }
-  const c=tpl._cache, race={...tpl,going:c.going,weather:c.weather,goingAdd:c.add};
+  const c=tpl._cache, race={...tpl,wx:c.wx,going:c.going,weather:c.weather,goingAdd:c.add};
   const ents=c.ents.map(e=>({...e}));
   const add= own? ownEnt(own,race,opt) : (c.extra?{...c.extra}:null);
   if(add) ents.splice(Math.min(c.slot,ents.length),0,add);
@@ -1054,6 +1098,7 @@ function generateRace(tpl,own,opt={}){
   const hs=ents.map((e,i)=>({...e,no:i+1,rating:e.fit}));
   [...hs].sort((a,b)=>b.rating-a.rating).forEach(h=>{ if(h.jockeyFixed){ h.jockey=h.jockeyFixed; return; } let j=(h.jockeys||[]).find(x=>!used.has(x)); if(!j){ const pool=JOCKEY_POOL.filter(x=>!used.has(x)); j=pool[hash(h.name+tpl.id)%Math.max(1,pool.length)]||'見習い騎手'; } used.add(j); h.jockey=j; });
   hs.forEach(h=>{ const st_=h.own?stable.find(x=>x.id===h.stableId):null; h.attr=st_?attrOf(st_):legendAttr(h.name); h.venueB=venueBonus(h.attr,race); h.fit+=h.venueB; h.sd=(h.sd||4.2)*attrBuff(h.attr,'sd'); });
+  { const W=WX[race.wx]||WX.clear; hs.forEach(h=>{ h.wxAttr=W.attr.includes(h.attr); h.wxB=(h.wxAttr?1.0:0)+((W.sty||{})[h.style]||0); h.fit+=h.wxB; if(W.sd) h.sd=(h.sd||4.2)*W.sd(race); }); }
   if(tpl.gimmick==='moon') hs.forEach(h=>h.sd=(h.sd||4.2)*1.25);
   hs.forEach(h=>{ const r=h.formR??0.5; let f= r<0.08?0: r<0.28?1: r<0.72?2: r<0.92?3:4; if(h.own) f=2+clamp(h.ownForm,-2,2); h.form=FORM[f]; h.base=h.fit+h.form[2]*0.9; h.waku=wakuOf(h.no,n); });
   // オッズ＝「予想上の強さ（能力・距離・馬場・調子・適性）」から算出。実際の着順はレース時に別途抽選する。
@@ -1097,7 +1142,7 @@ function renderList(){
   $('#weekHead').innerHTML=`<i class="ic ic-cal"></i> ${calLabel()} の開催${sel?`　<span class="gold">★印：${sel.name}が出走できるレース</span>`:''}`;
   $('#weekList').innerHTML=wr.map(r=>{ WEEKMAP[r.id]=r; const el=act.filter(h=>eligible(h,r)), done=cal.done[r.id];
     return `<div class="wcard ${done?'done':''} ${r.grade==='G1'?'g1':''}" data-w="${r.id}"><span class="gb g-${r.grade}">${r.grade}</span>
-      <div style="flex:1"><b>${r.name}</b><div class="hsub">${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue} ${r.surface==='ダ'?'ダート':'芝'}${fmt(r.dist)}m・${r.n}頭${r.age3?'・3歳限定':''}${r.sex?'・牝馬限定':''}　1着 ${fmt(r.prize)} NOA・参加費 ${r.fee?fmt(r.fee)+' NOA':'無料'}</div>${r.gimmick?`<div class="hsub sp-d"><i class="ic ic-${GIMMICK[r.gimmick].ic}"></i> ${GIMMICK[r.gimmick].d}</div>`:''}</div>
+      <div style="flex:1"><b>${r.name}</b><div class="hsub">${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue} ${r.surface==='ダ'?'ダート':'芝'}${fmt(r.dist)}m・${r.n}頭${r.age3?'・3歳限定':''}${r.sex?'・牝馬限定':''}　1着 ${fmt(r.prize)} NOA・参加費 ${r.fee?fmt(r.fee)+' NOA':'無料'}　予報 ${wxChip(wxForecast(r))}</div>${r.gimmick?`<div class="hsub sp-d"><i class="ic ic-${GIMMICK[r.gimmick].ic}"></i> ${GIMMICK[r.gimmick].d}</div>`:''}</div>
       <div class="wr">${done?`<span class="hsub">終了（勝ち馬：${done}）</span>`:el.length?`<span class="elig ${sel&&el.includes(sel)?'me':''}">★ ${el.map(h=>h.name).join('・')}</span>`:''}</div></div>`; }).join('');
   document.querySelectorAll('.wcard').forEach(el=>el.onclick=()=>{ if(cal.done[el.dataset.w]){ toast('このレースは終了しました'); return; } openBet(WEEKMAP[el.dataset.w]); });
   $('#raceList').innerHTML = RACES.map((r,ri)=>`<div class="rcard art" data-id="${r.id}" style="--art:url(assets/${['hero_t.jpg','hero1_t.jpg','hero2_t.jpg','hero3_t.jpg','hero4_t.jpg','hero5_t.jpg','hero6_t.jpg','hero7_t.jpg'][ri%8]})"><div class="g">${r.grade}</div>
@@ -1135,8 +1180,8 @@ function openBet(spec){
   document.querySelectorAll('#betTabs button').forEach(b=>b.onclick=()=>{ betType=b.dataset.k; if(bt().need===1) buyMode='normal'; resetPicks(); renderBet(); });
   renderBet(); show('s-bet');
 }
-function betMeta(){ const wi={'晴':'<i class="ic ic-sun"></i>','曇':'<i class="ic ic-cloud"></i>','小雨':'<i class="ic ic-rain"></i>','雨':'<i class="ic ic-rain"></i>'}[RACE.weather]||'';
-  $('#betMeta').innerHTML=`${CUR.weekly?calLabel()+'　':''}${RACE.venue} ${RACE.surface==='ダ'?'ダート':'芝'}${fmt(RACE.dist)}m（${RACE.turn}回り）　${wi}${RACE.weather}・馬場 <b class="${RACE.going==='良'?'':'bad'}">${RACE.going}</b>　${RACE.n}頭${RACE.intl?'　<span class="gold">海外遠征</span>':''}　<span class="sp-d"><i class="ic ic-${THEMES[raceTheme(RACE)].ic}"></i> 会場：${THEMES[raceTheme(RACE)].n}</span>　<span class="hsub">得意属性：${ATTR_BASE.filter(k=>ATTR[k].home.includes(raceTheme(RACE))).map(k=>attrChip(k,true)).join('')}</span>`; }
+function betMeta(){ const W=WX[RACE.wx]||WX.clear, fc=CUR&&CUR.weekly?wxForecast(CUR):RACE.wx, wi=wxChip(RACE.wx)+(fc!==RACE.wx?`<span class="bad">（予報 ${WX[fc].n} → 急変！）</span>`:''), wxd=`<div class="wxdesc" style="--wc:${W.col}"><b>${W.n}</b>　${W.d}${W.attr.length?'　有利な属性：'+W.attr.map(k=>attrChip(k,true)).join(''):''}</div>`;
+  $('#betMeta').innerHTML=`${CUR.weekly?calLabel()+'　':''}${RACE.venue} ${RACE.surface==='ダ'?'ダート':'芝'}${fmt(RACE.dist)}m（${RACE.turn}回り）　${wi}　馬場 <b class="${RACE.going==='良'?'':'bad'}">${RACE.going}</b>　${RACE.n}頭${RACE.intl?'　<span class="gold">海外遠征</span>':''}　<span class="sp-d"><i class="ic ic-${THEMES[raceTheme(RACE)].ic}"></i> 会場：${THEMES[raceTheme(RACE)].n}</span>　<span class="hsub">得意属性：${ATTR_BASE.filter(k=>ATTR[k].home.includes(raceTheme(RACE))).map(k=>attrChip(k,true)).join('')}</span>${wxd}`; }
 function renderOwnRow(elig){
   elig=elig||(CUR.weekly?stable.filter(h=>eligible(h,CUR)):[]);
   if(!elig.length){ $('#ownRow').style.display='none'; betMeta(); return; }
@@ -1172,7 +1217,7 @@ function renderBet(){
     const tags=(h.own?'<span class="owntag">MY</span>':'')+(h.rival?'<span class="owntag rv">RIVAL</span>':'')+(h.hall?'<span class="owntag hl">殿堂</span>':'');
     return `<tr class="h ${sel?'sel':''} ${h.own?'own':''} ${h.rival?'rvrow':''}" data-i="${i}"><td><span class="wk" style="background:${bg};color:${fg}">${h.waku}</span></td>
       <td class="num" style="text-align:center;font-weight:800">${h.no}</td>
-      <td class="nm"><div class="hname">${tags}${h.name} ${h.attr?attrChip(h.attr,true):''}${h.venueB>0?'<span class="vb">会場◎</span>':''}</div><div class="hsub">${h.sex}・${h.tag}${h.skills&&h.skills.length?`・<span class="gold">${h.skills.join('・')}</span>`:''}<span class="m-only">・${h.jockey}</span></div></td>
+      <td class="nm"><div class="hname">${tags}${h.name} ${h.attr?attrChip(h.attr,true):''}${h.venueB>0?'<span class="vb">会場◎</span>':''}${h.wxAttr?'<span class="vb wxb">天候◎</span>':''}</div><div class="hsub">${h.sex}・${h.tag}${h.skills&&h.skills.length?`・<span class="gold">${h.skills.join('・')}</span>`:''}<span class="m-only">・${h.jockey}</span></div></td>
       <td class="c-j jk">${h.jockey}</td>
       <td class="c-s hsub">${STYLE_N[h.style]}</td>
       <td title="${h.form[1]}" style="font-weight:800;color:${h.form[2]>0?'#4fd18a':h.form[2]<0?'#ff8a7a':'#93ab9c'}">${h.form[0]}</td>
@@ -1495,9 +1540,10 @@ function buildWorld(){
   const scr=new THREE.Mesh(new THREE.PlaneGeometry(66,19),new THREE.MeshBasicMaterial({map:canvasTex(512,148,(c,w,h)=>{ const g=c.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0e3a6b'); g.addColorStop(1,'#062347'); c.fillStyle=g; c.fillRect(0,0,w,h); c.fillStyle='#fff'; c.font='bold 54px sans-serif'; c.textAlign='center'; c.fillText(RACE.name,w/2,74); c.font='26px sans-serif'; c.fillStyle='#ffd54a'; c.fillText(''+(RACE.weekly?'NOA RACECOURSE':'DREAM RACE ◎ NOA')+'',w/2,122); }),toneMapped:false}));
   scr.position.set(0,24,1.05); tvg.add(scr);
 }
-function addRain(){ if(!(RACE.weather==='雨'||RACE.weather==='小雨')){ T.rain=null; return; } const n=RACE.weather==='雨'?6000:2500, g=new THREE.BufferGeometry(), a=new Float32Array(n*3);
+const WX_PT={acid:{n:4500,c:0x7dffb0,s:0.45,v:45,w:3,o:.8},sakura:{n:1800,c:0xff8ac8,s:1.1,v:5,w:12,o:.95},fog:{n:2200,c:0xd8f6ff,s:0.55,v:2,w:2,o:.8},sun:{n:800,c:0xffa040,s:0.8,v:-5,w:1,o:.9},storm:{n:600,c:0xb18cff,s:0.7,v:-2,w:8,o:.85}};
+function addRain(){ const P=WX_PT[RACE.wx]; if(!P){ T.rain=null; return; } const n=P.n, g=new THREE.BufferGeometry(), a=new Float32Array(n*3);
   for(let i=0;i<n;i++){ a[i*3]=(Math.random()-0.5)*160; a[i*3+1]=Math.random()*60; a[i*3+2]=(Math.random()-0.5)*160; } g.setAttribute('position',new THREE.BufferAttribute(a,3));
-  T.rain=new THREE.Points(g,new THREE.PointsMaterial({color:0xcfd8e0,size:0.18,transparent:true,opacity:0.7})); T.scene.add(T.rain); }
+  T.rain=new THREE.Points(g,new THREE.PointsMaterial({map:CYB.glow||null,color:P.c,size:P.s,transparent:true,opacity:P.o,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); T.rain.userData=P; T.scene.add(T.rain); }
 function buildRaceObjs(){ addRain();
   const sc=T.scene, white=new THREE.MeshLambertMaterial({color:0xf5f5f5}), red=new THREE.MeshLambertMaterial({color:0xd32f2f});
   // ハロン棒
@@ -1699,7 +1745,7 @@ function frame(dt){ if(T.cyRings) T.cyRings.forEach((r,i)=>r.rotation.z+=0.0015*
   S.hs.forEach(h=>animHorse(h,lead)); gimmickMotion(S); if(T.themeTick) T.themeTick(dt*(S.speed||1),S,rk);
   if(T.cam){ const cp_=T.cam.position, run=SIM.u>0.05; S.hs.forEach(h=>{ const fx=h.obj&&h.obj.fx; if(fx) fx.update(dt*(S.speed||1),run?1.2:0.1,cp_.distanceTo(h.obj.root.position)); }); }
   updateCam(dt,rk);
-  positionSun(S.cam.look); if(T.rain){ T.rain.position.set(S.cam.look[0],0,S.cam.look[2]); const pa=T.rain.geometry.attributes.position; for(let i=1;i<pa.array.length;i+=3){ pa.array[i]-=dt*40; if(pa.array[i]<0) pa.array[i]+=60; } pa.needsUpdate=true; } if(T.gate) T.gate.visible=S.u<14;
+  positionSun(S.cam.look); if(T.rain){ T.rain.position.set(S.cam.look[0],0,S.cam.look[2]); const pa=T.rain.geometry.attributes.position; const P=T.rain.userData, sw=Math.sin(S.rt*1.3); for(let i=1;i<pa.array.length;i+=3){ pa.array[i]-=dt*P.v; if(pa.array[i]<0) pa.array[i]+=60; else if(pa.array[i]>60) pa.array[i]-=60; pa.array[i-1]+=dt*P.w*(0.6+0.4*sw); if(pa.array[i-1]>80) pa.array[i-1]-=160; } pa.needsUpdate=true; } if(T.gate) T.gate.visible=S.u<14;
   if(S.split){ const th=Math.round(H*0.27); renderView(S.cam,0,0,W,H-th); renderView(wideCam(S,rk,W/th),0,H-th,W,th,T.cam2); }
   else renderView(S.cam,0,0,W,H);
   drawHUD(rk);
@@ -1720,12 +1766,12 @@ function startRace(){
   show('s-race'); resize(); if(!initGL()) return; if(RACE.online) withSeed(hash(RACE.id)+7,()=>setupSim()); else setupSim(); SIM.camUser=camUserPref; SIM.running=false;
   cancelAnimationFrame(raf);
   $('#comm').innerHTML=''; $('#raceTitle').textContent=rTitle()+'　｜　'+THEMES[raceTheme(RACE)].n;
-  $('#raceModeLbl').textContent=`${RACE.venue} ${RACE.surface}${RACE.dist}m・${RACE.going}`;
+  $('#raceModeLbl').textContent=`${RACE.venue} ${RACE.surface}${RACE.dist}m・${RACE.going}・${(WX[RACE.wx]||WX.clear).n}`; wxStage();
   document.querySelectorAll('#speedSw [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s==='1'));
   ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.font='16px sans-serif'; ctx.fillText('競馬場を準備中…',20,40);
   const mySim=SIM;
   loadAssets().then(()=>{ if(SIM!==mySim) return; buildWorld(); buildRaceObjs();
-    say(`${RACE.venue}競馬場、${RACE.surface}${RACE.dist}m。各馬ゲートに収まりました……`);
+    say(`${RACE.venue}競馬場、${RACE.surface}${RACE.dist}m。各馬ゲートに収まりました……`); if(RACE.wx&&RACE.wx!=='clear'){ say(`【気象警報】${WX[RACE.wx].n}。${WX[RACE.wx].d}`); if(!RACE.liveFrom) wxAlert(); }
     lastT=performance.now(); if(RACE.liveFrom){ SIM.running=true; SIM.u=Math.max(0,(Date.now()-RACE.liveFrom)/1000*3); const p0=SIM.ref(SIM.u)/SIM.D; SIM.events.forEach(e=>{ if(e.p<p0) e.done=true; }); if(SIM.u>0.5) say('ライブ中継に合流しました'); sfx('gate'); } else { sfx('fanfare'); setTimeout(()=>{ if(SIM===mySim){ SIM.running=true; sfx('gate'); } },2600); }
     raf=requestAnimationFrame(loop);
   }).catch(e=>{ console.error(e); toast('3Dの準備でエラーが発生しました：'+(e&&e.message||e)); });
@@ -2694,8 +2740,31 @@ function applyTheme(sc){ const th=raceTheme(RACE); T.themeTick=null; T.theme=th;
     glowSprite(cx-600,600,-cz-2800,1600,new THREE.Color(0xfff0d0),.9);
     const ul=[]; for(let s=0;s<G.C;s+=25){ const p=V3(s,13,0); ul.push({p:[p[0],-4,p[2]],s:[1.4,1.4,1.4],c:new THREE.Color(0xff9be0)}); } add(inst(new THREE.SphereGeometry(1,8,6),new THREE.MeshBasicMaterial({color:0xffffff}),ul,false));
     ticks.push((dt,S)=>{ clouds.position.x=Math.sin(S.rt*0.05)*30; }); }
+  wxScene(sc,{add,ticks,glowSprite,cx,cz,RB,R});
   T.themeTick=(dt,S,rk)=>ticks.forEach(f=>f(dt,S,rk));
 }
+function wxScene(sc,o){ const k=RACE.wx; if(!k||k==='clear') return; const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  const tint=(c,a)=>{ if(sc.fog) sc.fog.color.lerp(new THREE.Color(c),a); };
+  if(k==='sun'){ tint(0xff9a50,.35); const x=cx+RB*0.4, y=520, z=-cz-RB*1.6;
+    const core=add(new THREE.Mesh(new THREE.SphereGeometry(320,40,24),new THREE.MeshBasicMaterial({color:0xfff1d0,fog:false}))); core.position.set(x,y,z);
+    const g1=glowSprite(x,y,z,2200,new THREE.Color(0xffa040),.95), g2=glowSprite(x,y,z,4200,new THREE.Color(0xff6a20),.45);
+    ticks.push((dt,S)=>{ const p=1+Math.sin(S.rt*2.2)*0.05; g1.scale.set(2200*p,2200*p,1); g2.material.opacity=.4+Math.sin(S.rt*1.3)*.08; }); }
+  if(k==='storm'){ tint(0x3a1a6a,.4); const mat=new THREE.LineBasicMaterial({color:0xe0d0ff,transparent:true,opacity:0,fog:false}); const bolts=[];
+    for(let b=0;b<4;b++){ const a=R()*6.283, d=RB*(0.5+R()*0.6); let x=cx+Math.cos(a)*d, z=-cz+Math.sin(a)*d, y=700; const pts=[]; while(y>0){ pts.push(new THREE.Vector3(x,y,z)); x+=(R()-.5)*90; z+=(R()-.5)*90; y-=50+R()*60; } pts.push(new THREE.Vector3(x,0,z));
+      const ln=add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat.clone())); const gl=glowSprite(x,40,z,500,new THREE.Color(0xb18cff),0); bolts.push({ln,gl,t:R()*4}); }
+    ticks.push(dt=>bolts.forEach(b=>{ b.t-=dt; if(b.t<0){ b.t=1.5+Math.random()*4; b.f=0.35; } if(b.f>0){ b.f-=dt; const on=(b.f*20|0)%2?1:0.2; b.ln.material.opacity=on; b.gl.material.opacity=on*.8; } else { b.ln.material.opacity=0; b.gl.material.opacity=0; } })); }
+  if(k==='fog'){ if(sc.fog){ sc.fog.color.set(0x8ab8d8); sc.fog.near=80; sc.fog.far=1000; }
+    const ps=[]; for(let i=0;i<14;i++){ const a=R()*6.283, d=RB*(0.2+R()*0.5); ps.push(glowSprite(cx+Math.cos(a)*d,20+R()*30,-cz+Math.sin(a)*d,500+R()*400,new THREE.Color(0xcfeeff),.18)); }
+    ticks.push((dt,S)=>ps.forEach((p,i)=>{ p.position.x+=Math.sin(S.rt*0.2+i)*dt*6; })); }
+  if(k==='meteor'){ const tx=canvasTex(256,32,(c,w,h)=>{ const g=c.createLinearGradient(0,0,w,0); g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.85,'rgba(255,230,160,.9)'); g.addColorStop(1,'#fff'); c.fillStyle=g; c.fillRect(0,h*.35,w,h*.3); });
+    const ms=[]; for(let i=0;i<26;i++){ const sp=add(new THREE.Sprite(new THREE.SpriteMaterial({map:tx,color:0xffffff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,rotation:-0.6}))); sp.scale.set(260,32,1); ms.push({sp,reset:true}); }
+    const re=m=>{ const a=R()*6.283, d=RB*(0.6+R()*1.2); m.sp.position.set(cx+Math.cos(a)*d,500+R()*900,-cz+Math.sin(a)*d); m.v=500+R()*600; m.life=1.2+R()*2.5; m.sp.material.opacity=0; };
+    ms.forEach(re); ticks.push(dt=>ms.forEach(m=>{ m.life-=dt; if(m.life<0) re(m); m.sp.material.opacity=Math.min(1,m.life); m.sp.position.x+=m.v*dt*.8; m.sp.position.y-=m.v*dt*.55; })); }
+  if(k==='sakura'){ tint(0xff6ab0,.3); for(let i=0;i<6;i++){ const a=R()*6.283, d=RB*(0.7+R()*0.5); glowSprite(cx+Math.cos(a)*d,120+R()*200,-cz+Math.sin(a)*d,700,new THREE.Color(0xff8ac8),.25); } }
+  if(k==='acid'){ tint(0x1a5a3a,.45); }
+}
+function wxStage(){ const el=$('#wxFx'); if(el) el.className='wx-'+(RACE.wx||'clear'); }
+function wxAlert(){ const el=$('#wxAlert'), W=WX[RACE.wx]; if(!el||!W) return; el.style.setProperty('--wc',W.col); el.innerHTML=`<small>WEATHER ALERT</small><b><i class="ic ic-${W.ic}"></i>${W.n}</b><span>${W.d}</span>`; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); }
 
 // ======================= パーツ改造 =======================
 const PARTS={
@@ -2762,7 +2831,7 @@ function bendKeys(h,p0,delta){ const pts=[[p0,keyBase(h,p0)]]; for(let p=p0+0.02
   const F=h.F-delta(1); h.keys=h.keys.filter(k=>k[0]<p0).concat(pts,[[1,F],[9,F]]); h.F=F; h.ft=SIM.T+F/SIM.vEnd; }
 function reorder(){ const S=SIM; S.order=[...S.hs].sort((a,b)=>a.F-b.F).map(h=>h.i); S.maxT=Math.max(...S.hs.map(h=>h.ft)); }
 function opsInit(){ const S=SIM, oh=S.hs.find(h=>h.own); const bar=$('#opsBar'); S.ops=null; if(!oh||RACE.online){ bar.style.display='none'; return; }
-  const st=stable.find(x=>x.id===oh.stableId); S.ops={oh,st,gauge:0,boosted:false,cmd:false,gmul:(1+(st?partSum(st,'gauge'):0))*attrBuff(st?attrOf(st):'thunder','gauge')};
+  const st=stable.find(x=>x.id===oh.stableId); S.ops={oh,st,gauge:0,boosted:false,cmd:false,gmul:(1+(st?partSum(st,'gauge'):0))*attrBuff(st?attrOf(st):'thunder','gauge')*(RACE.wx==='storm'?1.3:1)};
   bar.style.display='flex'; $('#opsBoost').disabled=true; $('#opsIn').disabled=false; $('#opsOut').disabled=false; $('#opsGauge').style.width='0%'; $('#opsMsg').textContent=`${oh.name}：ゲージが溜まったらブースト！ 狙い目は4コーナー〜直線入口`; }
 function opsTick(p){ const O=SIM.ops; if(!O||SIM.finishedAt!=null) return;
   if(!O.boosted){ O.gauge=clamp((p-0.1)/0.4*O.gmul,0,1); $('#opsGauge').style.width=(O.gauge*100)+'%'; $('#opsBoost').disabled=O.gauge<1; $('#opsBoost').classList.toggle('ready',O.gauge>=1); }
@@ -3033,7 +3102,7 @@ function renderOnline(){ settleAll(); const t=Date.now(), keys=onlineDayKeys();
     if(ph==='done') act+=`<button class="btn" data-or="${k}"><i class="ic ic-replay"></i>リプレイ</button>`;
     return `<div class="wcard on-card ${ph}"><span class="gb g-${sp.grade}">${sp.hour}:00</span>
       <div style="flex:1"><b>${sp.name}</b> <span class="hsub">${sp.legend?'名馬戦・賞金2倍':'オープン'}</span>
-        <div class="hsub">${sp.venue} ${sp.surface==='ダ'?'ダート':'芝'}${fmt(sp.dist)}m・16頭　${th?`<span class="sp-d"><i class="ic ic-${th.ic}"></i> ${th.n}</span>`:'<span class="hsub">会場は30分前に発表</span>'}</div>
+        <div class="hsub">${sp.venue} ${sp.surface==='ダ'?'ダート':'芝'}${fmt(sp.dist)}m・16頭　${th?`<span class="sp-d"><i class="ic ic-${th.ic}"></i> ${th.n}</span> ${wxChip(wxActual(sp))}`:'<span class="hsub">会場・天候は30分前に発表</span>'}</div>
         <div class="hsub"><b class="ph-${ph}">${PH_LBL[ph]}</b>${eh?`　エントリー：<b class="gold">${eh.name}</b>`:''}${bets.length?`　馬券 ${bets.length}件（${fmt(bets.reduce((a,b)=>a+itemCost(b),0))} NOA）`:''}${dn&&dn.names?`　1着 <b>${dn.names[0]}</b>${dn.ownPlace?`・あなたの馬 ${dn.ownPlace}着`:''}${dn.settled?`・払戻 ${fmt(dn.ret+dn.prize)}`:''}`:''}</div></div>
       <div class="wr on-act">${act}</div></div>`; }).join('');
   document.querySelectorAll('[data-oe]').forEach(b=>b.onclick=()=>onlineEntry(b.dataset.oe));
