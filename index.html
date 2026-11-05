@@ -323,6 +323,7 @@ tr.rvrow td{background:#2a1515}
 .mk-act{display:flex;flex-direction:column;gap:5px}.fcard.mkt.mine{border-color:#ffd16677}.fcard.mkt.lead{border-color:#7dffb088;box-shadow:0 0 12px #7dffb033}
 .mk-in{display:flex;align-items:center;gap:8px;margin:12px 0 8px;font-weight:800}.mk-in input{width:150px}
 .vo-tag{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;padding:1px 7px;color:#8fd3ff;border:1px solid #8fd3ff66;background:#8fd3ff14}.vo-tag .ic{width:11px;height:11px}
+.acct{border-left:3px solid #8fd3ff}#saveBtn.acct-on{box-shadow:0 0 0 1px #7dffb088 inset}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -995,13 +996,13 @@ const store = {
 const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接続中…',last:0,
   keys(){ const o=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('noa_')) o.push(k.slice(4)); } }catch(e){} return o; },
   localT(){ try{ return +(localStorage.getItem('noasys_t')||0); }catch(e){ return 0; } },
-  col(){ return this.db.collection('data/users/'+this.uid); },
+  col(){ return this.db.collection(this.path||('data/users/'+this.uid)); },
   setState(t){ this.state=t; const b=document.getElementById('saveBtn'); if(b) b.title='セーブ：'+t; if(b) b.innerHTML=t.startsWith('保存済')?'<i class="ic ic-cloud"></i>':t.includes('失敗')||t.includes('オフ')?'<i class="ic ic-warn"></i>':'<i class="ic ic-cloud"></i>'; },
   mark(k){ if(!this.db) return; this.dirty.add(k); clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),2500); },
   async push(all){ if(!this.db||this.busy){ if(this.db) this.timer=setTimeout(()=>this.push(all),1500); return; }
     this.busy=true; const ks=all?this.keys():[...this.dirty]; this.dirty.clear();
     try{ for(const k of ks){ const v=localStorage.getItem('noa_'+k); if(v==null) continue; if(v.length>240000){ continue; } await this.col().doc('k_'+k).set({v,t:Date.now()}); }
-      const t=this.localT()||Date.now(); await this.col().doc('meta').set({t,keys:this.keys()});
+      const t=this.localT()||Date.now(); await this.col().doc('meta').set({t,keys:this.keys()}); localStorage.setItem('noasys_sync',String(t));
       await this.snap(); this.last=Date.now(); this.setState('保存済み（'+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})+'）');
     }catch(e){ ks.forEach(k=>this.dirty.add(k)); this.setState('クラウド保存に失敗（'+(e&&e.code||'error')+'）'); }
     this.busy=false; },
@@ -1013,7 +1014,7 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
   async snaps(){ if(!this.db) return []; const q=await this.col().get(); return q.docs.filter(d=>d.id.startsWith('snap_')).map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.t-a.t); },
   async restoreCloud(){ const snap=await this.col().get(); let n=0; const meta=snap.docs.find(d=>d.id==='meta');
     snap.docs.forEach(d=>{ if(d.id.startsWith('k_')){ try{ localStorage.setItem('noa_'+d.id.slice(2),d.data().v); n++; }catch(e){} } });
-    localStorage.setItem('noasys_t',String(meta?meta.data().t:Date.now())); localStorage.removeItem('noasys_fo'); this.restoring=true; this.db=null; try{ location.reload(); }catch(e){} },
+    { const ct=String(meta?meta.data().t:Date.now()); localStorage.setItem('noasys_t',ct); localStorage.setItem('noasys_sync',ct); } localStorage.removeItem('noasys_fo'); this.restoring=true; this.db=null; try{ location.reload(); }catch(e){} },
   async askConflict(meta){ const q=await this.col().get(), m={}; q.docs.forEach(d=>{ if(d.id.startsWith('k_')) m[d.id.slice(2)]=d.data().v; });
     const c=this.summary(k=>m[k]), l=this.summary(k=>localStorage.getItem('noa_'+k)), row=(x)=>`${x.y}年目 ${Math.floor(x.w/4)+1}月・${fmt(x.bal)} NOA・現役${x.act}頭${x.names.length?`（${x.names.join('、')}）`:''}`;
     $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cloud"></i> どちらのデータで遊びますか？</div><div class="sub">この端末のデータと、クラウドのデータが違います。</div>
@@ -1022,21 +1023,48 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
     $('#resModal').classList.add('on');
     $('#cfC').onclick=()=>this.restoreCloud();
     $('#cfL').onclick=async()=>{ localStorage.removeItem('noasys_fo'); localStorage.setItem('noasys_t',String(Date.now())); $('#resModal').classList.remove('on'); await this.push(true); }; },
+  // ---- Firebase（GitHub版）----
+  fb:null, user:null,
+  loadScript(src){ return new Promise((ok,ng)=>{ const e=document.createElement('script'); e.src=src; e.onload=ok; e.onerror=ng; document.head.appendChild(e); }); },
+  async fbBoot(){ const V='10.14.1', B=`https://www.gstatic.com/firebasejs/${V}/`;
+    if(!window.NOA_FIREBASE_CONFIG) await this.loadScript('firebase-config.js').catch(()=>{});
+    if(!window.NOA_FIREBASE_CONFIG) return false;
+    await this.loadScript(B+'firebase-app-compat.js'); await this.loadScript(B+'firebase-auth-compat.js'); await this.loadScript(B+'firebase-firestore-compat.js');
+    if(!firebase.apps.length) firebase.initializeApp(window.NOA_FIREBASE_CONFIG);
+    this.fb=firebase; await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+    return new Promise(res=>{ let first=true; firebase.auth().onAuthStateChanged(async u=>{ this.user=u||null; renderAcct();
+      if(!first) return; first=false;
+      if(!u){ this.setState('未ログイン（この端末のみに保存）'); if(!localStorage.getItem('noasys_loginAsk')){ localStorage.setItem('noasys_loginAsk','1'); setTimeout(openLogin,1800); } res(true); return; }
+      this.db=firebase.firestore(); this.uid=u.uid; this.path='users/'+u.uid+'/save'; await this.sync(); res(true); }); }); },
+  async login(){ try{ const pv=new this.fb.auth.GoogleAuthProvider(); pv.setCustomParameters({prompt:'select_account'});
+      try{ await this.fb.auth().signInWithPopup(pv); }catch(e){ if(e&&/popup-blocked|operation-not-supported/.test(e.code||'')){ await this.fb.auth().signInWithRedirect(pv); return; } throw e; }
+      toast('ログインしました。データを同期します…'); setTimeout(()=>location.reload(),700);
+    }catch(e){ toast('ログインできませんでした（'+(e&&e.code||'error')+'）'); } },
+  async logout(){ try{ await this.push(true); }catch(e){} await this.fb.auth().signOut(); localStorage.removeItem('noasys_fbuid'); toast('ログアウトしました'); setTimeout(()=>location.reload(),500); },
   async init(){
-    try{ if(!window.claude||!claude.use){ if(this.fresh) localStorage.setItem('noasys_fo','1'); this.setState('オフライン（この端末のみに保存）'); return; }
+    try{ if(!window.claude||!claude.use){ const ok=await this.fbBoot().catch(e=>{ console.warn('firebase',e); return false; }); if(!ok){ if(this.fresh) localStorage.setItem('noasys_fo','1'); this.setState('オフライン（この端末のみに保存）'); } return; }
       const db=await claude.use('db'), us=await claude.use('user'); const uid=us&&await us.id();
       if(!db||!uid){ if(this.fresh) localStorage.setItem('noasys_fo','1'); this.setState('オフライン（この端末のみに保存）'); return; }
-      this.db=db; this.uid=uid;
+      this.db=db; this.uid=uid; await this.sync();
+    }catch(e){ this.setState('クラウド接続に失敗（この端末のみに保存）'); } },
+  async sync(){
+    try{
       const meta=await this.col().doc('meta').get();
+      const firstHere=this.path&&localStorage.getItem('noasys_fbuid')!==this.uid;
+      if(this.path&&!meta.exists){ localStorage.setItem('noasys_fbuid',this.uid); localStorage.removeItem('noasys_fo'); if(this.keys().length){ if(!this.localT()) localStorage.setItem('noasys_t',String(Date.now())); await this.push(true); } else this.setState('保存済み'); return; }
+      if(this.path&&firstHere&&meta.exists&&!this.fresh){ localStorage.setItem('noasys_fbuid',this.uid); this.askConflict(meta); return; }
+      if(this.path) localStorage.setItem('noasys_fbuid',this.uid);
       if(localStorage.getItem('noasys_fo')&&meta.exists&&!this.fresh){ this.askConflict(meta); return; }
       localStorage.removeItem('noasys_fo');
-      const legacy=!this.fresh&&!this.localT(); if(legacy){ localStorage.setItem('noasys_t',String(Date.now())); }
-      const lt=this.fresh?0:this.localT();
-      if(meta.exists&&meta.data().t>lt){
+      if(!this.fresh&&!this.localT()) localStorage.setItem('noasys_t',String(Date.now()));
+      const last=+(localStorage.getItem('noasys_sync')||0), ct=meta.exists?meta.data().t:0, lt=this.fresh?0:this.localT();
+      const cloudNew=meta.exists&&ct>last&&ct!==lt, localNew=!this.fresh&&lt>last;
+      if(cloudNew&&localNew&&last){ this.askConflict(meta); return; }
+      if(cloudNew&&(ct>lt||!last)){
         try{ const o={}; this.keys().forEach(k=>o[k]=localStorage.getItem('noa_'+k)); if(this.keys().length) localStorage.setItem('noasys_prev',JSON.stringify(o)); }catch(e){}
         const snap=await this.col().get(); let n=0;
         snap.docs.forEach(d=>{ if(d.id.startsWith('k_')){ try{ localStorage.setItem('noa_'+d.id.slice(2),d.data().v); n++; }catch(e){} } });
-        localStorage.setItem('noasys_t',String(meta.data().t));
+        localStorage.setItem('noasys_t',String(ct)); localStorage.setItem('noasys_sync',String(ct));
         if(n){ this.restoring=true; this.db=null; try{ location.reload(); }catch(e){}
           setTimeout(()=>{ $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cloud"></i> セーブデータを読み込みました</div><div class="sub">続きから遊ぶため、ページを再読み込みします。</div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn gold" onclick="location.reload()">再読み込み</button></div>`; $('#resModal').classList.add('on'); },1500); return; }
         this.setState('保存済み');
@@ -1047,7 +1075,7 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
 };
 CLOUD.fresh=CLOUD.keys().length===0;
 function apologyGift(){ store.set('gift1',true); return; if(store.get('gift1',false)) return; store.set('gift1',true); setBal(balance+10000); toast('<i class="ic ic-gift"></i> お詫びの 10,000 NOA をお届けしました！'); }
-setTimeout(()=>CLOUD.init().finally(()=>{ try{ apologyGift(); }catch(e){} }),0);
+let _cloudReady; CLOUD.ready=new Promise(r=>_cloudReady=r); setTimeout(()=>CLOUD.init().finally(()=>{ try{ apologyGift(); }catch(e){} _cloudReady(); }),0);
 let balance = store.get('balance', 100000);
 let history = store.get('history', []);
 function setBal(v){ balance=Math.max(0,Math.round(v)); store.set('balance',balance); $('#bal').textContent=fmt(balance); if(window.updRescue) updRescue(); }
@@ -3026,10 +3054,19 @@ $('#navAch').onclick=openAch;
   const add=()=>HEROES.slice(1).forEach((f,k)=>{ const im=document.createElement('img'); im.loading='lazy'; im.src='assets/'+f; im.alt=''; im.style.objectPosition=pos[k+1]; box.insertBefore(im,box.querySelector('.hero-t')); }); setTimeout(add,1500);
   let i=0; setInterval(()=>{ if(document.hidden||!$('#s-select').classList.contains('active')) return; const ims=box.querySelectorAll('img'); if(ims.length<2) return; ims[i].classList.remove('on'); i=(i+1)%ims.length; ims[i].classList.add('on'); },7000); })();
 new MutationObserver(()=>{ if(!$('#resModal').classList.contains('on')) $('#resBox').classList.remove('epic'); }).observe($('#resModal'),{attributes:true,attributeFilter:['class']});
+function renderAcct(){ const b=$('#saveBtn'); if(!b||!CLOUD.fb) return; b.classList.toggle('acct-on',!!CLOUD.user); }
+function acctBlock(){ if(!CLOUD.fb) return ''; const u=CLOUD.user;
+  return u?`<div class="ownres acct"><i class="ic ic-users"></i> ログイン中：<b>${(u.displayName||'').replace(/</g,'')||'Googleアカウント'}</b><div class="hsub">${(u.email||'').replace(/</g,'')}　PCでもiPhoneでも、同じGoogleアカウントでログインすれば同じデータで遊べます。</div><div class="row" style="margin-top:6px"><button class="btn sm" id="acOut">ログアウト</button></div></div>`
+   :`<div class="ownres acct"><i class="ic ic-users"></i> <b>ログインしていません</b><div class="hsub">Googleアカウントでログインすると、データがクラウドに保存され、PCとiPhoneで同じデータで遊べます。今この端末にあるデータは、そのまま引き継げます。</div><div class="row" style="margin-top:6px"><button class="btn gold" id="acIn">Googleでログイン</button></div></div>`; }
+function bindAcct(){ const i=$('#acIn'), o=$('#acOut'); if(i) i.onclick=()=>CLOUD.login(); if(o) o.onclick=()=>{ if(confirm('ログアウトしますか？（データはクラウドに保存されています）')) CLOUD.logout(); }; }
+function openLogin(){ if(!CLOUD.fb||CLOUD.user||$('#resModal').classList.contains('on')) return;
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cloud"></i> アカウント登録・ログイン</div><div class="sub">NOA競馬はGoogleアカウントでログインできるようになりました。ログインすると、データがクラウドに自動保存され、PCとiPhoneで同じデータで遊べます。</div>
+    ${acctBlock()}<div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" id="lgLater">あとで（右上の雲マークからいつでもログインできます）</button></div>`;
+  $('#resModal').classList.add('on'); bindAcct(); $('#lgLater').onclick=()=>$('#resModal').classList.remove('on'); }
 function openSave(){
   const dump=()=>{ const o={}; CLOUD.keys().forEach(k=>o[k]=localStorage.getItem('noa_'+k)); return btoa(unescape(encodeURIComponent(JSON.stringify({v:1,t:Date.now(),d:o})))); };
-  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-save"></i> セーブデータ</div>
-    <div class="ownres"><i class="ic ic-cloud"></i> クラウドセーブ：<b>${CLOUD.state}</b><div class="hsub">ログイン中のアカウントに自動保存されます。別の端末やアプリ更新後も続きから遊べます。</div></div>
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-save"></i> セーブデータ</div>${acctBlock()}
+    <div class="ownres"><i class="ic ic-cloud"></i> クラウドセーブ：<b>${CLOUD.state}</b><div class="hsub">${CLOUD.fb&&!CLOUD.user?'ログインすると自動でクラウドに保存されます。':'ログイン中のアカウントに自動保存されます。別の端末やアプリ更新後も続きから遊べます。'}</div></div>
     <div class="sub" style="margin:10px 0 4px"><i class="ic ic-clock"></i> 自動バックアップ（20分ごと・最大12件）</div><div id="snapList" class="flist"><span class="hsub">${CLOUD.db?'読み込み中…':'クラウドに接続していません'}</span></div>
     <div class="sub" style="margin:10px 0 4px"><i class="ic ic-clip"></i> バックアップコード（念のための控え。メモ帳などに保存しておくと安心）</div>
     <textarea id="bkCode" class="txt" style="width:100%;height:80px;font-size:11px" readonly>${dump()}</textarea>
@@ -3038,7 +3075,7 @@ function openSave(){
     <textarea id="bkIn" class="txt" style="width:100%;height:60px;font-size:11px" placeholder="ここにバックアップコードを貼り付け"></textarea>
     <div class="row" style="justify-content:space-between;margin-top:6px"><button class="btn" id="bkLoad">復元する</button><button class="btn gold" id="bkOk">閉じる</button></div>`;
   $('#resModal').classList.add('on');
-  $('#bkOk').onclick=()=>$('#resModal').classList.remove('on');
+  $('#bkOk').onclick=()=>$('#resModal').classList.remove('on'); bindAcct();
   CLOUD.snaps().then(list=>{ const el=$('#snapList'); if(!el) return; el.innerHTML=list.length?list.map(x=>`<div class="fcard"><div><b>${new Date(x.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</b><div class="hsub">${x.sm.y}年目 ${Math.floor(x.sm.w/4)+1}月・${fmt(x.sm.bal)} NOA・現役${x.sm.act}頭（${x.sm.names.join('、')}）・引退${x.sm.ret}頭</div></div><button class="btn" data-snap="${x.id}">この時点に戻す</button></div>`).join(''):'<span class="hsub">まだありません</span>';
     document.querySelectorAll('[data-snap]').forEach(b=>b.onclick=async()=>{ const x=list.find(y=>y.id===b.dataset.snap); if(!x) return; try{ await CLOUD.snap(true); }catch(e){}
       const o=JSON.parse(x.d); CLOUD.keys().forEach(k=>localStorage.removeItem('noa_'+k)); Object.entries(o).forEach(([k,v])=>localStorage.setItem('noa_'+k,v)); localStorage.setItem('noasys_t',String(Date.now()));
@@ -3265,7 +3302,7 @@ function renderMarket(){ const el=$('#mktList'); if(!el) return; mktTick(); mktF
   el.querySelectorAll('[data-mkc]').forEach(b=>b.onclick=()=>mktCancel(b.dataset.mkc)); }
 setInterval(()=>{ try{ if(mktTick()&&document.body.dataset.scr==='s-farm') renderFarm(); }catch(e){} },30000);
 
-loginBonus(); updRescue(); setTimeout(settleAll,1500); setInterval(()=>{ try{ settleAll(); }catch(e){} },30000);
+CLOUD.ready.then(()=>{ if(!CLOUD.restoring) loginBonus(); }); updRescue(); setTimeout(settleAll,1500); setInterval(()=>{ try{ settleAll(); }catch(e){} },30000);
 
 renderList();
 </script>
