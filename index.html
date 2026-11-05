@@ -309,6 +309,17 @@ tr.rvrow td{background:#2a1515}
 .rk.pop{animation:rkpop .7s cubic-bezier(.2,2,.4,1)}
 @keyframes rkpop{0%{transform:scale(0) rotate(-30deg)}100%{transform:scale(1)}}
 @keyframes flash{50%{opacity:.3}}@keyframes fadein{from{opacity:0}}
+.phx{position:relative;border:1px solid transparent!important;background:linear-gradient(#0a0f26,#0a0f26) padding-box,linear-gradient(90deg,#ff5a7a,#ffd166,#7dffb0,#8fd3ff,#b18cff,#ff5a7a) border-box!important;background-size:100% 100%,300% 100%!important;animation:phxB 4s linear infinite;box-shadow:0 0 22px #b18cff55}
+@keyframes phxB{to{background-position:0 0,300% 0}}
+.phx-tag{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.2em;padding:1px 8px;margin-bottom:3px;color:#0a0618;background:linear-gradient(90deg,#ff9bd2,#ffd166,#7dffb0,#8fd3ff,#b18cff)}
+.phx-tag.sm{font-size:10px;letter-spacing:0;padding:0 5px;margin:0}
+.phx-t{background:linear-gradient(90deg,#ff9bd2,#ffd166,#7dffb0,#8fd3ff,#b18cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.phx-h{font-size:11px;font-weight:900;letter-spacing:.3em;text-align:center;margin-bottom:6px;color:#ffd166;text-shadow:0 0 10px #ff9bd2}
+.phx-ov{position:fixed;inset:0;z-index:999;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,#b18cff44,#05030fdd 70%);animation:phxO 3.6s ease forwards}
+.phx-ov div{text-align:center}.phx-ov small{display:block;letter-spacing:.4em;font-size:12px;color:#8fd3ff;font-weight:900}
+.phx-ov b{display:block;font-size:54px;font-weight:900;background:linear-gradient(90deg,#ff9bd2,#ffd166,#7dffb0,#8fd3ff,#b18cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #b18cffaa)}
+.phx-ov span{font-size:13px;color:#e8ecff}
+@keyframes phxO{0%{opacity:0;transform:scale(1.3)}10%{opacity:1;transform:scale(1)}85%{opacity:1}100%{opacity:0}}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -2104,17 +2115,26 @@ function marketLots(){ if(cal.w%4!==0) return null; if(cal.market&&cal.market.w=
   const r=rng(hash('seri'+wIdx())), S=ROSTER.filter(m=>m[1]==='牡'), D=ROSTER.filter(m=>m[1]==='牝'), lots=[];
   for(let k=0;k<4;k++){ const s=parentObj(S[Math.floor(r()*S.length)]), d=parentObj(D[Math.floor(r()*D.length)]); const f=makeFoal(s,d,r); const capAvg=(f.cap.spd+f.cap.pow+f.cap.sta+f.cap.gut+f.cap.wis)/5;
     const est=SRANK(capAvg+(r()-0.5)*12); lots.push({foal:f,price:Math.round(Math.max(3000,Math.pow(capAvg-50,1.6)*55)*(0.8+r()*0.4)/500)*500,est,sold:false}); }
+  // 幻の逸材：毎月のセリで約2%の確率で出品される
+  if(r()<PHANTOM_P){ const s=parentObj(S[Math.floor(r()*S.length)]), d=parentObj(D[Math.floor(r()*D.length)]), f=makePhantom(s,d,r);
+    lots.unshift({foal:f,price:50000,est:'S',sold:false,phantom:true}); }
   cal.market={w:wIdx(),lots}; saveCal(); return lots; }
+const PHANTOM_P=0.02;
+function makePhantom(s,d,R){ const f=makeFoal(s,d,R); f.rank=9; f.phantom=true; f.attr=R()<0.5?'rainbow':ATTR_BASE[Math.floor(R()*ATTR_BASE.length)];
+  STATS_ALL.forEach(([k])=>{ f.cap[k]=+(98+R()*8).toFixed(1); f.st[k]=Math.min(f.cap[k],+(f.st[k]+6).toFixed(1)); }); f.st.hp=f.cap.hp;
+  const pool=Object.keys(SKILLS).filter(k=>k!=='気性難'); f.skills=[]; while(f.skills.length<3){ const k=pool[Math.floor(R()*pool.length)]; if(!f.skills.includes(k)) f.skills.push(k); }
+  f.titles=['幻の逸材']; f.inbred=false; return f; }
+function phantomReveal(f){ const el=document.createElement('div'); el.className='phx-ov'; el.innerHTML=`<div><small>PHANTOM HORSE DETECTED</small><b>幻の逸材</b><span>ランク SSS ・ ${attrChip(f.attr)} ・ 特性 ${f.skills.join('・')}</span></div>`; document.body.appendChild(el); setTimeout(()=>el.remove(),3600); sfx('fanfare'); }
 function bidLot(k){ const lot=cal.market.lots[k]; if(!lot||lot.sold) return; if(stable.filter(h=>!h.retired).length>=CAP()){ toast(`現役馬は${CAP()}頭までです（施設で厩舎を拡張できます）`); return; } const f=lot.foal, capAvg=(f.cap.spd+f.cap.pow+f.cap.sta+f.cap.gut+f.cap.wis)/5;
-  const aiMax=Math.round(lot.price*(0.9+Math.random()*0.9)/500)*500; let cur=lot.price, log=[`開始価格 ${fmt(cur)} NOA`];
-  const render=(end)=>{ $('#resBox').innerHTML=`<div class="win"><i class="ic ic-hammer"></i> セリ：${f.dam}の仔</div><div class="sub">父 ${f.sire}（${f.line}）× 母 ${f.dam}　${f.sex}・${f.coat}　馬体評価 ${srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[lot.est])}</div>
+  const aiMax=Math.round(lot.price*(lot.phantom?1.3+Math.random()*1.2:0.9+Math.random()*0.9)/500)*500; let cur=lot.price, log=[`開始価格 ${fmt(cur)} NOA`];
+  const render=(end)=>{ $('#resBox').innerHTML=`${lot.phantom?'<div class="phx-h">PHANTOM LOT ／ 幻の逸材</div>':''}<div class="win"><i class="ic ic-hammer"></i> セリ：${f.dam}の仔</div><div class="sub">父 ${f.sire}（${f.line}）× 母 ${f.dam}　${f.sex}・${f.coat}　馬体評価 ${lot.phantom?'<b class="phx-t">測定不能</b>　会場がざわついている…':srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[lot.est])}</div>
       <div class="ownres" style="font-size:18px">現在価格 <b class="gold">${fmt(cur)} NOA</b></div><div class="wlog">${log.slice(-6).join('<br>')}</div>
       <div class="row" style="justify-content:flex-end;margin-top:12px">${end?`<button class="btn gold" id="sClose">閉じる</button>`:`<button class="btn" id="sDrop">降りる</button><button class="btn gold" id="sBid">${fmt(cur+500*Math.ceil(cur*0.08/500))} NOAで入札</button>`}</div>`;
     if(end){ $('#sClose').onclick=()=>{ $('#resModal').classList.remove('on'); renderFarm(); }; return; }
-    $('#sDrop').onclick=()=>{ log.push('あなたは降りました。他の馬主が落札'); lot.sold=true; saveCal(); render(true); };
+    $('#sDrop').onclick=()=>{ log.push(lot.phantom?'あなたは降りました。幻の逸材は他の馬主の手に…':'あなたは降りました。他の馬主が落札'); lot.sold=true; saveCal(); render(true); };
     $('#sBid').onclick=()=>{ const nb=cur+500*Math.ceil(cur*0.08/500); if(balance<nb){ toast('NOAが足りません'); return; } cur=nb; log.push(`あなた：${fmt(cur)} NOA`);
       if(cur<aiMax){ const step=500*Math.ceil(cur*0.08/500); cur+=step; log.push(`${OWNERS[Math.floor(Math.random()*5)][0]}：${fmt(cur)} NOA`); render(false); }
-      else { setBal(balance-cur); lot.sold=true; saveCal(); log.push(`<b class="gold">落札！ ${fmt(cur)} NOA</b>`); render(true); unlock('seri'); setTimeout(()=>nameFoal(f,`セリで落札しました（${fmt(cur)} NOA）`),700); } }; };
+      else { setBal(balance-cur); lot.sold=true; saveCal(); log.push(`<b class="gold">落札！ ${fmt(cur)} NOA</b>`); render(true); unlock('seri'); setTimeout(()=>{ if(lot.phantom) phantomReveal(f); nameFoal(f,lot.phantom?`<b class="phx-t">幻の逸材</b>を落札しました（${fmt(cur)} NOA）。ランクSSS・全能力の上限が規格外`:`セリで落札しました（${fmt(cur)} NOA）`); },700); } }; };
   $('#resModal').classList.add('on'); render(false); }
 
 const aptMark=v=>v>=2?'◎':v>=0.5?'○':v>=-1?'△':'×';
@@ -2134,7 +2154,7 @@ function renderFarm(){
   // セリ
   const lots=marketLots();
   $('#marketList').innerHTML = !lots? `<span class="hsub">セリは毎月第1週に開催されます（次回：${Math.floor(cal.w/4)+2>12?'1':Math.floor(cal.w/4)+2}月 第1週）</span>`
-    : lots.map((l,k)=>`<div class="fcard"><div><b>${l.foal.dam}の仔</b> <span class="hsub">${l.foal.sex}・${l.foal.coat}</span><div class="hsub">父 ${l.foal.sire}（${l.foal.line}）・母父系 ${l.foal.damLine}</div><div class="hsub">馬体評価 ${srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[l.est])}・開始 ${fmt(l.price)} NOA</div></div>${l.sold?'<span class="hsub">終了</span>':`<button class="btn gold" data-lot="${k}"><i class="ic ic-hammer"></i> セリに参加</button>`}</div>`).join('');
+    : lots.map((l,k)=>`<div class="fcard ${l.phantom?'phx':''}"><div>${l.phantom?'<div class="phx-tag">幻の逸材</div>':''}<b>${l.foal.dam}の仔</b> <span class="hsub">${l.foal.sex}・${l.foal.coat}</span><div class="hsub">父 ${l.foal.sire}（${l.foal.line}）・母父系 ${l.foal.damLine}</div><div class="hsub">馬体評価 ${l.phantom?'<b class="phx-t">測定不能</b>':srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[l.est])}・開始 ${fmt(l.price)} NOA</div></div>${l.sold?'<span class="hsub">終了</span>':`<button class="btn gold" data-lot="${k}"><i class="ic ic-hammer"></i> セリに参加</button>`}</div>`).join('');
   const inc=ret.reduce((a,h)=>a+studIncome(h),0); $('#incomeInfo').innerHTML=inc?`引退馬からの収入 毎週 <b class="gold">+${fmt(inc)} NOA</b>`:'';
   renderShop(); renderParts(); bindHorseCtl();
   document.querySelectorAll('[data-open]').forEach(c=>c.onclick=e=>{ if(e.target.closest('select,.fsel,.trbtn')) return; openHorse(c.dataset.open); });
@@ -2397,7 +2417,7 @@ function horseCard(h){ const i=rkIdx(h), busy=h.acted===wIdx()||h.trained===wIdx
   return `<div class="tcard rk${i}" style="--rc:${RK_COL[i]}" data-open="${h.id}">
     <div class="tc-top">${rkBadge(h)}<span class="tc-cls">${classOf(h)}</span><span class="tc-form" title="${f[1]}">${f[0]}</span></div>
     <div class="tc-art">${cardArt(h,true)}${h.awakened?`<span class="tc-aw"><i class="ic ic-bolt"></i>${h.awakened}</span>`:''}</div>
-    <div class="tc-name">${attrChip(attrOf(h),true)} ${h.name}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　成長×${RK_GROW[i]}</div>
+    <div class="tc-name">${attrChip(attrOf(h),true)} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　成長×${RK_GROW[i]}</div>
     <div class="tc-st">${STATS.map(([k,n])=>`<div><span>${n.slice(0,2)}</span><span>${srk(h.st[k])}<small class="tc-cap">/${SRANK(h.cap[k])}</small></span></div>`).join('')}</div>
     <div class="tc-fat"><i style="width:${h.fat||0}%"></i></div>
     <div class="tc-foot">${st||`${h.races}戦${h.wins}勝`}</div>
@@ -2943,7 +2963,7 @@ function advanceWeek(){
     stable.forEach(h=>{ if(h.retired) return; h.age++; if(h.age>=7) STATS.forEach(([k])=>{ if(k!=='wis') h.st[k]=Math.max(10,h.st[k]-Math.random()*2.5); }); }); }
   cal.done={}; saveCal(); saveStable(); updCal(); if(balance>=1e6) unlock('rich');
   const g1=weekRaces().filter(r=>r.grade==='G1').map(r=>r.name);
-  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cal"></i> ${calLabel()}</div>${ny}${rvMsgs.length?`<div class="ownres"><i class="ic ic-swords"></i> ${rvMsgs.join('<br>')}</div>`:''}${cal.w%4===0?'<div class="ownres"><i class="ic ic-hammer"></i> 今月のセリが開催中です（牧場から参加できます）</div>':''}${studInc?`<div class="ownres"><i class="ic ic-leaf"></i> 引退馬からの収入（種付け料・産駒売却） <b class="plus">+${fmt(studInc)} NOA</b></div>`:''}${g1.length?`<div class="ownres"><i class="ic ic-trophy"></i> 今週はG1「${g1.join('・')}」が開催されます！</div>`:''}${fxNote}${outT?`<div class="ownres"><i class="ic ic-coin"></i> 先週の支出 <b class="bad">-${fmt(outT)} NOA</b><div class="hsub">${brk.map(x=>`${x[0]} ${fmt(x[1])}`).join('　/　')}</div></div>`:''}
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cal"></i> ${calLabel()}</div>${ny}${rvMsgs.length?`<div class="ownres"><i class="ic ic-swords"></i> ${rvMsgs.join('<br>')}</div>`:''}${cal.w%4===0?`<div class="ownres"><i class="ic ic-hammer"></i> 今月のセリが開催中です（牧場から参加できます）${(marketLots()||[]).some(l=>l.phantom)?'<br><b class="phx-t">噂：とんでもない馬が出品されているらしい…</b>':''}</div>`:''}${studInc?`<div class="ownres"><i class="ic ic-leaf"></i> 引退馬からの収入（種付け料・産駒売却） <b class="plus">+${fmt(studInc)} NOA</b></div>`:''}${g1.length?`<div class="ownres"><i class="ic ic-trophy"></i> 今週はG1「${g1.join('・')}」が開催されます！</div>`:''}${fxNote}${outT?`<div class="ownres"><i class="ic ic-coin"></i> 先週の支出 <b class="bad">-${fmt(outT)} NOA</b><div class="hsub">${brk.map(x=>`${x[0]} ${fmt(x[1])}`).join('　/　')}</div></div>`:''}
     ${logs.length?`<div class="sub" style="margin:8px 0">先週の調教結果</div>${logs.join('')}`:'<div class="sub">厩舎に馬がいません。牧場で配合してみましょう。</div>'}
     <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="wFarm"><i class="ic ic-horse"></i> 牧場へ</button><button class="btn gold" id="wRace"><i class="ic ic-horse"></i> 今週のレースへ</button></div>`;
   $('#resModal').classList.add('on');
