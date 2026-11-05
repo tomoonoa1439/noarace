@@ -1097,7 +1097,7 @@ function renderList(){
   $('#weekHead').innerHTML=`<i class="ic ic-cal"></i> ${calLabel()} の開催${sel?`　<span class="gold">★印：${sel.name}が出走できるレース</span>`:''}`;
   $('#weekList').innerHTML=wr.map(r=>{ WEEKMAP[r.id]=r; const el=act.filter(h=>eligible(h,r)), done=cal.done[r.id];
     return `<div class="wcard ${done?'done':''} ${r.grade==='G1'?'g1':''}" data-w="${r.id}"><span class="gb g-${r.grade}">${r.grade}</span>
-      <div style="flex:1"><b>${r.name}</b><div class="hsub">${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue} ${r.surface==='ダ'?'ダート':'芝'}${fmt(r.dist)}m・${r.n}頭${r.age3?'・3歳限定':''}${r.sex?'・牝馬限定':''}　1着 ${fmt(r.prize)}・出走手当 ${fmt(r.fee)} NOA</div>${r.gimmick?`<div class="hsub sp-d"><i class="ic ic-${GIMMICK[r.gimmick].ic}"></i> ${GIMMICK[r.gimmick].d}</div>`:''}</div>
+      <div style="flex:1"><b>${r.name}</b><div class="hsub">${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue} ${r.surface==='ダ'?'ダート':'芝'}${fmt(r.dist)}m・${r.n}頭${r.age3?'・3歳限定':''}${r.sex?'・牝馬限定':''}　1着 ${fmt(r.prize)} NOA・参加費 ${r.fee?fmt(r.fee)+' NOA':'無料'}</div>${r.gimmick?`<div class="hsub sp-d"><i class="ic ic-${GIMMICK[r.gimmick].ic}"></i> ${GIMMICK[r.gimmick].d}</div>`:''}</div>
       <div class="wr">${done?`<span class="hsub">終了（勝ち馬：${done}）</span>`:el.length?`<span class="elig ${sel&&el.includes(sel)?'me':''}">★ ${el.map(h=>h.name).join('・')}</span>`:''}</div></div>`; }).join('');
   document.querySelectorAll('.wcard').forEach(el=>el.onclick=()=>{ if(cal.done[el.dataset.w]){ toast('このレースは終了しました'); return; } openBet(WEEKMAP[el.dataset.w]); });
   $('#raceList').innerHTML = RACES.map((r,ri)=>`<div class="rcard art" data-id="${r.id}" style="--art:url(assets/${['hero_t.jpg','hero1_t.jpg','hero2_t.jpg','hero3_t.jpg','hero4_t.jpg','hero5_t.jpg','hero6_t.jpg','hero7_t.jpg'][ri%8]})"><div class="g">${r.grade}</div>
@@ -1118,7 +1118,9 @@ const isForm=()=>bt().need>1 && buyMode==='form';
 function resetPicks(){ const t=bt(); picks = isSlots()? new Array(t.need).fill(null) : isForm()? Array.from({length:t.need},()=>[]) : []; }
 let CUR=null, OWN=null;
 function curOwn(){ if(CUR&&CUR.online) return entryHorse(CUR.id); if(!CUR||!CUR.weekly||!ownId) return null; const h=stable.find(x=>x.id===ownId); return h&&eligible(h,CUR)?h:null; }
-function ownFee(){ if(!OWN||(CUR&&CUR.online)) return 0; const j=JOCKEYS.find(x=>x[0]===ownOpt.jockey); return (j?j[2]:0)+(CUR.intl?20000:0); }
+const jockeyFee=(j,spec)=>{ if(!j) return 0; const m=spec&&spec.intl?1:((CLS[spec&&spec.cls]||{}).jm||1); return Math.max(100,Math.round(j[2]*m/100)*100); };
+const entryFee=spec=>spec&&spec.weekly?(spec.fee||0):0;
+function ownFee(){ if(!OWN||(CUR&&CUR.online)) return 0; const j=JOCKEYS.find(x=>x[0]===ownOpt.jockey); return jockeyFee(j,CUR)+entryFee(CUR); }
 function rebuildRace(keepSlip){ OWN=curOwn(); if(CUR.online){ RACE=onlineRace(CUR.id); } else RACE=generateRace(CUR,OWN,ownOpt); ODDS=oddsCalc(RACE); if(keepSlip) slip.forEach(b=>b.odds=b.combos.map(c=>ODDS.get(b.type,c))); }
 function openBet(spec){
   SIM=null; if(typeof spec==='string') spec=RACES.find(r=>r.id===spec); if(CUR!==spec) delete spec._cache; CUR=spec;
@@ -1142,9 +1144,9 @@ function renderOwnRow(elig){
   const own=OWN, mj=own?mainJockey(own):null;
   $('#ownRow').innerHTML=`<div class="ownbox"><div class="ob-h"><i class="ic ic-horse"></i> 自分の馬を出走させる</div>
     <div class="ob-grid"><label>出走馬<select id="ownSel"><option value="">出走させない</option>${elig.map(h=>`<option value="${h.id}" ${own&&h.id===own.id?'selected':''}>${h.name}（${h.sex}・${h.age}歳・${classOf(h)}・疲労${(h.fat||0).toFixed(0)}）</option>`).join('')}</select></label>
-    ${own?`<label>騎手<select id="jkSel">${JOCKEYS.map(([n,sk,fee])=>`<option value="${n}" ${ownOpt.jockey===n?'selected':''}>${n===mj?'★主戦 ':''}${n}（腕${sk}・${fmt(fee)}NOA）</option>`).join('')}</select></label>
+    ${own?`<label>騎手<select id="jkSel">${JOCKEYS.map(([n,sk,fee])=>`<option value="${n}" ${ownOpt.jockey===n?'selected':''}>${n===mj?'★主戦 ':''}${n}（腕${sk}・${fmt(jockeyFee([n,sk,fee],CUR))}NOA）</option>`).join('')}</select></label>
     <label>作戦<select id="stSel">${['逃','先','差','追'].map(s=>`<option value="${s}" ${ownOpt.strat===s?'selected':''}>${STYLE_N[s]}${s===own.style?'（得意）':''}</option>`).join('')}</select></label>`:''}</div>
-    ${own?`<div class="hsub" style="margin-top:6px">${ownOpt.strat!==own.style?'<span class="bad">得意な脚質と違う作戦は力を出し切れないことがあります（賢さで軽減）。</span>':''}騎手依頼料 ${fmt(ownFee()-(CUR.intl?20000:0))} NOA${CUR.intl?'・遠征費 20,000 NOA':''}　${own.skills&&own.skills.length?'特性：'+own.skills.join('・'):''}</div>`:''}</div>`;
+    ${own?`<div class="hsub" style="margin-top:6px">${ownOpt.strat!==own.style?'<span class="bad">得意な脚質と違う作戦は力を出し切れないことがあります（賢さで軽減）。</span>':''}参加費 ${entryFee(CUR)?fmt(entryFee(CUR))+' NOA':'無料'}${CUR.intl?'（遠征費込み）':''}・騎手依頼料 ${fmt(ownFee()-entryFee(CUR))} NOA　${own.skills&&own.skills.length?'特性：'+own.skills.join('・'):''}</div>`:''}</div>`;
   $('#ownSel').onchange=e=>{ ownId=e.target.value||null; const o=curOwn(); ownOpt={jockey:o?(mainJockey(o)||o.lastJ||'田辺裕信'):null,strat:o?o.style:null}; rebuildRace(false); slip=[]; resetPicks(); renderOwnRow(); renderBet(); };
   if(own){ $('#jkSel').onchange=e=>{ ownOpt.jockey=e.target.value; rebuildRace(true); renderOwnRow(); renderBet(); };
     $('#stSel').onchange=e=>{ ownOpt.strat=e.target.value; rebuildRace(true); renderOwnRow(); renderBet(); }; }
@@ -1243,7 +1245,7 @@ function renderSlip(){
   $('#slip').innerHTML = slip.length? slip.map((b,i)=>`<li><div><b>${labelItem(b)}</b><div class="hsub">${b.mode!=='normal'?`${b.combos.length}点 × ${fmt(b.amount)}`:`${b.odds[0].toFixed(1)}倍 × ${fmt(b.amount)}`}</div></div><div>${fmt(itemCost(b))} <button class="x" data-r="${i}">×</button></div></li>`).join('') : '<li style="color:var(--muted)">まだありません</li>';
   document.querySelectorAll('#slip .x').forEach(x=>x.onclick=()=>{ slip.splice(+x.dataset.r,1); renderSlip(); });
   const fee=ownFee(), tot=slipTotal()+fee;
-  $('#slipTotal').innerHTML=(fee?`<span class="hsub">依頼料等 ${fmt(fee)}　</span>`:'')+fmt(tot)+' NOA'; $('#slipTotal').className = tot>balance?'minus':'';
+  $('#slipTotal').innerHTML=(fee?`<span class="hsub">参加費・依頼料 ${fmt(fee)}　</span>`:'')+fmt(tot)+' NOA'; $('#slipTotal').className = tot>balance?'minus':'';
   $('#mbarTot').textContent=`${slip.length}件・${fmt(tot)} NOA`;
 }
 $('#mbarGo').onclick=()=>$('#startRace').click();
@@ -1761,15 +1763,15 @@ function showResults(){
   // 自分の馬
   let ownMsg=''; const oh=hs.find(h=>h.own);
   if(RACE.weekly){ cal.done[RACE.id]=hs[ord[0]].name; saveCal(); }
-  if(oh){ const place=ord.indexOf(oh.i)+1, st=stable.find(x=>x.id===oh.stableId), prize=Math.round((RACE.prize||20000)*(PRATE[place-1]||0)*(st?attrBuff(attrOf(st),'prize'):1)), fee=RACE.fee||1000; let extra='', bonus=0; const inc=[];
-    if(prize) inc.push(`賞金 ${fmt(prize)}`); inc.push(`出走手当 ${fmt(fee)}`);
+  if(oh){ const place=ord.indexOf(oh.i)+1, st=stable.find(x=>x.id===oh.stableId), prize=Math.round((RACE.prize||20000)*(PRATE[place-1]||0)*(st?attrBuff(attrOf(st),'prize'):1)), fee=0; let extra='', bonus=0; const inc=[];
+    inc.push(prize?`賞金 ${fmt(prize)}`:'賞金なし（1〜5着のみ）');
     if(st){ const cls0=classOf(st); st.races++; if(place===1) st.wins++; if(place<=3) st.top3++; const Y=ryr(st);
       st.jh=st.jh||{}; st.jh[oh.jockey]=(st.jh[oh.jockey]||0)+1; if(place===1){ st.jw=st.jw||{}; st.jw[oh.jockey]=(st.jw[oh.jockey]||0)+1; if(st.jw[oh.jockey]>=5) unlock('jockey'); Y.wins++; }
       if(place===1){ const gr=['G3','G2','G1'].includes(RACE.cls);
-        if(st.wins===1){ bonus+=5000; inc.push('初勝利ボーナス 5,000'); }
-        if(classOf(st)!==cls0){ bonus+=3000; inc.push('昇級ボーナス 3,000'); }
-        if(gr&&!st.gw){ bonus+=15000; inc.push('重賞初制覇ボーナス 15,000'); }
-        if(RACE.cls==='G1'&&!st.g1w){ bonus+=50000; inc.push('G1初制覇ボーナス 50,000'); }
+        if(st.wins===1){ bonus+=3000; inc.push('初勝利ボーナス 3,000'); }
+        if(classOf(st)!==cls0){ bonus+=2000; inc.push('昇級ボーナス 2,000'); }
+        if(gr&&!st.gw){ bonus+=10000; inc.push('重賞初制覇ボーナス 10,000'); }
+        if(RACE.cls==='G1'&&!st.g1w){ bonus+=30000; inc.push('G1初制覇ボーナス 30,000'); }
         if(gr){ st.gw=(st.gw||0)+1; Y.gw++; unlock('grade'); st.bigWins=(st.bigWins||[]).concat([RACE.name]); }
         if(RACE.cls==='G1'){ st.g1w=(st.g1w||0)+1; Y.g1w++; unlock('g1'); gstat.g1w=(gstat.g1w||0)+1; if(gstat.g1w>=10) unlock('g1x10'); if(RACE.surface==='ダ') unlock('dirtg1');
           if(RACE.name==='凱旋門賞') unlock('arc'); if(RACE.name.includes('ドバイ')) unlock('dubai'); if(RACE.name==='香港カップ') unlock('hk');
@@ -1910,12 +1912,13 @@ const SCHED=[ // [月,週,名前,格,コース,距離,条件]
  [9,2,'セントライト記念','G2','nakayama',2200,'3'],[9,4,'スプリンターズS','G1','nakayama',1200],[10,1,'毎日王冠','G2','tokyo',1800],[10,2,'京都大賞典','G2','kyoto',2400],[10,3,'菊花賞','G1','kyoto',3000,'3'],[10,4,'天皇賞（秋）','G1','tokyo',2000],
  [1,4,'根岸S','G3','tokyo',1400,'','ダ'],[2,3,'フェブラリーS','G1','tokyo',1600,'','ダ'],[3,4,'ドバイシーマクラシック','G1','meydan',2400,'海外'],[3,4,'ドバイワールドカップ','G1','meydan',2000,'海外','ダ'],[5,3,'平安S','G3','kyoto',1800,'','ダ'],[10,1,'凱旋門賞','G1','longchamp',2400,'海外'],[10,2,'シリウスS','G3','hanshin',2000,'','ダ'],[11,1,'みやこS','G3','kyoto',1800,'','ダ'],[11,2,'武蔵野S','G3','tokyo',1600,'','ダ'],[12,1,'チャンピオンズC','G1','hanshin',1800,'','ダ'],[12,2,'香港カップ','G1','shatin',2000,'海外'],
  [11,1,'アルゼンチン共和国杯','G2','tokyo',2500],[11,2,'エリザベス女王杯','G1','kyoto',2200,'牝'],[11,3,'マイルCS','G1','kyoto',1600],[11,4,'ジャパンカップ','G1','tokyo',2400],[12,1,'ステイヤーズS','G2','nakayama',3600],[12,4,'有馬記念','G1','nakayama',2500]];
-const CLS={'新馬':{lv:95,prize:8000,fee:1200,label:'2歳新馬'},'未勝利':{lv:96.5,prize:8000,fee:1200,label:'未勝利'},'1勝':{lv:100.5,prize:11000,fee:1500,label:'1勝クラス'},'2勝':{lv:104,prize:14000,fee:1800,label:'2勝クラス'},'3勝':{lv:107.5,prize:19000,fee:2200,label:'3勝クラス'},'OP':{lv:110.5,prize:26000,fee:2800,label:'オープン'},'G3':{lv:113,prize:36000,fee:3500},'G2':{lv:115.5,prize:50000,fee:4500},'G1':{lv:0,prize:100000,fee:7000}};
-const PRATE=[1,0.4,0.25,0.15,0.1,0.04,0.04,0.04]; // 1〜8着の賞金割合
+// prize=1着賞金 / fee=参加費（出走時に支払う）/ jm=騎手依頼料の倍率
+const CLS={'新馬':{lv:95,prize:3000,fee:0,jm:0.15,label:'2歳新馬'},'未勝利':{lv:96.5,prize:3000,fee:0,jm:0.15,label:'未勝利'},'1勝':{lv:100.5,prize:5000,fee:500,jm:0.25,label:'1勝クラス'},'2勝':{lv:104,prize:7000,fee:800,jm:0.3,label:'2勝クラス'},'3勝':{lv:107.5,prize:9000,fee:1200,jm:0.4,label:'3勝クラス'},'OP':{lv:110.5,prize:13000,fee:1800,jm:0.5,label:'オープン'},'SP':{prize:15000,fee:2000,jm:0.5},'G3':{lv:113,prize:20000,fee:3000,jm:0.6},'G2':{lv:115.5,prize:30000,fee:4500,jm:0.8},'G1':{lv:0,prize:60000,fee:8000,jm:1}};
+const PRATE=[1,0.4,0.25,0.15,0.1]; // 1〜5着のみ賞金
 const OPN=['朱鷺S','ポートアイランドS','ディセンバーS','ニューイヤーS','白富士S','大阪城S','六甲S','都大路S','メイS','安土城S','米子S','巴賞','オクトーバーS','キャピタルS','リゲルS','カシオペアS'];
 function weekRaces(Y=cal.year,w=cal.w){
   const m=Math.floor(w/4)+1, wk=w%4+1, r=rng(hash(`${Y}-${w}`)), list=[];
-  SCHED.filter(s=>s[0]===m&&s[1]===wk).forEach(s=>{ const g=s[3], c=s[6]||'', intl=c.includes('海外'); list.push(mkRace({id:`R${Y}-${w}-${s[2]}`,name:s[2],grade:g,cls:g,course:s[4],dist:s[5],surface:s[7]||'芝',field:g==='G1'?'legend':'gen',lv:CLS[g].lv,prize:intl?(s[2].includes('凱旋門')||s[2].includes('ワールド')?300000:200000):CLS[g].prize,fee:intl?15000:CLS[g].fee,age3:c.includes('3'),sex:c.includes('牝')?'牝':null,intl,n:intl?14:g==='G1'?(c.includes('牝')?14:18):16,weekly:true})); });
+  SCHED.filter(s=>s[0]===m&&s[1]===wk).forEach(s=>{ const g=s[3], c=s[6]||'', intl=c.includes('海外'); list.push(mkRace({id:`R${Y}-${w}-${s[2]}`,name:s[2],grade:g,cls:g,course:s[4],dist:s[5],surface:s[7]||'芝',field:g==='G1'?'legend':'gen',lv:CLS[g].lv,prize:intl?(s[2].includes('凱旋門')||s[2].includes('ワールド')?180000:120000):CLS[g].prize,fee:intl?20000:CLS[g].fee,age3:c.includes('3'),sex:c.includes('牝')?'牝':null,intl,n:intl?14:g==='G1'?(c.includes('牝')?14:18):16,weekly:true})); });
   const crs=['tokyo','nakayama','kyoto','hanshin'], dists=[1200,1400,1600,1800,2000,2200,2400];
   const classes=(m>=6?['新馬']:[]).concat(['未勝利','1勝','2勝','3勝','OP']);
   classes.forEach(c=>{ const course=crs[Math.floor(r()*4)]; const surface=r()<0.45?'ダ':'芝'; let dist=surface==='ダ'?[1200,1400,1600,1800,2000][Math.floor(r()*5)]:dists[Math.floor(r()*dists.length)]; if(c==='新馬') dist=[1200,1400,1600,1800,2000][Math.floor(r()*5)];
@@ -2746,7 +2749,7 @@ const GIMMICK={
 };
 function specialRace(Y,w){ if(w%2) return null; const r=rng(hash('sp'+Y+'-'+w)), ks=Object.keys(GIMMICK), g=ks[Math.floor(r()*3)];
   const dist=[1600,1800,2000,2400][Math.floor(r()*4)];
-  return mkRace({id:`R${Y}-${w}-SP`,name:GIMMICK[g].n,grade:'SP',cls:'SP',course:['tokyo','kyoto','hanshin'][Math.floor(r()*3)],dist,surface:'芝',field:'gen',lv:104,prize:30000,fee:3000,n:12,weekly:true,gimmick:g}); }
+  return mkRace({id:`R${Y}-${w}-SP`,name:GIMMICK[g].n,grade:'SP',cls:'SP',course:['tokyo','kyoto','hanshin'][Math.floor(r()*3)],dist,surface:'芝',field:'gen',lv:104,prize:CLS.SP.prize,fee:CLS.SP.fee,n:12,weekly:true,gimmick:g}); }
 function gimmickFit(h,race){ const g=race.gimmick; if(!g) return 0; const s=h.st;
   if(g==='moon') return (s.pow-60)*0.04+partSum(h,'moon');
   if(g==='magnet') return partSum(h,'magnet')*0.6;
