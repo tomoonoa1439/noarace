@@ -1037,9 +1037,10 @@ function generateRace(tpl,own,opt={}){
   [...hs].sort((a,b)=>b.rating-a.rating).forEach(h=>{ if(h.jockeyFixed){ h.jockey=h.jockeyFixed; return; } let j=(h.jockeys||[]).find(x=>!used.has(x)); if(!j){ const pool=JOCKEY_POOL.filter(x=>!used.has(x)); j=pool[hash(h.name+tpl.id)%Math.max(1,pool.length)]||'見習い騎手'; } used.add(j); h.jockey=j; });
   if(tpl.gimmick==='moon') hs.forEach(h=>h.sd=(h.sd||4.2)*1.25);
   hs.forEach(h=>{ const r=h.formR??0.5; let f= r<0.08?0: r<0.28?1: r<0.72?2: r<0.92?3:4; if(h.own) f=2+clamp(h.ownForm,-2,2); h.form=FORM[f]; h.base=h.fit+h.form[2]*0.9; h.waku=wakuOf(h.no,n); });
-  const N=4000, wins=new Array(n).fill(0);
-  for(let t=0;t<N;t++){ let best=-1e9,bi=0; for(let i=0;i<n;i++){ const v=hs[i].base+gauss()*hs[i].sd; if(v>best){best=v;bi=i;} } wins[bi]++; }
-  hs.forEach((h,i)=>{ const p=(wins[i]+0.5)/(N+n*0.5); h.odds=clamp(Math.floor(0.8/p*10)/10,1.1,999.9); });
+  // オッズ＝「予想上の強さ（能力・距離・馬場・調子・適性）」から算出。実際の着順はレース時に別途抽選する。
+  const mR=rng(hash((tpl.id||'')+n)), mk=hs.map(h=>h.base+(mR()-0.5)*1.6), mx=Math.max(...mk), TAU=3.4;
+  const w=mk.map(v=>Math.exp((v-mx)/TAU)+0.0025), ws=w.reduce((a,b)=>a+b,0);
+  hs.forEach((h,i)=>{ const p=w[i]/ws; const o=0.8/p; h.odds=clamp(o<10?Math.round(o*10)/10:Math.round(o),1.1,999.9); });
   [...hs].sort((a,b)=>a.odds-b.odds).forEach((h,i)=>h.pop=i+1);
   const inv=hs.map(h=>1/h.odds), S=inv.reduce((a,b)=>a+b,0); hs.forEach((h,i)=>h.p=inv[i]/S);
   const silkCols=['#c62828','#1565c0','#2e7d32','#f9a825','#6a1b9a','#ef6c00','#00838f','#ad1457','#283593','#fafafa','#212121','#558b2f'];
