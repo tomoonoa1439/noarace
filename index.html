@@ -329,6 +329,7 @@ tr.rvrow td{background:#2a1515}
 .net-card small{letter-spacing:.3em;color:#8fd3ff;font-weight:900;font-size:10px}.net-card>b{display:block;font-size:22px;color:#fff}.net-card>b span{font-size:12px;color:#9fb0d8}
 .net-bar{height:6px;background:#ffffff14;margin:6px 0}.net-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff5a7a,#ffd166,#7dffb0)}
 .botmk{display:inline-block;font-size:9px;font-weight:900;padding:0 4px;color:#0a0618;background:#9fb0d8;vertical-align:middle}
+.hotstrip.mx{border-color:#ffd16688;background:linear-gradient(90deg,#ffd16622,transparent)}.hotstrip.mx .hot-b{background:linear-gradient(90deg,#ffd166,#ff8a3d)}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -2706,7 +2707,7 @@ function trainOne(h,C){ const L=[], hp=h.st.hp; let roll=null, cost=0, gcost=0, 
         if(hotOf(h)===h.plan) L.push('<span class="hot-b">HOT</span> 今週の狙い目！ 効果×1.5');
         L.push(`${m.n} ${tag}：${STATS.find(s=>s[0]===m.main)[1]} +${g1.toFixed(1)}${g2>0.05?`、${STATS.find(s=>s[0]===m.side)[1]} +${g2.toFixed(1)}`:''}${mann<1?`　<span class="bad">（${h.streak.n}週連続でマンネリ・効果${Math.round(mann*100)}%）</span>`:''}`);
         if(roll[0]==='大成功') h.cond=Math.min(2,h.cond+1);
-        if(Math.random()<(roll[0]==='大成功'?0.05:0.007)*(1-rkIdx(h)*0.06)){ aw=true; L.push(awaken(h,roll[0]==='大成功'?'調教で大成功し、才能が開花':'調教中に突然の覚醒')); }
+        if(Math.random()<(roll[0]==='大成功'?(isMaxed(h)?0.08:0.05):(isMaxed(h)?0.02:0.007))*(1-rkIdx(h)*0.06)){ aw=true; L.push(awaken(h,isMaxed(h)?'限界を超えようとする調教で覚醒':roll[0]==='大成功'?'調教で大成功し、才能が開花':'調教中に突然の覚醒')); }
         if(h.streak.n>=4&&Math.random()<0.4){ h.cond=Math.max(-2,h.cond-1); L.push('<span class="bad">同じ調教に飽きて気が乗らない様子（調子↓）</span>'); }
         if(h.fat>75&&Math.random()<0.3) h.cond=Math.max(-2,h.cond-1);
         const risk=(0.01+Math.max(0,h.fat-45)*0.007*(1.5-hp/100)+(roll[0]==='失敗'?0.04:0))*((h.skills||[]).includes('鉄の脚')?0.5:1)*(1-0.18*fac.clinic)*(h.inbred?1.25:1)*(1-sEff('vet'))*(1-sEff('farrier')*0.6)*(h.feed==='best'?0.9:1)*(h.gear&&h.gear.shoe?0.85:1)*attrBuff(attrOf(h),'risk');
@@ -2733,8 +2734,10 @@ function planOpts(h,long){ const hot=hotOf(h), best=bestPlan(h);
     if(k===hot) tags.push('HOT×1.5'); if(k===best) tags.push('おすすめ');
     const sub=[m.d, g?`予想+${g.toFixed(1)}`:'', m.cost?`${m.cost}NOA`:''].filter(Boolean).join('・');
     return `<option value="${k}" ${h.plan===k?'selected':''} data-tags="${tags.join(',')}">${m.n}（${sub}）</option>`; }).join(''); }
+// 全能力が上限に達した馬（限界到達）は調教での覚醒がやや起きやすい
+const isMaxed=h=>rkIdx(h)<9&&STATS.every(([k])=>h.st[k]>=h.cap[k]-0.5);
 function hotStrip(h){ const hot=hotOf(h), best=bestPlan(h), m=MENU[hot];
-  return `<div class="hotstrip"><span class="hot-b">HOT</span><b>${m.n}</b>が今週あがりやすい！<small>効果×1.5</small>${best!==hot?`<span class="rec">おすすめ：${MENU[best].n}</span>`:''}</div>`; }
+  return `${isMaxed(h)?'<div class="hotstrip mx"><span class="hot-b">MAX</span><b>限界到達</b>：どの調教でも覚醒しやすくなっています</div>':''}<div class="hotstrip"><span class="hot-b">HOT</span><b>${m.n}</b>が今週あがりやすい！<small>効果×1.5</small>${best!==hot?`<span class="rec">おすすめ：${MENU[best].n}</span>`:''}</div>`; }
 // ======================= 会場テーマ（レースごとに変わる世界） =======================
 const THEMES={
  city:{n:'ネオンシティ・ナイター',ic:'build'},
