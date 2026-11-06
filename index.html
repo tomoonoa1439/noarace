@@ -2220,7 +2220,7 @@ function makePhantom(s,d,R){ const f=makeFoal(s,d,R); f.rank=9; f.phantom=true; 
   const pool=Object.keys(SKILLS).filter(k=>k!=='気性難'); f.skills=[]; while(f.skills.length<3){ const k=pool[Math.floor(R()*pool.length)]; if(!f.skills.includes(k)) f.skills.push(k); }
   f.titles=['幻の逸材']; f.inbred=false; return f; }
 function phantomReveal(f){ const el=document.createElement('div'); el.className='phx-ov'; el.innerHTML=`<div><small>PHANTOM HORSE DETECTED</small><b>幻の逸材</b><span>ランク SSS ・ ${attrChip(f.attr)} ・ 特性 ${f.skills.join('・')}</span></div>`; document.body.appendChild(el); setTimeout(()=>el.remove(),3600); sfx('fanfare'); }
-function bidLot(k){ const lot=cal.market.lots[k]; if(!lot||lot.sold) return; if(stable.filter(h=>!h.retired).length>=CAP()){ toast(`現役馬は${CAP()}頭までです（施設で厩舎を拡張できます）`); return; } const f=lot.foal, capAvg=(f.cap.spd+f.cap.pow+f.cap.sta+f.cap.gut+f.cap.wis)/5;
+function bidLot(k){ const lot=cal.market.lots[k]; if(!lot||lot.sold) return; { const ri=regInfo(); if(!ri.ok){ toast(ri.reason); return; } } if(stable.filter(h=>!h.retired).length>=CAP()){ toast(`現役馬は${CAP()}頭までです（施設で厩舎を拡張できます）`); return; } const f=lot.foal, capAvg=(f.cap.spd+f.cap.pow+f.cap.sta+f.cap.gut+f.cap.wis)/5;
   const aiMax=Math.round(lot.price*(lot.phantom?1.3+Math.random()*1.2:0.9+Math.random()*0.9)/500)*500; let cur=lot.price, log=[`開始価格 ${fmt(cur)} NOA`];
   const render=(end)=>{ $('#resBox').innerHTML=`${lot.phantom?'<div class="phx-h">PHANTOM LOT ／ 幻の逸材</div>':''}<div class="win"><i class="ic ic-hammer"></i> セリ：${f.dam}の仔</div><div class="sub">父 ${f.sire}（${f.line}）× 母 ${f.dam}　${f.sex}・${f.coat}　馬体評価 ${lot.phantom?'<b class="phx-t">測定不能</b>　会場がざわついている…':srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[lot.est])}</div>
       <div class="ownres" style="font-size:18px">現在価格 <b class="gold">${fmt(cur)} NOA</b></div><div class="wlog">${log.slice(-6).join('<br>')}</div>
@@ -2244,7 +2244,7 @@ function renderFarm(){
     : '<div class="sub">まだ馬がいません。下の「配合」か「セリ」で最初の1頭を手に入れましょう。</div>';
   $('#retiredList').innerHTML = ret.length? ret.map(h=>`<div class="retrow"><div><b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.races}戦${h.wins}勝${hall.some(x=>x.name===h.name)?'・<span class="gold">殿堂入り</span>':''}</span><div class="hsub">${h.sex==='牡'?'種付け料':'産駒の売却益'} 毎週 <b class="gold">+${fmt(studIncome(h))} NOA</b>${studIncome(h)?'':h.listed?'（出品中は収入停止）':h.imported?'（輸入繁殖牝馬：配合の母として活躍します）':'（実績不足：3戦以上か1勝以上で収入が発生）'}</div>${h.listed?`<div class="hsub"><span class="vo-tag"><i class="ic ic-lock"></i> マーケット出品中・閲覧のみ</span></div>`:''}</div><button class="btn" data-view="${h.id}">詳細</button>${h.listed?'':`<button class="btn" data-salv="${h.id}"><i class="ic ic-gear"></i>分解</button><button class="btn" data-sell="${h.id}"><i class="ic ic-coin"></i> 売却 ${fmt(horseValue(h))}</button><button class="btn gold" data-mkl="${h.id}">出品</button>`}</div>`).join('') : '<span class="hsub">まだいません</span>';
   // 施設
-  $('#facList').innerHTML=Object.entries(FAC).map(([k,[n,d]])=>{ const lv=fac[k]; return `<div class="fcard"><div><b>${n}</b> <span class="lv">${'★'.repeat(lv)}${'☆'.repeat(3-lv)}</span><div class="hsub">${d}</div></div>${lv<3?`<button class="btn" data-fac="${k}">強化 ${fmt(FAC_COST[lv])}</button>`:'<span class="gold">最大</span>'}</div>`; }).join('')+`<div class="fcard"><div><b>厩舎の拡張</b> <span class="lv">${'★'.repeat(expand)}${'☆'.repeat(3-expand)}</span><div class="hsub">現役馬の上限 ${CAP()}頭${expand<3?` → ${CAP()+2}頭`:''}</div></div>${expand<3?`<button class="btn" id="expBtn">拡張 ${fmt(EXP_COST[expand])}</button>`:'<span class="gold">最大</span>'}</div>`;
+  $('#facList').innerHTML=Object.entries(FAC).map(([k,[n,d]])=>{ const lv=fac[k]; return `<div class="fcard"><div><b>${n}</b> <span class="lv">${'★'.repeat(lv)}${'☆'.repeat(3-lv)}</span><div class="hsub">${d}</div></div>${lv<3?`<button class="btn" data-fac="${k}">強化 ${fmt(FAC_COST[lv])}</button>`:'<span class="gold">最大</span>'}</div>`; }).join('')+((window.NET&&NET.on)?`<div class="fcard"><div><b>厩舎の枠</b><div class="hsub">オンライン経済では、現役馬は1人${NET_MAX_ACT}頭まで（ゲーム全体で${fmt(WORLD_MAX)}頭）。新しい馬を入れるときに登録料がかかります</div></div></div>`:'')+((window.NET&&NET.on)?'':`<div class="fcard"><div><b>厩舎の拡張</b> <span class="lv">${'★'.repeat(expand)}${'☆'.repeat(3-expand)}</span><div class="hsub">現役馬の上限 ${CAP()}頭${expand<3?` → ${CAP()+2}頭`:''}</div></div>${expand<3?`<button class="btn" id="expBtn">拡張 ${fmt(EXP_COST[expand])}</button>`:'<span class="gold">最大</span>'}</div>`);
   if($('#expBtn')) $('#expBtn').onclick=buyExpand;
   // セリ
   const lots=marketLots();
@@ -2565,11 +2565,11 @@ function makeFoal(s,d,R=Math.random){
     age:2,fat:0,injury:0,cond:0,plan:'hill',acted:-1,races:0,wins:0,top3:0,earn:0,gw:0,g1w:0,born:calLabel(),retired:false,log:[],jh:{},jw:{},titles:[],bigWins:[]}; }
 function breed(s,d){
   const fee=studFee(s); if(balance<fee){ toast('NOAが足りません'); return; }
-  if(stable.filter(h=>!h.retired).length>=CAP()){ toast(`現役馬は${CAP()}頭までです（施設で厩舎を拡張できます）`); return; }
+  { const ri=regInfo(); if(!ri.ok){ toast(ri.reason); return; } if(balance<fee+ri.fee){ toast(`NOAが足りません（種付け料＋登録料 ${fmt(ri.fee)}）`); return; } }
   setBal(balance-fee); cal.bred=wIdx(); saveCal();
   nameFoal(makeFoal(s,d),`父 <b>${s.name}</b> × 母 <b>${d.name}</b>`);
 }
-function nameFoal(foal,sub){
+function nameFoal(foal,sub,opt){ const ri=opt&&opt.free?{fee:0}:regInfo();
   const sug=(foal.sire.slice(0,3)+foal.dam.slice(-3)).slice(0,9);
   if(foal.rank==null){ foal.rank=rollRank(foal); applyRankCap(foal); }
   $('#resBox').classList.toggle('epic',rkIdx(foal)>=7); $('#resBox').style.setProperty('--epic',`url(${rndHero()})`);
@@ -2580,12 +2580,13 @@ function nameFoal(foal,sub){
       <div>ダート適性 <b>${aptMark(foal.dirt)}</b>　道悪 <b>${aptMark(foal.mud)}</b></div><div>系統 <b>${foal.line}</b>${foal.inbred?`<div class="gold">インブリード：${foal.inbred}</div>`:''}</div></div>
     <div class="hsub" style="margin:10px 0 4px">能力（バーの白線が素質の上限）</div>${statGrid(foal,true)}
     <div class="sub" style="margin:12px 0 6px">名前をつけてください（9文字まで）</div>
-    <div class="row"><input id="foalName" maxlength="9" value="${sug}" class="txt"><button class="btn gold" id="foalOk">この名前で登録</button></div></div>`;
+    <div class="row"><input id="foalName" maxlength="9" value="${sug}" class="txt"><button class="btn gold" id="foalOk">この名前で登録${ri.fee?`（登録料 ${fmt(ri.fee)} NOA）`:''}</button></div>${ri.fee?`<div class="hsub" style="margin-top:4px">登録料はマスターに納めます。ゲーム全体の馬の数が増えるほど高くなります（現在 ${fmt(ri.world)}/${fmt(WORLD_MAX)}頭）</div>`:''}</div>`;
   $('#resModal').classList.add('on');
   $('#foalOk').onclick=()=>{ const nm=$('#foalName').value.trim();
     if(!nm){ toast('名前を入力してください'); return; } if(nm.length>9){ toast('9文字以内にしてください'); return; }
     if(ROSTER.some(m=>m[0]===nm)||stable.some(h=>h.name===nm)||rivalList.some(r=>r.name===nm)){ toast('その名前は使われています'); return; }
-    foal.name=nm; stable.push(foal); saveStable(); gstat.bred=(gstat.bred||0)+1; saveG(); if(gstat.bred>=10) unlock('bred10');
+    if(ri.fee){ if(balance<ri.fee){ toast('登録料のNOAが足りません'); return; } setBal(balance-ri.fee); }
+    foal.name=nm; stable.push(foal); saveStable(); if(window.NET&&NET.on) NET.flush(true); gstat.bred=(gstat.bred||0)+1; saveG(); if(gstat.bred>=10) unlock('bred10');
     $('#resModal').classList.remove('on');
     if(!rivals().some(r=>r.age===2)){ const r=makeRival(); setTimeout(()=>toast(`<i class="ic ic-swords"></i> ライバル厩舎「${RIVAL_STABLE}」に同世代の素質馬「${r.name}」が現れた！`),400); }
     renderFarm(); toast(`${nm} を登録しました`); };
@@ -2652,7 +2653,15 @@ function gearAdj(h,race){ const g=h.gear||{}; let v=0;
   if(g.menko) v+=h.pers==='神経質'?0.5:0.1;
   if(g.shoe) v+=0.35; return v; }
 const insPrem=h=>Math.max(100,Math.round(horseValue(h)*0.01/10)*10);
-let expand=store.get('expand',0); const CAP=()=>8+expand*2; const EXP_COST=[50000,120000,250000];
+let expand=store.get('expand',0); const CAP=()=>(window.NET&&NET.on)?NET_MAX_ACT:8+expand*2;
+// ---- 馬の数の上限（ログイン中のオンライン経済のみ）：1人の現役馬は最大5頭・ゲーム全体のプレイヤーの現役馬は5000頭まで
+// 新しい馬を厩舎に入れるときは登録料をマスターに払う。全体の空きが少ないほど高くなる
+const NET_MAX_ACT=5, WORLD_MAX=5000;
+function regInfo(){ const mine=stable.filter(h=>!h.retired).length; if(!(window.NET&&NET.on)) return {ok:mine<CAP(),fee:0,mine,reason:mine>=CAP()?`現役馬は${CAP()}頭までです`:''};
+  const rows=(NET.rankDoc&&NET.rankDoc.rows)||{}; let world=mine; Object.entries(rows).forEach(([u,r])=>{ if(u!==NET.uid) world+=(+r.horses||0); });
+  const occ=Math.min(1,world/WORLD_MAX), fee=Math.round(5000*(1+9*Math.pow(occ,3))/100)*100;
+  const reason=mine>=NET_MAX_ACT?`現役馬は1人${NET_MAX_ACT}頭までです（引退させると枠が空きます）`:world>=WORLD_MAX?`ゲーム全体の馬の枠（${fmt(WORLD_MAX)}頭）が埋まっています。誰かが引退させるまで待ちましょう`:'';
+  return {ok:!reason,fee,mine,world,reason}; } const EXP_COST=[50000,120000,250000];
 function buyExpand(){ if(expand>=3) return; const c=EXP_COST[expand]; if(balance<c){ toast('NOAが足りません'); return; } setBal(balance-c); expand++; store.set('expand',expand); toast(`厩舎を拡張しました（現役馬 ${CAP()}頭まで）`); renderFarm(); }
 function weeklyFixed(){ const act=stable.filter(h=>!h.retired); const feed=act.reduce((a,h)=>a+FEED[h.feed||'normal'][1],0), ins=act.filter(h=>h.ins).reduce((a,h)=>a+insPrem(h),0); return {staff:staffCost(),feed,ins,total:staffCost()+feed+ins}; }
 // 装備
@@ -3293,7 +3302,7 @@ function subBadges(){ try{ const t=Date.now(), keys=onlineDayKeys(), nx=keys.map
     const S=(id,txt,hot)=>{ const e=$('#'+id); if(e){ e.textContent=txt; e.classList.toggle('hot',!!hot); } };
     S('fsStable',`${act.length}/${CAP()}頭`); S('fsBreed',cal.w%4===0?'セリ開催中':'配合',cal.w%4===0); S('fsParts',`${(typeof parts!=='undefined'?parts.length:0)}個`);
     S('fsManage',`週 ${fmt(weeklyFixed().total)}`); S('fsRet',`${ret.length}頭${ret.some(h=>h.listed)?'・出品中':''}`,ret.some(h=>h.listed));
-    const fb=$('#farmBar'); if(fb) fb.innerHTML=`<div class="fb-i"><small>現役</small><b>${act.length}<span>/${CAP()}</span></b></div><div class="fb-i"><small>引退馬</small><b>${ret.length}</b></div><div class="fb-i"><small>毎週の固定費</small><b>${fmt(weeklyFixed().total)}<span> NOA</span></b></div><div class="fb-i"><small>今週</small><b style="font-size:13px">${cal.w%4===0?'<span class="gold">セリ・輸入牝馬あり</span>':'通常週'}</b></div>`;
+    const fb=$('#farmBar'); if(fb) fb.innerHTML=`<div class="fb-i"><small>現役</small><b>${act.length}<span>/${CAP()}</span></b></div>${window.NET&&NET.on?(()=>{ const ri=regInfo(); return `<div class="fb-i"><small>登録料（全体 ${fmt(ri.world)}/${fmt(WORLD_MAX)}）</small><b>${fmt(ri.fee)}<span> NOA</span></b></div>`; })():`<div class="fb-i"><small>引退馬</small><b>${ret.length}</b></div>`}<div class="fb-i"><small>毎週の固定費</small><b>${fmt(weeklyFixed().total)}<span> NOA</span></b></div><div class="fb-i"><small>今週</small><b style="font-size:13px">${cal.w%4===0?'<span class="gold">セリ・輸入牝馬あり</span>':'通常週'}</b></div>`;
   }catch(e){} }
 document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>setRaceSub(b.dataset.rs));
 document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>setFarmSub(b.dataset.fs));
@@ -3498,7 +3507,7 @@ function loginBonus(){ const d=jstDay(); if(store.get('loginDay','')===d) return
 function rescueOK(){ return balance<5000 && Date.now()-store.get('rescueAt',0)>7*86400e3; }
 function updRescue(){ const b=$('#rescue'); if(b) b.style.display=rescueOK()?'':'none'; }
 function doRescue(){ if(!rescueOK()){ toast('再起支援は所持金5,000 NOA未満のとき、週1回使えます'); return; } store.set('rescueAt',Date.now()); setBal(balance+20000);
-  const act=stable.filter(h=>!h.retired); if(!act.length){ const S=sires(), D=dams(); const f=makeFoal(S[Math.floor(Math.random()*S.length)],D[Math.floor(Math.random()*D.length)]); f.rank=Math.min(f.rank,3); nameFoal(f,'再起支援で若駒を1頭支給しました'); }
+  const act=stable.filter(h=>!h.retired); if(!act.length){ const S=sires(), D=dams(); const f=makeFoal(S[Math.floor(Math.random()*S.length)],D[Math.floor(Math.random()*D.length)]); f.rank=Math.min(f.rank,3); nameFoal(f,'再起支援で若駒を1頭支給しました',{free:true}); }
   toast('再起支援：20,000 NOA を受け取りました'); updRescue(); }
 
 function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; if(window.NET&&NET.on&&Date.now()>=onlineSpec(key).post&&(online.bets[key]||online.entries[key])&&!(online.done[key]&&online.done[key].settled)){ NET.settleMine(key).catch(()=>{}).finally(()=>onlineAfterRace()); return; } const d=(window.NET&&NET.on?null:onlineSettle(key))||online.done[key]||{};
