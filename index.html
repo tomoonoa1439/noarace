@@ -757,18 +757,276 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
 .tcard.tier2 .tc-art,.tcard.tier3 .tc-art,.tcard.tier4 .tc-art{box-shadow:0 0 0 1px var(--rc),0 0 14px color-mix(in srgb,var(--rc) 70%,transparent)}
 .tcard.tier3 .tc-art{box-shadow:0 0 0 2px #e7b53c,0 0 16px #e7b53caa}
 @media (prefers-reduced-motion:reduce){.tcard.tier2,.tcard.tier3,.tcard.tier4,.tc-fx{animation:none}}
+
+/* ===== フレンド ===== */
+.frbtn{position:relative;display:inline-flex;align-items:center;gap:5px}
+.frbtn #frDot{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#ff4f7a;color:#fff;font-size:10.5px;line-height:18px;text-align:center;padding:0 4px;box-shadow:0 0 8px #ff4f7a}
+@media (max-width:480px){.frbtn .frlbl{display:none}}
+.fr-me{display:flex;align-items:center;gap:10px;background:#ffffff08;border:1px solid #ffffff14;border-radius:12px;padding:10px 12px;margin:8px 0}
+.fr-me b.code{font:800 20px "Inter",monospace;letter-spacing:.18em;color:var(--gold)}
+.fr-add{display:flex;gap:6px;margin:6px 0 4px}.fr-add input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.12em}
+.fr-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #ffffff12}
+.fr-av{width:40px;height:40px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2))}
+.fr-row .fr-i{flex:1;min-width:0}.fr-row .fr-i b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-row .fr-i small{color:var(--muted);font-size:11px}
+.fr-on{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4dffb0;box-shadow:0 0 6px #4dffb0;margin-right:4px}
+.fr-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.fr-btns button{font-size:11.5px;padding:5px 9px}
+.fr-req{background:#ff4f7a14;border:1px solid #ff4f7a44;border-radius:10px;padding:8px 10px;margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12.5px}
+.fr-req span{flex:1}
+.fr-stb{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+.fr-vs{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0}
+.fr-vs .art-big{width:120px;margin:0!important}.fr-vs em{font:900 italic 26px "Inter Display",sans-serif;color:var(--gold);font-style:italic}
+.fr-res{text-align:center;font:900 italic 40px/1 "Inter Display",sans-serif;margin:6px 0 2px;letter-spacing:.04em}
+.fr-res.w{color:#ffd36a;text-shadow:0 0 18px #e7b53c}.fr-res.l{color:#8a94b8}
+</style>
+<style id="v3css">
+/* =====================================================================
+   v3 デザイン：ゲームらしいUI（下ナビ・コンパクトHUD・イラスト主役）
+   ===================================================================== */
+:root{--v3bg:#05070f;--v3pan:#0c1124;--v3pan2:#111833;--v3line:#ffffff14;--v3line2:#ffffff22;--cy:#3ff0ff;--mg:#ff4fd8;--gold:#ffd36a;--text:#eef3ff;--muted:#8d97bb;--panel:#0c1124;--panel2:#111833;--line:#ffffff14}
+html,body{background:var(--v3bg)}
+body{background:radial-gradient(110% 55% at 50% -8%,#1b2558 0%,#0a0f26 38%,#05070f 70%) fixed;font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Inter",system-ui,sans-serif;letter-spacing:.01em}
+body::before,body::after,.ribbons,.sparks{display:none!important}
+.bgart{opacity:.12!important;filter:blur(2px) saturate(1.2)}
+body *{clip-path:none}
+body .tcard,body .hero,body .btn,body .ghost,body .coin,body .gb,body .subnav button,body .mtabs,body .seg,body .mode,body .rcard .g{clip-path:none!important}
+/* ---------- HUD ---------- */
+body header.hud{position:sticky;top:0;z-index:30;display:flex!important;align-items:center;gap:10px;padding:10px 16px calc(10px);padding-top:max(10px,env(safe-area-inset-top));background:linear-gradient(180deg,#05070fee,#05070fcc);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--v3line);box-shadow:none;min-height:0}
+body header.hud::after{display:none}
+.hud .brand{display:flex;align-items:baseline;gap:4px;line-height:1;flex-wrap:wrap;width:auto;font-size:inherit;letter-spacing:0}
+.hud .brand b{font:900 italic 22px/1 "Inter Display","Inter",sans-serif;letter-spacing:-.02em;background:linear-gradient(90deg,var(--cy),#8f7bff 55%,var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hud .brand span{font-weight:900;font-size:17px;font-style:italic;color:#fff}
+.hud .brand small{flex-basis:100%;font:700 7.5px/1.6 "Inter",sans-serif;letter-spacing:.38em;color:var(--muted)}
+.hud .cal{margin-left:auto;display:block;background:none;border:0;padding:0;text-align:right;font-size:12px;color:#cfd6f5;font-weight:700;white-space:nowrap;grid-area:auto}
+.hud .wallet{display:flex;align-items:center;gap:6px}
+body .hud .coin{background:#ffd36a12;border:1px solid #ffd36a40;border-radius:99px;padding:5px 12px 5px 6px;color:var(--gold);font:800 15px "Inter",sans-serif;text-shadow:none;gap:6px}
+.hud .coin i{width:20px;height:20px;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffcf4a 45%,#b8862a);box-shadow:0 0 8px #ffcf4a66}
+body .hud .ghost{background:#ffffff0a;border:1px solid var(--v3line2);border-radius:12px;padding:7px 9px;color:#dfe6ff}
+.hud .ghost .ic{margin:0}
+.hud .frbtn .frlbl{display:none}
+/* ---------- bottom nav ---------- */
+.bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom));width:min(560px,calc(100% - 20px));height:64px;z-index:45;display:flex;align-items:center;background:#0b1024e8;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--v3line2);border-radius:22px;box-shadow:0 12px 34px #000b,0 0 0 1px #ffffff08 inset}
+.bnav button{flex:1;height:100%;background:none;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;padding:0}
+.bnav button b{font-weight:700;letter-spacing:.02em}
+.bnav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bnav button.on{color:#fff}.bnav button.on svg{stroke:var(--cy);filter:drop-shadow(0 0 6px var(--cy))}
+.bnav button.nx{flex:none;width:66px;height:66px;margin:-28px 2px 0;border-radius:21px;background:linear-gradient(135deg,var(--cy),#5b7cff 52%,var(--mg));color:#04060f;box-shadow:0 10px 26px #3ff0ff55,0 0 0 4px #05070f}
+.bnav button.nx svg{stroke:#04060f;width:24px;height:24px;filter:none}.bnav button.nx b{font-weight:900}
+.bnav button.nx:active{transform:scale(.95)}
+body[data-scr="s-bet"] .bnav,body[data-scr="s-race"] .bnav{display:none}
+body .mtabs{display:none}
+/* ---------- layout ---------- */
+body main{max-width:1100px;padding:14px 16px 110px}
+body[data-scr="s-bet"] main{padding-bottom:90px}
+h2{font-size:18px;font-weight:900;letter-spacing:.02em;margin:18px 2px 6px}
+.sub{color:var(--muted);font-size:12.5px}
+details.help{margin:2px 0 10px}
+details.help summary{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:700;color:#cfd6f5;background:#ffffff0a;border:1px solid var(--v3line);border-radius:99px;padding:6px 12px;list-style:none}
+details.help summary::-webkit-details-marker{display:none}
+details.help[open] summary{background:#3ff0ff18;border-color:#3ff0ff55}
+details.help>.sub{margin:8px 2px 0;line-height:1.7}
+body .sec-h{font-size:15px;font-weight:800;margin:20px 2px 10px;padding-left:0;letter-spacing:.02em}
+body .sec-h::before{display:none}
+body .sec-h .ic{background:var(--cy)}
+body .sec-h .hsub{font-weight:500;font-size:11.5px}
+/* panels / cards */
+body .panel,body .fcard,body .trophy,body .hcard,body .pcard,body .mbox{background:var(--v3pan);border:1px solid var(--v3line);border-radius:16px;box-shadow:none;backdrop-filter:none}
+body .panel::before,body .panel::after,body .fcard::before,body .wcard::before,body .wcard::after,body .rcard::before,body .rcard::after{display:none!important}
+body .fcard{border-radius:14px}
+/* buttons */
+body .btn{background:#ffffff0d;border:1px solid var(--v3line2);border-radius:12px;color:#eef3ff;font-weight:700;letter-spacing:.01em;box-shadow:none;text-shadow:none;transition:transform .1s,background .15s}
+body .btn:hover{background:#ffffff18;border-color:#ffffff40}
+body .btn:active{transform:scale(.97)}
+body .btn.gold{background:linear-gradient(135deg,var(--cy),#5b7cff);border:0;color:#03061a;font-weight:900}
+body .btn.gold:hover{filter:brightness(1.08)}
+body .btn[disabled],body .btn.gold[disabled]{opacity:.45;filter:grayscale(.6)}
+body .ghost{background:#ffffff0a;border:1px solid var(--v3line2);border-radius:12px}
+body input,body select{background:#ffffff0c;border:1px solid var(--v3line2);border-radius:10px;color:var(--text);padding:8px 10px}
+body input:focus,body select:focus{outline:none;border-color:var(--cy);box-shadow:0 0 0 3px #3ff0ff22}
+/* sub navigation */
+body .subnav{position:sticky;top:58px;z-index:20;margin:0 -16px 14px;padding:8px 16px;background:linear-gradient(180deg,#05070ff2,#05070fcc 80%,#05070f00);gap:6px}
+body .subnav[data-g="race"]{display:flex}
+body .subnav[data-g="race"] button{flex:1;min-width:0;flex-direction:column;gap:0;padding:9px 4px;border-radius:13px;background:#ffffff08;border:1px solid var(--v3line);color:var(--muted);box-shadow:none}
+body .subnav button .ic{display:none}
+body .subnav button b{font-size:13px;color:#cfd6f5}
+body .subnav button small{font-size:9.5px;color:#7f8ab0}
+body .subnav button.on{background:linear-gradient(135deg,#2a3cff40,#ff4fd830);border-color:#ffffff30;box-shadow:inset 0 0 0 1px #ffffff14}
+body .subnav button.on b{color:#fff}body .subnav button.on small{color:#cfe8ff}
+body .subnav.farm button{flex:none;min-width:0;flex-direction:row;gap:6px;padding:8px 14px;border-radius:99px;background:#ffffff0a;border:1px solid var(--v3line)}
+body .subnav.farm button b{font-size:12.5px}
+body .subnav.farm button.on{background:#fff;border-color:#fff}
+body .subnav.farm button.on b{color:#05070f}body .subnav.farm button.on small{color:#05070f99}
+/* farm bar */
+body .farmbar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 6px}
+body .fb-i{flex:1;min-width:76px;background:#ffffff08;border:1px solid var(--v3line);border-radius:12px;padding:7px 10px}
+body .fb-i small{letter-spacing:.02em;color:var(--muted)}body .fb-i b{font-size:16px}
+/* ---------- featured banner (hero) ---------- */
+body .hero{height:clamp(180px,42vw,300px);border-radius:20px;border:1px solid var(--v3line2);box-shadow:0 18px 40px #0009;margin:2px 0 18px}
+body .hero::after{background:linear-gradient(90deg,#000d 0%,#0009 42%,#0000 72%),linear-gradient(0deg,#000c,#0000 55%)}
+body .hero-t{left:18px;right:18px;bottom:16px;text-align:left}
+.ft-wx{position:absolute;right:0;top:calc(-1 * clamp(180px,42vw,300px) + 30px)}
+.ft-wx .wxc{background:#000a;backdrop-filter:blur(6px)}
+.ft-tag{display:inline-block;font:900 10px/1 "Inter",sans-serif;letter-spacing:.14em;padding:5px 10px;border-radius:99px;background:#ffffff22;color:#fff}
+.ft-tag.g-G1{background:linear-gradient(90deg,#ffe9a0,#e7b53c);color:#2b1d00}.ft-tag.g-G2{background:#ff5a5a}.ft-tag.g-G3{background:#2fbf71;color:#03210f}.ft-tag.g-SP{background:#5b7cff}
+.ft-nm{font-size:clamp(24px,6vw,36px);font-weight:900;margin:8px 0 4px;text-shadow:0 2px 14px #000;letter-spacing:.02em}
+.ft-mt{font-size:12px;color:#d6dcf7;text-shadow:0 1px 6px #000}
+.ft-go{position:absolute;right:0;bottom:0;border:0;border-radius:99px;background:#fff;color:#05070f;font-weight:900;font-size:13px;padding:10px 18px;box-shadow:0 6px 18px #0008}
+/* ---------- weekly race rows ---------- */
+#weekHead{font-size:15px;margin:6px 2px 2px}
+#weekHead .ic{display:none}
+#weekHead+.sub{font-size:11px;margin:0 2px 10px}
+body .wlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+body .wcard{display:flex;align-items:stretch;gap:0;padding:0;border-radius:16px;overflow:hidden;background:var(--v3pan);border:1px solid var(--v3line);box-shadow:none;flex-wrap:nowrap;transition:transform .12s,border-color .15s}
+body .wcard:hover{border-color:#ffffff40;box-shadow:none;transform:translateY(-1px)}
+body .wcard.g1{background:linear-gradient(90deg,#2a2008,var(--v3pan) 60%);border-color:#e7b53c66}
+body .wcard.done{opacity:.45}
+.w-th{position:relative;width:92px;flex:none;overflow:hidden}
+.w-th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 25%}
+.w-th::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#0000 35%,var(--v3pan))}
+.wcard.g1 .w-th::after{background:linear-gradient(90deg,#0000 35%,#2a2008)}
+.w-th .gb{position:absolute;top:8px;left:8px;z-index:1;min-width:0;font:900 10.5px/1 "Inter",sans-serif;padding:4px 8px;border-radius:99px;letter-spacing:.06em;box-shadow:0 2px 8px #0008}
+body .gb{border-radius:99px}
+body .g-G1{background:linear-gradient(90deg,#ffe9a0,#e7b53c);color:#2b1d00}body .g-G2{background:#ff5a5a;color:#fff}body .g-G3{background:#2fbf71;color:#03210f}body .g-SP{background:#5b7cff;color:#fff}body .g-OP{background:#9b6bff;color:#fff}
+.w-bd{flex:1;min-width:0;padding:11px 12px 11px 6px}
+.w-nm{display:block;font-size:15.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-mt{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:3px}
+.w-mt em{font-style:normal;color:#cfe3ff}
+.w-gm{font-size:10.5px;color:#a9b6e6;margin-top:4px;line-height:1.45}
+.w-pz{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+.w-pz b{font:800 16px "Inter",sans-serif;color:var(--gold)}.w-pz b small{font-size:10px;color:var(--muted);font-weight:600;margin-left:3px}
+.w-fee{font-size:10.5px;padding:3px 9px;border-radius:99px;background:#ffffff0d;border:1px solid var(--v3line2);color:#cfd6f5;white-space:nowrap}
+.w-fee.free{color:#7dffb8;border-color:#7dffb844;background:#7dffb810}
+.w-done{font-size:11px;color:var(--muted);margin-top:6px}
+body .wcard .elig{display:inline-block;margin-top:7px;font-size:11px;padding:3px 9px;border-radius:99px;background:#ffd36a14;color:var(--gold);border:1px solid #ffd36a33}
+body .wcard .elig.me{background:var(--gold);color:#1c1606}
+body .wxc{border-radius:99px;font-size:10.5px}
+/* dream list */
+body .races{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+body .rcard.art{border-radius:16px;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;background-image:linear-gradient(0deg,#05070ff0 10%,#05070f55 55%,#0000),var(--art);background-size:cover;background-position:50% 25%;border:1px solid var(--v3line)}
+body .rcard.art h3{font-size:15px;margin:4px 0 2px}body .rcard .meta{font-size:10.5px;color:#c9d2f2}body .rcard .note{display:none}
+body .rcard .g{position:absolute;top:10px;left:10px;border-radius:99px;font-size:10px;padding:3px 8px}
+body .rcard{position:relative}
+/* ---------- horse cards (farm) ---------- */
+body .tgrid{grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+body .tcard.v3{padding:0;border-radius:18px;overflow:hidden;background:var(--v3pan);border:1px solid var(--v3line);box-shadow:none;filter:none}
+body .tcard.v3:hover{transform:translateY(-2px)}
+body .tcard.v3 .tc-art{aspect-ratio:3/3.5;margin:0;border:0;border-radius:0;box-shadow:none;filter:none}
+body .tcard.v3 .tc-art .cimg{border:0;border-radius:0}
+body .tcard.v3 .tc-art .cimg-t,body .tcard.v3 .tc-art .cimg-id,body .tcard.v3 .tc-art .cimg-n,body .tcard.v3 .tc-art .cimg-v,body .tcard.v3 .tc-art .hc{display:none}
+body .tcard.v3 .tc-art::before{content:'';position:absolute;inset:0;z-index:2;background:linear-gradient(0deg,var(--v3pan) 3%,#0c112499 30%,#0000 55%);pointer-events:none;mix-blend-mode:normal;opacity:1;animation:none}
+body .tcard.v3.tier4 .tc-art::before{background:linear-gradient(0deg,var(--v3pan) 3%,#0c112499 30%,#0000 55%)}
+.tc-ov{position:absolute;top:8px;left:8px;right:8px;z-index:3;display:flex;align-items:center;gap:4px}
+.tc-ov .tc-form{margin-left:auto;font-size:15px;background:#000a;border-radius:99px;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.tc-ov .rk{font:900 italic 14px/1 "Inter Display",sans-serif;padding:4px 9px;border-radius:8px;box-shadow:0 2px 8px #000a}
+.tc-ov .atc{box-shadow:0 2px 8px #000a}
+.tc-cap2{position:absolute;left:10px;right:10px;bottom:6px;z-index:3}
+body .tcard.v3 .tc-name{font-size:15px;font-weight:900;text-shadow:0 1px 8px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body .tcard.v3 .tc-sub{font-size:10.5px;color:#c3cbea;margin-top:1px;text-shadow:0 1px 4px #000}
+body .tcard.v3 .tc-wm{bottom:auto;top:34px;right:8px;z-index:3;font-size:46px}
+body .tcard.v3 .tc-aw{top:40px;left:10px;right:auto;z-index:3;background:#000a;border-radius:99px;padding:2px 7px}
+.tc-bars{padding:8px 10px 2px;display:grid;gap:5px}
+.tb{display:grid;grid-template-columns:24px 1fr 20px;align-items:center;gap:6px;font-size:9.5px;color:var(--muted)}
+.tb i{position:relative;height:5px;border-radius:9px;background:#ffffff12;overflow:hidden;display:block}
+.tb i u{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:linear-gradient(90deg,var(--c1),var(--c2))}
+.tb i s{position:absolute;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:#ffffffaa;border-radius:2px}
+.tb em{font:800 10.5px "Inter",sans-serif;font-style:normal;color:var(--text);text-align:right}
+.tb.fat i u{background:linear-gradient(90deg,#ffb347,#ff5a5a)}
+.tb.fat{opacity:.85}
+body .tcard.v3 .tc-foot{padding:5px 10px 0;margin:0;font-size:10.5px}
+body .tcard.v3 .tc-hot{padding:3px 10px 0;margin:0;font-size:10.5px}
+body .tcard.v3 .tc-plan{padding:7px 10px 10px}
+body .tcard.v3 .tc-plan .fsel,body .tcard.v3 .tc-plan select{border-radius:10px;background:#ffffff0c;border:1px solid var(--v3line2)}
+body .tcard.v3 .trbtn{border-radius:10px;background:linear-gradient(135deg,var(--cy),#5b7cff);border:0;color:#03061a;font-weight:900}
+body .tcard.v3 .trbtn[disabled]{background:#ffffff14;color:var(--muted)}
+body .tcard.v3.tier0{background:#0d0f16}
+body .tcard.v3.tier0 .tc-art{filter:grayscale(.55) brightness(.85)}
+body .tcard.v3.tier1{border:1px solid color-mix(in srgb,var(--rc) 70%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--rc) 30%,transparent) inset}
+body .tcard.v3.tier2{border:2px solid transparent;background:linear-gradient(var(--v3pan),var(--v3pan)) padding-box,conic-gradient(from var(--ang),var(--rc) 0 20%,#fff 25%,#6af0ff 30%,var(--rc) 40% 70%,#fff 75%,#ff6ad5 80%,var(--rc) 90%) border-box;box-shadow:0 0 22px color-mix(in srgb,var(--rc) 40%,transparent)}
+body .tcard.v3.tier3{border:2px solid transparent;background:linear-gradient(#17120a,#0f0c06) padding-box,conic-gradient(from var(--ang),#fff3c4,#e7b53c,#7a5410,#ffe9a0,#e7b53c,#fff3c4) border-box;box-shadow:0 0 26px #e7b53c55}
+body .tcard.v3.tier4{border:2px solid transparent;background:linear-gradient(#150a24,#0a0614) padding-box,conic-gradient(from var(--ang),#ff6ad5,#ffd36a,#6af0ff,#7dff9a,#b06aff,#ff6ad5) border-box;box-shadow:0 0 30px #ff6ad555}
+body .tcard.v3.tier3 .tc-art::before{background:linear-gradient(0deg,#17120a 3%,#17120a99 30%,#0000 55%)}
+body .tcard.v3.tier4 .tc-art::before{background:linear-gradient(0deg,#150a24 3%,#150a2499 30%,#0000 55%)}
+body .tcard.v3>*:not(.tc-fx){position:relative;z-index:1}
+body .tcard.v3 .tc-art{position:relative}
+.tc-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:260px;border:1.5px dashed #ffffff26;border-radius:18px;color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s}
+.tc-add b{font-size:34px;font-weight:300;color:#cfd6f5;line-height:1}.tc-add small{font-size:10.5px;font-weight:500}
+.tc-add:hover{border-color:var(--cy);color:#fff;background:#3ff0ff0a}
+/* ---------- modal: bottom sheet on phones ---------- */
+body .modal{background:#02040bd9;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:24px 12px}
+body .mbox{border-radius:22px;border:1px solid var(--v3line2);background:linear-gradient(180deg,#121a38,#0b1022);box-shadow:0 30px 80px #000d;padding:20px}
+body .mbox .win{font-size:18px;font-weight:900;letter-spacing:.02em}
+@media(max-width:720px){
+  body .modal{align-items:flex-end;padding:40px 0 0}
+  body .mbox{border-radius:24px 24px 0 0;max-height:92vh;overflow:auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  body .mbox::before{content:'';display:block;width:40px;height:4px;border-radius:9px;background:#ffffff33;margin:-6px auto 12px}
+}
+/* tables */
+body table.ent th{color:var(--muted);font-weight:600;font-size:11px;border-bottom:1px solid var(--v3line)}
+body table.ent td{border-bottom:1px solid #ffffff0a}
+body table.ent tr.own td,body table.ent tr.sel td{background:#3ff0ff10}
+/* toast */
+body #toast{bottom:96px!important;border-radius:14px!important;border:1px solid var(--v3line2)!important;background:#121a38f2!important;box-shadow:0 12px 30px #000a!important;backdrop-filter:blur(10px);max-width:calc(100% - 32px)}
+body[data-scr="s-bet"] #toast,body[data-scr="s-race"] #toast{bottom:90px!important}
+/* bet screen */
+body .rhead{align-items:flex-start}
+body .rhead h2{font-size:21px;margin:10px 0 4px}
+body .mbar{border-radius:20px 20px 0 0;border-top:1px solid var(--v3line2)!important;background:#0b1024f2!important;backdrop-filter:blur(14px)}
+body .tabs button,body .mode button,body .seg button{border-radius:10px}
+body .tabs,body .mode,body .seg{background:#ffffff08;border:1px solid var(--v3line);border-radius:12px;padding:3px}
+body .mode button.on,body .seg button.on,body .tabs button.on{background:linear-gradient(135deg,#2a3cff55,#ff4fd833);color:#fff;box-shadow:inset 0 0 0 1px #ffffff26;text-shadow:none}
+/* race screen */
+body .racebar{background:#05070fcc;backdrop-filter:blur(10px);border-radius:16px;border:1px solid var(--v3line)}
+body .stage{border-radius:18px;overflow:hidden;border:1px solid var(--v3line2)}
+/* achievements */
+body .trophy{border-radius:14px}
+/* desktop */
+@media(min-width:900px){
+  body header.hud{padding:12px 28px}
+  .hud .brand b{font-size:26px}
+}
+
+/* header fit on phones */
+.hud .cal{flex:0 1 auto;min-width:0}.hud .cal span{display:block;white-space:normal;word-break:keep-all}
+.hud .brand{flex-wrap:nowrap;white-space:nowrap}
+.hud .brand span{font-size:15px}
+.hud .brand small{display:none}
+.hud .cal{font-size:11px;line-height:1.25;max-width:70px;white-space:normal;text-align:right;color:#aeb8de}
+@media(min-width:600px){.hud .brand small{display:block;flex-basis:auto;margin-left:6px}.hud .cal{max-width:none;font-size:13px;color:#cfd6f5}.hud .frbtn .frlbl{display:inline}}
+body .hud .ghost{padding:6px 8px}
+.tc-ov .tc-form{width:auto;height:auto;padding:3px 7px;font-size:12px;background:#000b;border:1px solid #ffffff22}
+.tc-ov .tc-form::before{content:'調子 ';font-size:9px;color:#aeb8de;font-weight:700}
+body .tgrid{align-items:start}
+.tc-add{min-height:200px}
+
+/* online cards */
+body .wcard.on-card{flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px}
+body .wcard.on-card>.gb{min-width:0;align-self:flex-start;font:900 13px/1 "Inter",sans-serif;padding:7px 10px;border-radius:10px}
+body .wcard.on-card>div[style]{min-width:0}
+body .wcard.on-card .on-act{width:100%;justify-content:flex-end}
+body .wcard.on-card .on-act:empty{display:none}
+body #onList{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+/* dream grade badge */
+body .rcard .g{right:auto;width:auto;display:inline-block;min-width:0;background:linear-gradient(90deg,#ffe9a0,#e7b53c);color:#2b1d00;font-weight:900}
+
+@media(max-width:720px){ body .mbox table td,body .mbox table th{white-space:nowrap;font-size:12px;padding:6px 5px} body .mbox .tblwrap{overflow-x:auto} }
 </style>
 </head>
 <body>
 <div class="bgart" aria-hidden="true"></div>
 <div class="ribbons" aria-hidden="true"><i></i></div>
 <div class="sparks" aria-hidden="true"></div>
-<header>
-  <div class="brand">NOA<span>競馬</span></div>
-  <nav class="mtabs"><button id="navRace" class="on"><i class="ic ic-horse"></i> レース</button><button id="navFarm"><i class="ic ic-horse"></i> 牧場</button><button id="navAch"><i class="ic ic-trophy"></i> 実績</button></nav>
-  <div class="cal"><span id="calLbl"></span><button id="nextWeek">翌週へ ▶</button></div>
-  <div class="wallet"><div class="coin"><i></i><span id="bal">0</span></div><button class="ghost" id="rescue" title="再起支援（所持金5,000 NOA未満・週1回）" style="display:none">再起支援</button><button class="ghost" id="saveBtn" title="セーブ"><i class="ic ic-cloud"></i></button></div>
+<header class="hud">
+  <div class="brand"><b>NOA</b><span>競馬</span><small>CYBER DERBY</small></div>
+  <div class="cal"><span id="calLbl"></span></div>
+  <div class="wallet"><div class="coin"><i></i><span id="bal">0</span></div><button class="ghost frbtn" id="friendBtn" title="フレンド"><i class="ic ic-users"></i><span class="frlbl">フレンド</span><b id="frDot" style="display:none"></b></button><button class="ghost" id="rescue" title="再起支援（所持金5,000 NOA未満・週1回）" style="display:none">再起支援</button><button class="ghost" id="saveBtn" title="セーブ"><i class="ic ic-cloud"></i></button></div>
 </header>
+<nav class="bnav" id="bnav">
+  <button id="navRace" class="on"><svg viewBox="0 0 24 24"><path d="M4 19h16M6 19V9.5l6-4.5 6 4.5V19M10 19v-5h4v5"/></svg><b>レース</b></button>
+  <button id="navFarm"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h14V10M9 20v-6h6v6"/></svg><b>牧場</b></button>
+  <button id="nextWeek" class="nx"><svg viewBox="0 0 24 24"><path d="M5 5l7 7-7 7M12 5l7 7-7 7"/></svg><b>翌週へ</b></button>
+  <button id="navMkt"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1.6 11H5.6zM9 8a3 3 0 016 0"/></svg><b>マーケット</b></button>
+  <button id="navAch"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 01-8 0zM12 13v4M8 20h8M8 6H5a3 3 0 003 4M16 6h3a3 3 0 01-3 4"/></svg><b>実績</b></button>
+</nav>
 <main>
   <!-- race select -->
   <section class="screen active" id="s-select">
@@ -843,8 +1101,8 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     <div class="subnav farm" data-g="farm"><button data-fs="stable"><i class="ic ic-home"></i><b>厩舎</b><small id="fsStable"></small></button><button data-fs="breed"><i class="ic ic-spark"></i><b>新馬</b><small id="fsBreed"></small></button><button data-fs="parts"><i class="ic ic-gear"></i><b>パーツ</b><small id="fsParts"></small></button><button data-fs="manage"><i class="ic ic-build"></i><b>経営</b><small id="fsManage"></small></button><button data-fs="retired"><i class="ic ic-coin"></i><b>引退馬</b><small id="fsRet"></small></button></div>
     <div class="farmbar" id="farmBar"></div>
     <div data-fp="stable">
-    <div class="sub">馬を育てて、新馬戦 → 条件戦 → 重賞 → G1と勝ち上がろう。<br><span class="hsub">※「牡・2歳」などは競走馬としての年齢です。馬は2歳で牧場に入り、新年（1月第1週）を迎えるたびに1歳ずつ年をとります。画面右上の「○年目」はゲームの経過年数で、馬の年齢とは別です。</span></div>
-    <div class="sec-h"><i class="ic ic-home"></i> 厩舎<span class="hsub">「今週の予定」を選んで、右上の「翌週へ ▶」で実行</span></div>
+    <details class="help"><summary>？ 育て方のヒント</summary><div class="sub">馬を育てて、新馬戦 → 条件戦 → 重賞 → G1と勝ち上がろう。<br><span class="hsub">※「牡・2歳」などは競走馬としての年齢です。馬は2歳で牧場に入り、新年（1月第1週）を迎えるたびに1歳ずつ年をとります。画面右上の「○年目」はゲームの経過年数で、馬の年齢とは別です。</span></div></details>
+    <div class="sec-h"><i class="ic ic-home"></i> 厩舎<span class="hsub">「今週の予定」を選んで、下の「翌週へ」で実行</span></div>
     <div id="stableList" class="stable"></div>
     </div>
     <div data-fp="breed">
@@ -876,7 +1134,7 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
   <section class="screen" id="s-online">
     <div class="subnav" data-g="race"><button data-rs="week"><i class="ic ic-clock"></i><b>今週のレース</b><small class="rsWeek2"></small></button><button data-rs="online"><i class="ic ic-globe"></i><b>オンライン</b><small class="rsOn2"></small></button><button data-rs="dream"><i class="ic ic-spark"></i><b>ドリーム</b><small>いつでも</small></button></div>
     <h2><i class="ic ic-globe"></i> オンラインレース</h2>
-    <div class="sub">毎日10時〜21時、毎時0分に発走（全12R）。発走60分前〜15分前にエントリー（1人1頭）、30分前に会場発表、15分前にオッズ公開、5分前に投票締切。見逃したレースはリプレイで見られます。<br><span class="hsub">ログイン中は、みんなと運用アカウントのエントリーが共有され、定員16頭を超えたら抽選。空き枠は過去の馬で埋まります。馬券はパリミュチュエル方式（賭け金の合計から控除20%をマスターへ・残りを的中者で分配）。</span></div>
+    <details class="help"><summary>？ オンラインレースのルール</summary><div class="sub">毎日10時〜21時、毎時0分に発走（全12R）。発走60分前〜15分前にエントリー（1人1頭）、30分前に会場発表、15分前にオッズ公開、5分前に投票締切。見逃したレースはリプレイで見られます。<br><span class="hsub">ログイン中は、みんなと運用アカウントのエントリーが共有され、定員16頭を超えたら抽選。空き枠は過去の馬で埋まります。馬券はパリミュチュエル方式（賭け金の合計から控除20%をマスターへ・残りを的中者で分配）。</span></div></details>
     <div id="netTop"></div>
     <div id="onNext"></div>
     <div class="wlist" id="onList" style="margin-top:12px"></div>
@@ -1305,15 +1563,21 @@ function oddsCalc(race){
 
 // ======================= SELECT SCREEN =======================
 let RACE=null, ODDS=null, mode='hist';
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id)); document.body.dataset.scr=id; $('#navRace').classList.toggle('on',!['s-farm','s-ach'].includes(id)); $('#navFarm').classList.toggle('on',id==='s-farm'); $('#navAch').classList.toggle('on',id==='s-ach'); window.scrollTo(0,0); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id)); document.body.dataset.scr=id; $('#navRace').classList.toggle('on',!['s-farm','s-ach'].includes(id)); $('#navFarm').classList.toggle('on',id==='s-farm'&&!window.MKT_MODE); $('#navMkt').classList.toggle('on',id==='s-farm'&&!!window.MKT_MODE); $('#navAch').classList.toggle('on',id==='s-ach'); window.scrollTo(0,0); }
 let WEEKMAP={};
 function renderList(){
   const wr=weekRaces(), act=stable.filter(h=>!h.retired), sel=ownId?stable.find(h=>h.id===ownId):null; WEEKMAP={};
   $('#weekHead').innerHTML=`<i class="ic ic-cal"></i> ${calLabel()} の開催${sel?`　<span class="gold">★印：${sel.name}が出走できるレース</span>`:''}`;
-  $('#weekList').innerHTML=wr.map(r=>{ WEEKMAP[r.id]=r; const el=act.filter(h=>eligible(h,r)), done=cal.done[r.id];
-    return `<div class="wcard ${done?'done':''} ${r.grade==='G1'?'g1':''}" data-w="${r.id}"><span class="gb g-${r.grade}">${r.grade}</span>
-      <div style="flex:1"><b>${r.name}</b><div class="hsub">${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue} ${r.surface==='ダ'?'ダート':'芝'}${fmt(r.dist)}m・${r.n}頭${r.age3?'・3歳限定':''}${r.sex?'・牝馬限定':''}　1着 ${fmt(r.prize)} NOA・参加費 ${r.fee?fmt(r.fee)+' NOA':'無料'}　予報 ${wxChip(wxForecast(r))}</div>${r.gimmick?`<div class="hsub sp-d"><i class="ic ic-${GIMMICK[r.gimmick].ic}"></i> ${GIMMICK[r.gimmick].d}</div>`:''}</div>
-      <div class="wr">${done?`<span class="hsub">終了（勝ち馬：${done}）</span>`:el.length?`<span class="elig ${sel&&el.includes(sel)?'me':''}">★ ${el.map(h=>h.name).join('・')}</span>`:''}</div></div>`; }).join('');
+  const GO=['G1','G2','G3','SP','OP'], feat=[...wr].filter(r=>!cal.done[r.id]).sort((a,b)=>((GO.indexOf(a.grade)+1)||9)-((GO.indexOf(b.grade)+1)||9))[0];
+  const hb=$('#hero .hero-t'); if(hb){ hb.innerHTML=feat?`<span class="ft-wx">${wxChip(wxForecast(feat))}</span><span class="ft-tag g-${feat.grade}">${feat.grade} · 今週のメイン</span><div class="ft-nm">${feat.name}</div><div class="ft-mt">${feat.venue} ${feat.surface==='ダ'?'ダート':'芝'}${fmt(feat.dist)}m · ${feat.n}頭 · 1着 ${fmt(feat.prize)} NOA</div><button class="ft-go" data-w="${feat.id}">出馬表 ›</button>`:`<div class="ft-nm">今週のレースはすべて終了</div><div class="ft-mt">「翌週へ」で次の週に進みましょう</div>`;
+    const fb=hb.querySelector('.ft-go'); if(fb) fb.onclick=e=>{ e.stopPropagation(); WEEKMAP[feat.id]=feat; openBet(feat); }; }
+  const TH_IMG={city:'hero1',space:'hero3',moon:'hero7',desert:'hero2',aurora:'hero5',sky:'hero6'};
+  $('#weekList').innerHTML=wr.map(r=>{ WEEKMAP[r.id]=r; const el=act.filter(h=>eligible(h,r)), done=cal.done[r.id]; let th='hero4'; try{ th=TH_IMG[raceTheme(r)]||th; }catch(e){}
+    return `<div class="wcard ${done?'done':''} ${r.grade==='G1'?'g1':''}" data-w="${r.id}"><div class="w-th"><img src="assets/${th}_t.jpg" alt="" loading="lazy"><span class="gb g-${r.grade}">${r.grade}</span></div>
+      <div class="w-bd"><b class="w-nm">${r.name}</b><div class="w-mt"><em>${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue} ${r.surface==='ダ'?'ダ':'芝'}${fmt(r.dist)}m</em><span>${r.n}頭${r.age3?'・3歳':''}${r.sex?'・牝馬':''}</span>${wxChip(wxForecast(r))}</div>
+      ${r.gimmick?`<div class="w-gm"><i class="ic ic-${GIMMICK[r.gimmick].ic}"></i> ${GIMMICK[r.gimmick].d}</div>`:''}
+      <div class="w-pz"><b>${fmt(r.prize)}<small>NOA</small></b><span class="w-fee ${r.fee?'':'free'}">参加費 ${r.fee?fmt(r.fee):'無料'}</span></div>
+      ${done?`<div class="w-done">終了・勝ち馬 ${done}</div>`:el.length?`<div class="elig ${sel&&el.includes(sel)?'me':''}">★ ${el.map(h=>h.name).join('・')}</div>`:''}</div></div>`; }).join('');
   document.querySelectorAll('.wcard').forEach(el=>el.onclick=()=>{ if(cal.done[el.dataset.w]){ toast('このレースは終了しました'); return; } openBet(WEEKMAP[el.dataset.w]); });
   $('#raceList').innerHTML = RACES.map((r,ri)=>`<div class="rcard art" data-id="${r.id}" style="--art:url(assets/${['hero_t.jpg','hero1_t.jpg','hero2_t.jpg','hero3_t.jpg','hero4_t.jpg','hero5_t.jpg','hero6_t.jpg','hero7_t.jpg'][ri%8]})"><div class="g">${r.grade}</div>
       <h3>${r.name}</h3><div class="meta">${r.intl?'<i class="ic ic-globe"></i> ':''}${r.venue}　${r.surface==='ダ'?'ダート':'芝'}${r.dist}m（${r.turn}回り）<br>最大${r.n}頭立て</div>
@@ -1322,7 +1586,7 @@ function renderList(){
   const h=history.slice(-8).reverse();
   $('#histBox').innerHTML = h.length? '<b>最近の成績</b><br>'+h.map(x=>`${x.race}（勝ち馬：${x.winner||'-'}）　購入 ${fmt(x.spent)} → 払戻 <span class="${x.ret>=x.spent?'plus':'minus'}">${fmt(x.ret)}</span> NOA`).join('<br>') : '';
 }
-const rTitle=()=>RACE.online?`オンライン ${RACE.hour}:00 ${RACE.name}`:RACE.weekly?`${RACE.name}（${RACE.grade}）`:`ドリーム${RACE.name}（${RACE.grade}）`;
+const rTitle=()=>RACE.friendly?`フレンド対決 vs ${(RACE.fr||{}).name||''}`:RACE.online?`オンライン ${RACE.hour}:00 ${RACE.name}`:RACE.weekly?`${RACE.name}（${RACE.grade}）`:`ドリーム${RACE.name}（${RACE.grade}）`;
 
 // ======================= BET SCREEN =======================
 let betType='tan', buyMode='normal', picks=[], slip=[], ownId=null, ownOpt={jockey:null,strat:null};
@@ -1969,6 +2233,7 @@ function judgeCombo(type,p,ord){
 function payout(b,ord){ let s=0; b.combos.forEach((c,k)=>{ if(judgeCombo(b.type,c,ord)) s+=Math.floor(b.amount*b.odds[k]/10)*10; }); return s; }
 const PRIZE=[20000,8000,5000,3000,2000];
 function showResults(){
+  if(RACE.friendly){ friendlyAfterRace(); return; }
   if(RACE.online){ onlineAfterRace(); return; }
   const S=SIM, ord=S.order, hs=S.hs;
   let spent=0, ret=0;
@@ -2307,8 +2572,8 @@ function renderFarm(){
   $('#sireSel').innerHTML=opt(S,Math.min(si,S.length-1)); $('#damSel').innerHTML=opt(D,Math.min(di,D.length-1));
   renderPair();
   const act=stable.filter(h=>!h.retired), ret=stable.filter(h=>h.retired);
-  $('#stableList').innerHTML = act.length? `<div class="tgrid">${act.map(horseCard).join('')}</div>`
-    : '<div class="sub">まだ馬がいません。下の「配合」か「セリ」で最初の1頭を手に入れましょう。</div>';
+  const addSlot=`<div class="tc-add" onclick="setFarmSub('breed')"><b>＋</b>新馬ガチャ<small>登録料 ${fmt(gachaCost())} NOA</small></div>`;
+  $('#stableList').innerHTML = `<div class="tgrid">${act.map(horseCard).join('')}${addSlot}</div>`;
   $('#retiredList').innerHTML = ret.length? ret.map(h=>`<div class="retrow"><div><b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.races}戦${h.wins}勝${hall.some(x=>x.name===h.name)?'・<span class="gold">殿堂入り</span>':''}</span><div class="hsub">${h.sex==='牡'?'種付け料':'産駒の売却益'} 毎週 <b class="gold">+${fmt(studIncome(h))} NOA</b>${studIncome(h)?'':h.listed?'（出品中は収入停止）':h.imported?'（輸入繁殖牝馬：配合の母として活躍します）':'（実績不足：3戦以上か1勝以上で収入が発生）'}</div>${h.listed?`<div class="hsub"><span class="vo-tag"><i class="ic ic-lock"></i> マーケット出品中・閲覧のみ</span></div>`:''}</div><button class="btn" data-view="${h.id}">詳細</button>${h.listed?'':`<button class="btn" data-salv="${h.id}"><i class="ic ic-gear"></i>分解</button><button class="btn" data-sell="${h.id}"><i class="ic ic-coin"></i> 売却 ${fmt(horseValue(h))}</button><button class="btn gold" data-mkl="${h.id}">出品</button>`}</div>`).join('') : '<span class="hsub">まだいません</span>';
   // 施設
   $('#facList').innerHTML=Object.entries(FAC).map(([k,[n,d]])=>{ const lv=fac[k]; return `<div class="fcard"><div><b>${n}</b> <span class="lv">${'★'.repeat(lv)}${'☆'.repeat(3-lv)}</span><div class="hsub">${d}</div></div>${lv<3?`<button class="btn" data-fac="${k}">強化 ${fmt(FAC_COST[lv])}</button>`:'<span class="gold">最大</span>'}</div>`; }).join('')+((window.NET&&NET.on)?`<div class="fcard"><div><b>厩舎の枠</b><div class="hsub">オンライン経済では、現役馬は1人${NET_MAX_ACT}頭まで（ゲーム全体で${fmt(WORLD_MAX)}頭）。新しい馬を入れるときに登録料がかかります</div></div></div>`:'')+((window.NET&&NET.on)?'':`<div class="fcard"><div><b>厩舎の拡張</b> <span class="lv">${'★'.repeat(expand)}${'☆'.repeat(3-expand)}</span><div class="hsub">現役馬の上限 ${CAP()}頭${expand<3?` → ${CAP()+2}頭`:''}</div></div>${expand<3?`<button class="btn" id="expBtn">拡張 ${fmt(EXP_COST[expand])}</button>`:'<span class="gold">最大</span>'}</div>`);
@@ -2580,13 +2845,16 @@ const rkTier=i=>i<=2?0:i<=4?1:i<=6?2:i<=8?3:4;
 function horseCard(h){ const i=rkIdx(h), busy=h.acted===wIdx()||h.trained===wIdx(), inj=(h.injury||0)>0, f=FORM[2+clamp(h.cond||0,-2,2)], col=(COATS[h.coat]||COATS['鹿毛'])[0];
   const planSel=`<select data-plan="${h.id}" ${inj||busy?'disabled':''} onclick="event.stopPropagation()">${planOpts(h)}</select>`;
   const st=inj?`<span class="bad"><i class="ic ic-aid"></i> 故障 あと${h.injury}週</span>`:busy?`<span class="gold">${h.trained===wIdx()?'調教済み':'出走済み'}</span>`:'';
-  return `<div class="tcard rk${i} tier${rkTier(i)}" style="--rc:${RK_COL[i]}" data-open="${h.id}">${rkTier(i)>=3?'<i class="tc-fx"></i>':''}${rkTier(i)>=2?`<b class="tc-wm">${RANKS[i]}</b>`:''}
-    <div class="tc-top">${rkBadge(h)}<span class="tc-cls">${classOf(h)}</span><span class="tc-form" title="${f[1]}">${f[0]}</span></div>
-    <div class="tc-art">${cardArt(h,true)}${h.awakened?`<span class="tc-aw"><i class="ic ic-bolt"></i>${h.awakened}</span>`:''}</div>
-    <div class="tc-name">${attrChip(attrOf(h),true)}${h.attr2?attrChip(h.attr2,true):''} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}${h.fused?` <span class="fz-tag${h.fusion&&h.fusion.perfect?' p':''}">FUSION</span>`:''}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　${h.retired?'':h.age>=MAX_RACE_AGE?'<b class="tc-last" style="white-space:nowrap">ラストイヤー</b>':`<span style="white-space:nowrap">現役残${MAX_RACE_AGE-h.age+1}年</span>`}</div>
-    <div class="tc-st">${STATS.map(([k,n])=>`<div><span>${n.slice(0,2)}</span><span>${srk(h.st[k])}<small class="tc-cap">/${SRANK(h.cap[k])}</small></span></div>`).join('')}</div>
-    <div class="tc-fat"><i style="width:${h.fat||0}%"></i></div>
-    <div class="tc-foot">${st||`${h.races}戦${h.wins}勝`}</div>
+  const tr=rkTier(i), bc=[['#9aa3b5','#6b7385'],['#3ff0ff','#5b7cff'],['#b06aff','#ff6ad5'],['#ffe9a0','#e7b53c'],['#ff6ad5','#6af0ff']][tr];
+  return `<div class="tcard v3 rk${i} tier${tr}" style="--rc:${RK_COL[i]};--c1:${bc[0]};--c2:${bc[1]}" data-open="${h.id}">${tr>=3?'<i class="tc-fx"></i>':''}
+    <div class="tc-art">${cardArt(h,true)}${tr>=2?`<b class="tc-wm">${RANKS[i]}</b>`:''}
+      <div class="tc-ov">${rkBadge(h)}${attrChip(attrOf(h),true)}${h.attr2?attrChip(h.attr2,true):''}<span class="tc-form" title="${f[1]}">${f[0]}</span></div>
+      ${h.awakened?`<span class="tc-aw"><i class="ic ic-bolt"></i>${h.awakened}</span>`:''}
+      <div class="tc-cap2"><div class="tc-name">${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}${h.fused?` <span class="fz-tag${h.fusion&&h.fusion.perfect?' p':''}">FUSION</span>`:''}</div>
+      <div class="tc-sub">${h.sex}${h.age}歳 · ${classOf(h)} · ${h.retired?'引退':h.age>=MAX_RACE_AGE?'<b class="tc-last">ラストイヤー</b>':`残${MAX_RACE_AGE-h.age+1}年`}</div></div></div>
+    <div class="tc-bars">${STATS.map(([k,n])=>{ const v=h.st[k]||0, c=h.cap[k]||0; return `<div class="tb"><span>${n.slice(0,2)}</span><i><u style="width:${Math.min(100,v).toFixed(1)}%"></u><s style="left:${Math.min(100,c).toFixed(1)}%"></s></i><em>${Math.round(v)}</em></div>`; }).join('')}
+      <div class="tb fat"><span>疲労</span><i><u style="width:${h.fat||0}%"></u></i><em>${Math.round(h.fat||0)}</em></div></div>
+    <div class="tc-foot">${st||`${h.races}戦${h.wins}勝 · ${h.grow} · 体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>`}</div>
     ${inj||busy?'':`<div class="tc-hot"><span class="hot-b">HOT</span>${MENU[hotOf(h)].n}</div>`}<div class="tc-plan">${planSel}${trainBtn(h,true)}</div></div>`; }
 function openHorse(id){ const h=stable.find(x=>x.id===id); if(!h) return;
   $('#resBox').innerHTML=`<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px"><div>${rkBadge(h,true)} <span class="hsub">成長スピード ×${RK_GROW[rkIdx(h)]}${h.awakened?`・覚醒 ${h.awakened}回`:''}</span></div><button class="btn" id="hdClose">✕ 閉じる</button></div><div class="art-big" style="--rc:${RK_COL[rkIdx(h)]}">${cardArt(h)}</div>${horseDetail(h)}`;
@@ -3361,7 +3629,7 @@ updCal();
 // ---- サブタブ（レース：今週／オンライン／ドリーム、牧場：厩舎／生産／パーツ／経営／引退・売買）
 let raceSub=sessionStorage.getItem('noa_rs')||'week', farmSub=sessionStorage.getItem('noa_fs')||'stable';
 function setRaceSub(k){ raceSub=k; sessionStorage.setItem('noa_rs',k); if(k==='online'){ openOnline(); } else { renderList(); show('s-select'); } applySubs(); }
-function setFarmSub(k){ farmSub=k; sessionStorage.setItem('noa_fs',k); applySubs(); window.scrollTo(0,0); }
+function setFarmSub(k){ farmSub=k; window.MKT_MODE=false; $('#navFarm').classList.add('on'); $('#navMkt').classList.remove('on'); sessionStorage.setItem('noa_fs',k); applySubs(); window.scrollTo(0,0); }
 function applySubs(){ document.querySelectorAll('[data-rs]').forEach(b=>b.classList.toggle('on',b.dataset.rs===raceSub)); document.querySelectorAll('[data-rp]').forEach(d=>d.style.display=d.dataset.rp===raceSub?'':'none');
   document.querySelectorAll('[data-fs]').forEach(b=>b.classList.toggle('on',b.dataset.fs===farmSub)); document.querySelectorAll('[data-fp]').forEach(d=>d.style.display=d.dataset.fp===farmSub?'':'none'); subBadges(); }
 function subBadges(){ try{ const t=Date.now(), keys=onlineDayKeys(), nx=keys.map(onlineSpec).find(sp=>sp.post>t-60e3), ph=nx?onPhase(nx):'';
@@ -3377,7 +3645,8 @@ function subBadges(){ try{ const t=Date.now(), keys=onlineDayKeys(), nx=keys.map
 document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>setRaceSub(b.dataset.rs));
 document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>setFarmSub(b.dataset.fs));
 $('#navRace').onclick=()=>{ if(raceSub==='online') openOnline(); else { renderList(); show('s-select'); } applySubs(); };
-$('#navFarm').onclick=()=>{ openFarm(); applySubs(); };
+$('#navFarm').onclick=()=>{ window.MKT_MODE=false; if(farmSub==='retired') farmSub='stable'; openFarm(); applySubs(); };
+$('#navMkt').onclick=()=>{ window.MKT_MODE=true; farmSub='retired'; openFarm(); applySubs(); setTimeout(()=>{ const m=document.getElementById('mktList'); if(m){ const y=m.getBoundingClientRect().top+window.scrollY-130; window.scrollTo({top:y,behavior:'smooth'}); } },80); };
 
 // ======================= サウンド（WebAudioで合成） =======================
 const SND={ctx:null,on:store.get('snd',true),crowd:null,crowdGain:null};
@@ -3503,6 +3772,38 @@ function onlineSpec(key){ if(ON_SPECS[key]) return ON_SPECS[key]; const r=rng(ha
 function onPhase(sp,t=Date.now()){ const P=sp.post, m=60e3;
   if(t<P-60*m) return 'soon'; if(t<P-30*m) return 'entry'; if(t<P-15*m) return 'entry2'; if(t<P-5*m) return 'bet'; if(t<P) return 'closed'; if(t<P+3*m) return 'live'; return 'done'; }
 const PH_LBL={soon:'受付前',entry:'エントリー受付中',entry2:'エントリー受付中（会場発表済み）',bet:'オッズ公開・投票受付中',closed:'投票締切・まもなく発走',live:'発走中',done:'確定'};
+
+// ======================= フレンド（オンライン時のみ・通信はほぼ増やさない） =======================
+const escH=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+function updFriendDot(){ const n=Object.keys(store.get('friendReq',{})).length, d=document.getElementById('frDot'); if(!d) return; d.textContent=n; d.style.display=n?'':'none'; }
+function openFriends(){ if(window.NET&&NET.on){ NET.openFriends(); return; }
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-users"></i> フレンド</div><div class="sub">フレンド機能はオンライン版（GitHub版でGoogleログイン）で使えます。<br>フレンド追加・NOA送金・厩舎ののぞき見・フレンド対決ができます。</div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn gold" onclick="$('#resModal').classList.remove('on')">閉じる</button></div>`;
+  $('#resModal').classList.add('on'); }
+$('#friendBtn').onclick=openFriends; setTimeout(updFriendDot,0);
+// フレンドに見せる用の軽い馬データ（ランキング行に最大5頭）
+function slimSnap(h){ const s=entrySnap(h); ['jh','jw','bigWins','titles','bought','log'].forEach(k=>delete s[k]); return s; }
+// フレンド対決：賭け・賞金・成績なしのエキシビション（自分の端末だけで走る）
+const FR_DIST=[[1200,'短距離'],[1600,'マイル'],[2000,'中距離'],[2500,'長距離']];
+function friendlyMatch(myId,fr,fh,dist){ const me=stable.find(h=>h.id===myId); if(!me||!fh) return;
+  const base=RACES.filter(r=>r.surface==='芝'&&!r.sex&&!r.age3&&!r.intl&&r.dist).sort((a,b)=>Math.abs(a.dist-dist)-Math.abs(b.dist-dist))[0];
+  const sp={...base,id:'fr_'+Date.now().toString(36),name:'フレンド対決',grade:'OP',cls:'OP',n:2,prize:0,weekly:false,friendly:true,fr:{uid:fr.uid,name:fr.name}};
+  delete sp._cache; delete sp.online;
+  sp.netSnaps=[{uid:NET.uid,owner:NET.name,snap:entrySnap(me)},{uid:fr.uid,owner:fr.name,snap:fh}];
+  $('#resModal').classList.remove('on'); CUR=sp; slip=[]; OWN=null;
+  RACE=generateRace(sp,null,{}); RACE.hs.forEach(h=>{ if(h.netUid===NET.uid){ h.own=true; h.stableId=me.id; } }); RACE.friendly=true; RACE.liveFrom=null; ODDS=oddsCalc(RACE); startRace(); }
+function friendlyAfterRace(){ const S=SIM, ord=S.order, hs=S.hs, f=RACE.fr||{};
+  const mi=hs.find(h=>h.netUid===NET.uid), fi=hs.find(h=>h.netUid===f.uid); if(!mi||!fi) return;
+  const mp=ord.indexOf(mi.i)+1, fp=ord.indexOf(fi.i)+1, win=mp<fp;
+  const FR=store.get('friends',{}); if(FR[f.uid]){ const r=FR[f.uid].rec=FR[f.uid].rec||{w:0,l:0}; win?r.w++:r.l++; store.set('friends',FR); }
+  try{ NET.friendNote(f.uid,`${NET.name} さんの ${mi.name} とフレンド対決：あなたの ${fi.name} が${win?'負けました…':'勝ちました！'}（${fp}着 vs ${mp}着）`); }catch(e){}
+  const rec=(FR[f.uid]||{}).rec||{w:0,l:0};
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-swords"></i> フレンド対決 vs ${escH(f.name)}</div><div class="fr-res ${win?'w':'l'}">${win?'WIN':'LOSE'}</div>
+    <div class="sub" style="text-align:center">${escH(mi.name)} <b>${mp}着</b>　／　${escH(fi.name)} <b>${fp}着</b><br>対戦成績 <b class="gold">${rec.w}勝 ${rec.l}敗</b>（賞金・成績には影響しません）</div>
+    <table class="ent" style="margin-top:8px"><tr><th>着</th><th>馬名</th><th>馬主</th></tr>${ord.slice(0,5).map((i,k)=>{ const h=hs[i]; return `<tr class="${h.netUid===NET.uid?'own':''}"><td>${k+1}</td><td>${escH(h.name)}</td><td class="hsub">${h.netUid===NET.uid?'あなた':h.netUid===f.uid?escH(f.name):'—'}</td></tr>`; }).join('')}</table>
+    <div class="row" style="justify-content:flex-end;gap:8px;margin-top:12px"><button class="btn" id="frBack">フレンドへ</button><button class="btn gold" id="frHome">レースへ戻る</button></div>`;
+  $('#resModal').classList.add('on');
+  $('#frBack').onclick=()=>{ show('s-select'); openFriends(); }; $('#frHome').onclick=()=>{ $('#resModal').classList.remove('on'); renderList(); show('s-select'); }; }
+
 function entrySnap(h){ const s=JSON.parse(JSON.stringify(h)); s.partsEq=eqList(h).map(p=>({uid:p.uid,k:p.k,r:p.r})); delete s.log; return s; }
 function entryHorse(key){ const e=online.entries[key]; return e?Object.assign(JSON.parse(JSON.stringify(e.snap)),{id:e.id}):null; }
 function onlineRace(key){ const sp=onlineSpec(key); delete sp._cache; const F=(window.NET&&NET.on)?NET.fieldOf(key):null; sp.netSnaps=F?F.ents:null; const own=F?null:entryHorse(key);

@@ -81,6 +81,8 @@ const NET=window.NET={on:false,down:0,uid:null,name:'',code:'',master:null,maste
   async applyInbox(force){ if(!this.on||this.isDown()) return; if(!force&&now()-this.inboxAt<INBOX_MS) return; this.inboxAt=now();
     const q=await db.collection('players/'+this.uid+'/inbox').get().catch(e=>this.guard(e)); if(!q.docs.length) return;
     for(const d of q.docs){ const x=d.data(); try{ await d.ref.delete(); }catch(e){ continue; }
+      if(x.kind==='friend'){ const FR=store.get('friends',{}); if(!FR[x.from]){ const RQ=store.get('friendReq',{}); RQ[x.from]={name:x.name,code:x.code,t:x.t}; store.set('friendReq',RQ); } toast(`<i class="ic ic-users"></i> ${esc(x.msg||'フレンド申請が届きました')}`); try{ updFriendDot(); }catch(e){} continue; }
+      if(x.kind==='note'){ toast(`<i class="ic ic-users"></i> ${esc(x.msg||'')}`); continue; }
       const amt=Math.round(+x.amt||0); if(amt){ if(x.kind!=='admin') this.p2p(amt); setBal(balance+amt); } toast(`<i class="ic ic-coin"></i> ${esc(x.msg||'NOAを受け取りました')}　+${fmt(amt)} NOA`); }
     await this.flush(true); },
   // ------------------------------------------------ ランキング・送金
@@ -202,7 +204,7 @@ async function marketMaint(){ const bots=(await NET.loadBots()).bal||{}; const t
         if((x.high&&x.high.uid===bt.id)||Math.random()>0.2||val<mn) continue; const amt=val>=x.buyout?x.buyout:Math.min(val,mn+mktStep(mn)); if((bots[bt.id]||0)<amt) continue;
         if(x.high) refundBid(t,x.high,x.horse.name); x.high={uid:bt.id,name:bt.name,amt,t:tm}; x.bids=(x.bids||[]).concat([{name:bt.name,amt,t:tm}]).slice(-12);
         t.set(R_('bots/all'),{bal:{[bt.id]:inc(-amt)}},{merge:true}); bots[bt.id]-=amt; if(amt>=x.buyout){ x.status='sold'; x.closed=tm; x.claimed=true; creditSale(t,x,amt); } break; } }); }); }
-function myStats(){ const st=stable||[]; return {wins:st.reduce((a,h)=>a+(h.wins||0),0),g1w:st.reduce((a,h)=>a+(h.g1w||0),0),horses:st.filter(h=>!h.retired).length}; }
+function myStats(){ const st=stable||[], act=st.filter(h=>!h.retired); let stb=[]; try{ stb=act.slice(0,5).map(slimSnap); }catch(e){} return {wins:st.reduce((a,h)=>a+(h.wins||0),0),g1w:st.reduce((a,h)=>a+(h.g1w||0),0),horses:act.length,stb}; }
 
 // ---------------------------------------------------------------- ゲームへの組み込み
 let _setRaw=null;
@@ -242,12 +244,12 @@ NET.openRank=async function(){ $('#resBox').innerHTML='<div class="win"><i class
     <table class="ent" style="margin-top:8px"><tr><th>#</th><th>名前</th><th class="num">所持金</th><th class="num">勝利</th></tr>${R.slice(0,40).map((x,i)=>`<tr class="${x.id===this.uid?'own':''}"><td>${i+1}</td><td>${esc(x.name)}${x.bot?' <span class="botmk">運用</span>':''}</td><td class="num">${fmt(Math.round(x.balance))}</td><td class="num">${x.bot?'-':x.wins||0}</td></tr>`).join('')}</table>
     <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn gold" id="rkOk">閉じる</button></div>`; $('#rkOk').onclick=()=>$('#resModal').classList.remove('on');
   }catch(e){ $('#resBox').innerHTML=`<div class="sub">読み込めませんでした（${esc(e.message)}）</div><button class="btn gold" onclick="$('#resModal').classList.remove('on')">閉じる</button>`; } };
-NET.openSend=function(){ $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> 送金</div><div class="sub">相手のフレンドコードを入力して、NOAを送ります。手数料5%はマスターへ（10,000送ると相手に9,500届きます）。相手が次にオンラインタブか牧場を開いたときに届きます。</div>
+NET.openSend=function(pre){ $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> 送金</div><div class="sub">相手のフレンドコードを入力して、NOAを送ります。手数料5%はマスターへ（10,000送ると相手に9,500届きます）。相手が次にオンラインタブか牧場を開いたときに届きます。</div>
     <label class="mk-in">フレンドコード <input id="sdCode" maxlength="6" style="width:110px;text-transform:uppercase" placeholder="ABC123"></label>
     <label class="mk-in">金額 <input type="number" id="sdAmt" step="100" min="100" value="1000"> NOA</label>
     <label class="mk-in">ひとこと <input id="sdMsg" maxlength="40" style="width:200px" placeholder="馬代です"></label>
     <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" id="sdNo">やめる</button><button class="btn gold" id="sdYes">送金する</button></div>`;
-  $('#resModal').classList.add('on'); $('#sdNo').onclick=()=>$('#resModal').classList.remove('on');
+  $('#resModal').classList.add('on'); if(pre) $('#sdCode').value=pre; $('#sdNo').onclick=()=>$('#resModal').classList.remove('on');
   $('#sdYes').onclick=async()=>{ const b=$('#sdYes'); b.disabled=true; try{ const r=await this.send($('#sdCode').value.trim(),+$('#sdAmt').value,$('#sdMsg').value.trim()); $('#resModal').classList.remove('on'); toast(`${esc(r.to)} さんに ${fmt(r.get)} NOA を送金しました（手数料 ${fmt(r.fee)}）`); this.renderTop(); }catch(e){ toast(esc(e.message)); b.disabled=false; } }; };
 NET.renderMarket=async function(){ const el=$('#mktList'); if(!el) return; if(!this.board) el.innerHTML='<span class="hsub">読み込み中…</span>'; this.applyInbox().catch(()=>{}); this.tryMaint();
   try{ const ch=await this.reconcileMarket(); if(ch){ renderFarm(); return; } }catch(e){ console.warn(e); }
@@ -321,4 +323,68 @@ NET.openAdmin=async function(tab){ if(!this.isAdmin) return; tab=tab||this.admTa
   box.querySelectorAll('[data-tw]').forEach(b=>b.onclick=async()=>{ $('#resModal').classList.remove('on'); await this.ensure(b.dataset.tw,true); this.testWatch=true; const sp=onlineSpec(b.dataset.tw), keep=sp.post; sp.post=Date.now()-1000; try{ onlineWatch(b.dataset.tw,false); } finally{ setTimeout(()=>{ sp.post=keep; },3000); } });
   box.querySelectorAll('[data-mc]').forEach(b=>b.onclick=async()=>{ if(!confirm('この出品を取り消しますか？（入札者には返金されます）')) return; await this.boardTx(async(t,L)=>{ const x=L[b.dataset.mc]; if(!x||x.status!=='open') return; if(x.high) refundBid(t,x.high,x.horse.name); x.high=null; x.status='cancel'; x.closed=now(); }); done('取り消しました'); });
 };
+
+// ---------------------------------------------------------------- フレンド
+// 一覧は自分のセーブ（friends）に保存。相手の情報は既に読んでいるランキング文書から取るので、読み込みは増えない
+NET.findByCode=async function(code){ code=(code||'').trim().toUpperCase(); let rows=(await this.loadRank()).rows||{}; let to=Object.entries(rows).find(([u,r])=>r.code===code);
+  if(!to){ rows=(await this.loadRank(true)).rows||{}; to=Object.entries(rows).find(([u,r])=>r.code===code); } return to; };
+NET.addFriend=async function(code){ code=(code||'').trim().toUpperCase(); if(!code) throw new Error('フレンドコードを入力してください'); if(code===this.code) throw new Error('自分のコードです');
+  const to=await this.findByCode(code); if(!to) throw new Error('そのフレンドコードの人が見つかりません'); const FR=store.get('friends',{}); if(FR[to[0]]) throw new Error('すでにフレンドです');
+  FR[to[0]]={name:to[1].name,code,t:now(),rec:{w:0,l:0}}; store.set('friends',FR); const RQ=store.get('friendReq',{}); const back=!!RQ[to[0]]; delete RQ[to[0]]; store.set('friendReq',RQ); updFriendDot();
+  if(!back) await db.collection('players/'+to[0]+'/inbox').doc(rid()).set({amt:0,kind:'friend',from:this.uid,name:this.name,code:this.code,msg:`${this.name} さんがあなたをフレンドに追加しました`,t:now()}).catch(e=>this.guard(e));
+  return to[1].name; };
+NET.friendNote=function(uid,msg){ if(!this.on||this.isDown()) return; db.collection('players/'+uid+'/inbox').doc(rid()).set({amt:0,kind:'note',msg:String(msg).slice(0,140),t:now()}).catch(()=>{}); };
+const AV_COL=[['#3ff0ff','#5b7cff'],['#ff6ad5','#b06aff'],['#ffd36a','#ff7a3a'],['#7dff9a','#2fbf71'],['#7fe8ff','#2f6bff'],['#ff4a3a','#ff9a3a']];
+const agoTxt=t=>{ if(!t) return '—'; const m=(now()-t)/60e3; return m<10?'<i class="fr-on"></i>オンライン':m<60?Math.floor(m)+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'; };
+NET.openFriends=async function(){ const box=$('#resBox'); $('#resModal').classList.add('on');
+  box.innerHTML='<div class="win"><i class="ic ic-users"></i> フレンド</div><div class="sub">読み込み中…</div>';
+  this.applyInbox().catch(()=>{}); const rows=((await this.loadRank().catch(()=>null))||{}).rows||{};
+  const FR=store.get('friends',{}), RQ=store.get('friendReq',{});
+  Object.keys(FR).forEach(u=>{ if(rows[u]&&rows[u].name&&rows[u].name!==FR[u].name) FR[u].name=rows[u].name; });
+  const list=Object.entries(FR).map(([uid,f])=>({uid,...f,r:rows[uid]||{}})).sort((a,b)=>(b.r.t||0)-(a.r.t||0));
+  box.innerHTML=`<div class="win"><i class="ic ic-users"></i> フレンド <span class="hsub">${list.length}人</span></div>
+   <div class="fr-me"><div style="flex:1"><small class="hsub">あなたのフレンドコード</small><br><b class="code">${this.code}</b></div><button class="btn" id="frCopy">コピー</button></div>
+   <div class="fr-add"><input id="frCode" maxlength="6" placeholder="相手のコード（例 ABC123）"><button class="btn gold" id="frAdd">追加</button></div>
+   ${Object.entries(RQ).map(([u,x])=>`<div class="fr-req"><span><b>${esc(x.name)}</b> さんがあなたを追加しました</span><button class="btn gold" data-back="${esc(x.code)}">追加し返す</button><button class="btn" data-ign="${u}">×</button></div>`).join('')}
+   <div style="margin-top:6px">${list.length?list.map((f,i)=>{ const c=AV_COL[i%AV_COL.length], r=f.r, rec=f.rec||{w:0,l:0};
+     return `<div class="fr-row"><div class="fr-av" style="--a1:${c[0]};--a2:${c[1]}">${esc((f.name||'?').slice(0,1))}</div><div class="fr-i"><b>${esc(f.name)}</b>
+       <small>${agoTxt(r.t)}　${r.wins||0}勝${r.g1w?`・G1 ${r.g1w}勝`:''}・現役${r.horses||0}頭　対戦 <b class="gold">${rec.w}-${rec.l}</b></small>
+       <div class="fr-btns"><button class="btn" data-stb="${f.uid}"><i class="ic ic-home"></i> 厩舎</button><button class="btn gold" data-vs="${f.uid}"><i class="ic ic-swords"></i> 対決</button><button class="btn" data-send="${esc(f.code)}"><i class="ic ic-coin"></i> 送金</button><button class="btn" data-del="${f.uid}" title="削除">削除</button></div></div></div>`; }).join('')
+     :'<div class="sub" style="margin-top:8px">まだフレンドがいません。相手のフレンドコードを入れて追加しましょう。</div>'}</div>
+   <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" id="frClose">閉じる</button></div>`;
+  const me=this, re=()=>me.openFriends();
+  $('#frClose').onclick=()=>$('#resModal').classList.remove('on');
+  $('#frCopy').onclick=()=>{ try{ navigator.clipboard.writeText(me.code); toast('フレンドコードをコピーしました'); }catch(e){ toast(me.code); } };
+  const add=async code=>{ try{ const n=await me.addFriend(code); toast(`<i class="ic ic-users"></i> ${esc(n)} さんをフレンドに追加しました`); re(); }catch(e){ toast(esc(e.message)); } };
+  $('#frAdd').onclick=()=>add($('#frCode').value);
+  box.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>add(b.dataset.back));
+  box.querySelectorAll('[data-ign]').forEach(b=>b.onclick=()=>{ const R=store.get('friendReq',{}); delete R[b.dataset.ign]; store.set('friendReq',R); updFriendDot(); re(); });
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const F=store.get('friends',{}); if(!confirm(`${F[b.dataset.del].name} さんをフレンドから外しますか？`)) return; delete F[b.dataset.del]; store.set('friends',F); re(); });
+  box.querySelectorAll('[data-send]').forEach(b=>b.onclick=()=>me.openSend(b.dataset.send));
+  box.querySelectorAll('[data-stb]').forEach(b=>b.onclick=()=>me.openFriendStable(list.find(f=>f.uid===b.dataset.stb)));
+  box.querySelectorAll('[data-vs]').forEach(b=>b.onclick=()=>me.openFriendStable(list.find(f=>f.uid===b.dataset.vs),true));
+};
+NET.openFriendStable=function(f,vs){ const box=$('#resBox'), stb=(f.r&&f.r.stb)||[];
+  box.innerHTML=`<div class="win"><i class="ic ic-${vs?'swords':'home'}"></i> ${esc(f.name)} さんの厩舎 <span class="hsub">${vs?'対戦相手を選んでください':'閲覧のみ'}</span></div>
+   ${stb.length?`<div class="fr-stb">${stb.map((h,i)=>`<div class="tcard rk${rkIdx(h)} tier${rkTier(rkIdx(h))}" style="--rc:${RK_COL[rkIdx(h)]}">${rkTier(rkIdx(h))>=2?`<b class="tc-wm">${RANKS[rkIdx(h)]}</b>`:''}
+      <div class="tc-top">${rkBadge(h)}<span class="tc-cls">${classOf(h)}</span></div><div class="tc-art">${cardArt(h,true)}</div>
+      <div class="tc-name">${attrChip(attrOf(h),true)} ${esc(h.name)}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.races||0}戦${h.wins||0}勝</div>
+      <div class="tc-st">${STATS.map(([k,n])=>`<div><span>${n.slice(0,2)}</span><span>${srk(h.st[k])}</span></div>`).join('')}</div>
+      ${vs?`<button class="btn gold" style="width:100%;margin-top:6px" data-pick="${i}"><i class="ic ic-swords"></i> この馬と対決</button>`:''}</div>`).join('')}</div>`
+     :'<div class="sub">現役の馬がいないか、まだデータが届いていません（相手が一度ゲームを開くと表示されます）。</div>'}
+   <div class="row" style="justify-content:flex-end;gap:8px;margin-top:12px"><button class="btn" id="fsBack">戻る</button>${!vs&&stb.length?'<button class="btn gold" id="fsVs"><i class="ic ic-swords"></i> 対決する</button>':''}</div>`;
+  $('#fsBack').onclick=()=>this.openFriends(); if($('#fsVs')) $('#fsVs').onclick=()=>this.openFriendStable(f,true);
+  box.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>this.openVs(f,stb[+b.dataset.pick])); };
+NET.openVs=function(f,fh){ const act=stable.filter(h=>!h.retired&&!((h.injury||0)>0)); const box=$('#resBox');
+  if(!act.length){ toast('出せる現役馬がいません'); return; }
+  box.innerHTML=`<div class="win"><i class="ic ic-swords"></i> フレンド対決</div><div class="sub">賭け・賞金・成績・疲労には影響しない、お楽しみの1対1マッチレースです。</div>
+   <div class="fr-vs"><div class="art-big" id="vsMine"></div><em>VS</em><div class="art-big">${cardArt(fh)}</div></div>
+   <label class="mk-in">自分の馬 <select id="vsMe">${act.map(h=>`<option value="${h.id}">${esc(h.name)}（${RANKS[rkIdx(h)]}・${h.age}歳）</option>`).join('')}</select></label>
+   <label class="mk-in">相手 <b>${esc(fh.name)}</b>（${esc(f.name)} さん・${RANKS[rkIdx(fh)]}）</label>
+   <label class="mk-in">距離 <select id="vsDist">${FR_DIST.map(([d,n])=>`<option value="${d}" ${d===2000?'selected':''}>${n}（芝${d}m）</option>`).join('')}</select></label>
+   <div class="row" style="justify-content:flex-end;gap:8px;margin-top:12px"><button class="btn" id="vsBack">戻る</button><button class="btn gold" id="vsGo"><i class="ic ic-swords"></i> 対決スタート</button></div>`;
+  const art=()=>{ const h=stable.find(x=>x.id===$('#vsMe').value); $('#vsMine').innerHTML=cardArt(h); }; art(); $('#vsMe').onchange=art;
+  $('#vsBack').onclick=()=>this.openFriendStable(f,true);
+  $('#vsGo').onclick=()=>friendlyMatch($('#vsMe').value,{uid:f.uid,name:f.name},fh,+$('#vsDist').value); };
+
 })();
