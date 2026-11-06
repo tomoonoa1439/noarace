@@ -732,6 +732,31 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
 .on-card.done{opacity:.72}.on-card .gb{min-width:54px}.on-act{display:flex;gap:6px;flex-wrap:wrap}
 .ph-bet{color:#ffd166}.ph-live{color:#ff6a8a}.ph-entry,.ph-entry2{color:#7dffb8}
 @media(max-width:720px){ .mtabs button{padding:7px 2px;font-size:13px;min-width:0} .mtabs .ic{display:none} .on-cd{font-size:26px} }
+
+/* ===== ランク別カード見た目（F〜D 素朴／C〜B ネオン／A〜AA 回る光輪／S〜SS 金箔＋粒子／SSS ホロ） ===== */
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+.tcard.tier0{background:linear-gradient(160deg,#1b1d22,#0c0d10 62%);border:1px solid #ffffff1c}
+.tcard.tier0 .tc-art{filter:grayscale(.65) brightness(.78) contrast(.95)}.tcard.tier0 .tc-name{color:#c9ccd2}
+.tcard.tier1{border:2px solid var(--rc);box-shadow:inset 0 0 18px color-mix(in srgb,var(--rc) 45%,transparent),inset 0 0 0 1px #0008}
+.tcard.tier2{border:3px solid transparent;background:linear-gradient(160deg,#1d1440,#08061a 62%) padding-box,conic-gradient(from var(--ang),var(--rc) 0 20%,#fff 25%,#6af0ff 30%,var(--rc) 40% 70%,#fff 75%,#ff6ad5 80%,var(--rc) 90%) border-box;animation:rkspin 3.5s linear infinite;box-shadow:inset 0 0 26px color-mix(in srgb,var(--rc) 55%,transparent)}
+.tcard.tier3{border:4px solid transparent;background:radial-gradient(120% 80% at 30% 0%,#4a3a12,#140f04 65%) padding-box,conic-gradient(from var(--ang),#fff3c4,#e7b53c,#7a5410,#ffe9a0,#e7b53c,#fff3c4) border-box;animation:rkspin 3s linear infinite;box-shadow:inset 0 0 30px #e7b53c66}
+.tcard.tier4{border:4px solid transparent;background:radial-gradient(120% 80% at 30% 0%,#3c1660,#0a0418 65%) padding-box,conic-gradient(from var(--ang),#ff6ad5,#ffd36a,#6af0ff,#7dff9a,#b06aff,#ff6ad5) border-box;animation:rkspin 2.2s linear infinite;box-shadow:inset 0 0 34px #ff6ad577}
+@keyframes rkspin{to{--ang:360deg}}
+.tcard.tier2 .tc-art::after,.tcard.tier3 .tc-art::after,.tcard.tier4 .tc-art::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:60%;background:linear-gradient(115deg,#0000,#fff6 45%,#0000);will-change:transform;animation:shine2 3.2s linear infinite;pointer-events:none;z-index:1}
+.tcard.tier4 .tc-art::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:color-dodge;opacity:.35;background:linear-gradient(125deg,#ff6ad5,#ffd36a 25%,#6af0ff 50%,#7dff9a 70%,#b06aff);background-size:300% 300%;animation:holo 5s ease-in-out infinite alternate}
+@keyframes holo{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+.tc-fx{position:absolute;inset:0;pointer-events:none;z-index:2;background-image:radial-gradient(1.6px 1.6px at 12% 18%,#fff,transparent),radial-gradient(1.2px 1.2px at 82% 30%,#fff6c8,transparent),radial-gradient(1.8px 1.8px at 64% 72%,#fff,transparent),radial-gradient(1.2px 1.2px at 28% 86%,#ffe9a0,transparent),radial-gradient(1.5px 1.5px at 90% 88%,#fff,transparent),radial-gradient(1.3px 1.3px at 45% 40%,#fff,transparent);animation:twk 2.4s ease-in-out infinite alternate}
+.tcard.tier4 .tc-fx{background-image:radial-gradient(1.8px 1.8px at 12% 18%,#ff9be6,transparent),radial-gradient(1.4px 1.4px at 82% 30%,#9ff4ff,transparent),radial-gradient(2px 2px at 64% 72%,#fff,transparent),radial-gradient(1.4px 1.4px at 28% 86%,#c2ff9b,transparent),radial-gradient(1.6px 1.6px at 90% 88%,#ffe08a,transparent),radial-gradient(1.4px 1.4px at 45% 40%,#d9b0ff,transparent)}
+@keyframes twk{0%{opacity:.25;transform:translateY(2px)}100%{opacity:1;transform:translateY(-2px)}}
+.tcard.tier3 .tc-name,.tcard.tier3 .tc-cls{color:#ffe7a0;text-shadow:0 0 8px #e7b53c99}
+.tcard.tier4 .tc-name{color:#ffd8f6;text-shadow:0 0 6px #ff6ad5,0 0 14px #6af0ff88}
+.tc-last{color:#ff8a5c}
+.tc-wm{position:absolute;right:8px;bottom:34px;font:italic 900 64px/1 system-ui,sans-serif;letter-spacing:-4px;color:var(--rc);opacity:.16;pointer-events:none;z-index:0}
+.tcard.tier3 .tc-wm{color:#ffd76a;opacity:.22;text-shadow:0 0 18px #e7b53c}.tcard.tier4 .tc-wm{opacity:.28;background:linear-gradient(90deg,#ff6ad5,#ffd36a,#6af0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tcard>*:not(.tc-fx):not(.tc-wm){position:relative;z-index:1}
+.tcard.tier2 .tc-art,.tcard.tier3 .tc-art,.tcard.tier4 .tc-art{box-shadow:0 0 0 1px var(--rc),0 0 14px color-mix(in srgb,var(--rc) 70%,transparent)}
+.tcard.tier3 .tc-art{box-shadow:0 0 0 2px #e7b53c,0 0 16px #e7b53caa}
+@media (prefers-reduced-motion:reduce){.tcard.tier2,.tcard.tier3,.tcard.tier4,.tc-fx{animation:none}}
 </style>
 </head>
 <body>
@@ -2142,14 +2167,15 @@ function migrate(h){ if(h.st) return h; const B=(h.rating-86)/0.4, P=((h.pot||h.
   h.cap={}; h.st={}; STATS_ALL.forEach(([k])=>{ h.cap[k]=clamp(k==='hp'?70+j():P+j(),30,100); h.st[k]=clamp(k==='hp'?h.cap[k]-5:B+j(),20,h.cap[k]); });
   Object.assign(h,{age:h.age||2,grow:h.grow||'普通',fat:0,injury:0,cond:h.form||0,plan:'rest',acted:-1}); delete h.rating; delete h.pot; return h; }
 stable.forEach(migrate);
-stable.forEach(h=>{ if(!h.ageFixed && typeof h.born==='string' && h.born.includes('/')){ h.age=2+Math.max(0,(store.get('cal',{year:1}).year||1)-1); h.ageFixed=true; } }); saveStable();
+const MAX_RACE_AGE=6;
+stable.forEach(h=>{ if(!h.retired&&h.age>MAX_RACE_AGE){ h.retired=true; h.ageRet=true; } }); stable.forEach(h=>{ if(!h.ageFixed && typeof h.born==='string' && h.born.includes('/')){ h.age=2+Math.max(0,(store.get('cal',{year:1}).year||1)-1); h.ageFixed=true; } }); saveStable();
 // ======================= カードランク・覚醒 =======================
 const RANKS=['F','E','D','C','B','A','AA','S','SS','SSS'];
-const RK_GROW=[0.7,0.8,0.9,1.0,1.1,1.22,1.35,1.5,1.7,1.95];
+const RK_GROW=[0.94,0.96,0.98,1.0,1.02,1.04,1.06,1.08,1.1,1.12];  // ランク差は小さく（下位ランクにも勝ち目）
 const RK_COL=['#6b6f73','#8a6a4a','#4f8f5a','#2f9a9a','#3f7fd8','#9b59d6','#d9479b','#e7b53c','#f0c75a','#ff6ad5'];
 const capAvg=h=>(h.cap.spd+h.cap.pow+h.cap.sta+h.cap.gut+h.cap.wis)/5;
 function rollRank(h,R=Math.random,bonus=0){ return clamp(Math.round(2.8+(capAvg(h)-82)/6+(h.skills||[]).length*0.3+bonus+gaussR(R)*1.4),0,9); }
-function applyRankCap(h){ const d=(h.rank-3)*1.6; STATS.forEach(([k])=>{ h.cap[k]=+clamp(h.cap[k]+d,30,100).toFixed(1); h.st[k]=Math.min(h.st[k],h.cap[k]); }); }
+function applyRankCap(h){ const d=(h.rank-3)*0.7; STATS.forEach(([k])=>{ h.cap[k]=+clamp(h.cap[k]+d,30,100).toFixed(1); h.st[k]=Math.min(h.st[k],h.cap[k]); }); }
 const rkIdx=h=>h.rank??3;
 const rkName=h=>RANKS[rkIdx(h)];
 function rkBadge(h,big){ const i=rkIdx(h); return `<span class="rk rk${i}${big?' big':''}" style="--rc:${RK_COL[i]}">${RANKS[i]}</span>`; }
@@ -2321,13 +2347,14 @@ let ART_N=0;
 const CARD_NAME=['Metal Mirage','Shadow Zephyr','Cyber Forest','Ice Mirage','Neo Eclipse','Starlight Rider','Digital Dream','Infinity Flame','Aurora Blaze','Chrome Prism'];
 const XNAME=['Holy Knight','Space Galaxy','Neon City','Nature Spirit','Ice Emperor','Shadow Phantom','Lightning Storm','Angel Wings','Dragon Blade','Cyber Dream','Lunar Sovereign'];
 const YNAME=['Thunder Lord','Dawn Runner','Celestial Wing','Sky Pegasus','Moon Pegasus','Golden Heaven','Violet Night'];
+const ZNAME=['Inferno Rex','Blaze Runner','Verdant Guardian','Emerald Sprint','Moss Crystal','Sakura Moon','Blossom Dash','Hanami Queen'];
 // ランクごとのイラスト候補 [ファイル, 名前]
 const ART_POOL=[[['r0',CARD_NAME[0]]],[['r1',CARD_NAME[1]]],[['r2',CARD_NAME[2]]],[['r3',CARD_NAME[3]]],[['r4',CARD_NAME[4]]],
   [['r5',CARD_NAME[5]],['r7',CARD_NAME[7]]], [['r6',CARD_NAME[6]],['r8',CARD_NAME[8]],['r9',CARD_NAME[9]]],
   [...[2,3,5,6].map(k=>['x'+k,XNAME[k]]),['y1',YNAME[1]],['y6',YNAME[6]]], [...[1,4,8,9].map(k=>['x'+k,XNAME[k]]),['y0',YNAME[0]],['y5',YNAME[5]]], [...[0,7,10].map(k=>['x'+k,XNAME[k]]),['y2',YNAME[2]],['y3',YNAME[3]],['y4',YNAME[4]]]];
 const HEROES=['hero.jpg','hero1.jpg','hero2.jpg','hero3.jpg','hero4.jpg','hero5.jpg','hero6.jpg','hero7.jpg'];
 const rndHero=()=>'assets/'+HEROES[Math.floor(Math.random()*HEROES.length)];
-const artOf=h=>{ const a=ATTR[attrOf(h)].arts, f=a[hash((h.id||h.name||'x')+'art')%a.length]; return [f,ART_NAME[f]||'']; };
+const artOf=h=>{ const a=ATTR[attrOf(h)].arts, f=(h.artF&&ART_NAME[h.artF]!=null?h.artF:null)||a[hash((h.id||h.name||'x')+'art')%a.length]; return [f,ART_NAME[f]||'']; };
 const HUES=[0,0,0,0,0,0,40,-40,90,-90,150,-150,200];
 const VAR_N=['オリジナル','色違いα','色違いβ','色違いγ','色違いδ','色違いε','色違いζ','色違いΩ'];
 function variantOf(h){ const x=hash((h.id||h.name||'x')+'var');
@@ -2335,12 +2362,12 @@ function variantOf(h){ const x=hash((h.id||h.name||'x')+'var');
   return {hue:0,vi:0,neon,flip:((x>>>16)&1)===1}; }
 // ======================= 属性 =======================
 const ATTR={
- fire:{n:'炎',col:'#ff4a3a',ic:'spark',var:[1,10],arts:['r1','x8'],hero:'hero2',home:['desert'],buff:'ヒートアップ',bd:'ネオンブーストの伸び+25%'},
- forest:{n:'森',col:'#3aff7a',ic:'leaf',var:[2,11],arts:['r2','x3'],hero:'hero4',home:['sky'],buff:'リジェネ',bd:'調教の疲労-15%・怪我しにくい'},
+ fire:{n:'炎',col:'#ff4a3a',ic:'spark',var:[1,10],arts:['r1','x8','z0','z1'],hero:'hero2',home:['desert'],buff:'ヒートアップ',bd:'ネオンブーストの伸び+25%'},
+ forest:{n:'森',col:'#3aff7a',ic:'leaf',var:[2,11],arts:['r2','x3','z2','z3','z4'],hero:'hero4',home:['sky'],buff:'リジェネ',bd:'調教の疲労-15%・怪我しにくい'},
  ice:{n:'氷',col:'#7fe8ff',ic:'spark',var:[3,12],arts:['r3','x4','r8'],hero:'hero5',home:['aurora','moon'],buff:'クールヘッド',bd:'実力どおり走りやすい（ブレ-12%）'},
  thunder:{n:'雷',col:'#4d9cff',ic:'bolt',var:[4,9],arts:['r0','r4','x10','y0','y1','y2','y3','y4'],hero:'hero1',home:['city'],buff:'スパーク',bd:'ブーストゲージの溜まり+30%'},
  moon:{n:'月',col:'#b06aff',ic:'moon',var:[5,14],arts:['r5','x1','x5','y6'],hero:'hero7',home:['space','moon'],buff:'ナイトシフト',bd:'夜の会場（都市・宇宙・月面・オーロラ）で能力アップ'},
- sakura:{n:'桜',col:'#ff6ad5',ic:'heart',var:[6],arts:['r6','x2'],hero:'hero',home:['sky'],buff:'ブルーム',bd:'調子が上がりやすい'},
+ sakura:{n:'桜',col:'#ff6ad5',ic:'heart',var:[6],arts:['r6','x2','z5','z6','z7'],hero:'hero',home:['sky'],buff:'ブルーム',bd:'調子が上がりやすい'},
  light:{n:'光',col:'#ffcf4a',ic:'sun',var:[7,13],arts:['r7','x6','y5','x0'],hero:'hero6',home:['desert','sky'],buff:'グロウ',bd:'獲得賞金+10%'},
  rainbow:{n:'虹',col:'#ffffff',ic:'gem',var:[8,15],arts:['r9','x7','x9'],hero:'hero3',home:['city','space','moon','desert','aurora','sky'],buff:'プリズム',bd:'全会場が得意・ブースト+10%・ゲージ+10%・ブレ-5%'},
 };
@@ -2348,7 +2375,7 @@ const ATTR_KEYS=Object.keys(ATTR), ATTR_BASE=ATTR_KEYS.filter(k=>k!=='rainbow');
 const ART_ATTR={}; ATTR_KEYS.forEach(k=>ATTR[k].arts.forEach(a=>ART_ATTR[a]=k));
 const VAR_ATTR={}; ATTR_KEYS.forEach(k=>ATTR[k].var.forEach(v=>VAR_ATTR[v]=k));
 const ART_NAME={r0:CARD_NAME[0],r1:CARD_NAME[1],r2:CARD_NAME[2],r3:CARD_NAME[3],r4:CARD_NAME[4],r5:CARD_NAME[5],r6:CARD_NAME[6],r7:CARD_NAME[7],r8:CARD_NAME[8],r9:CARD_NAME[9]};
-XNAME.forEach((n,i)=>ART_NAME['x'+i]=n); YNAME.forEach((n,i)=>ART_NAME['y'+i]=n);
+XNAME.forEach((n,i)=>ART_NAME['x'+i]=n); YNAME.forEach((n,i)=>ART_NAME['y'+i]=n); ZNAME.forEach((n,i)=>ART_NAME['z'+i]=n);
 const legendAttr=name=>ATTR_BASE[hash(name+'attr')%ATTR_BASE.length];
 function attrOf(h){ if(!h) return 'thunder'; if(h.attr) return h.attr; if(h.own||h.cap) return 'thunder'; return legendAttr(h.name||''); }
 const attrChip=(k,small)=>{ const a=ATTR[k]; return `<span class="atc ${k} ${small?'sm':''}" style="--ac:${a.col}"><i class="ic ic-${a.ic}"></i>${a.n}</span>`; };
@@ -2549,13 +2576,14 @@ function svgArt(h,zoom){ const VB=zoom?[30,7,160,104]:[0,0,200,130], X0=VB[0], Y
     <filter id="g${u}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <filter id="n${u}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter></defs>`;
   return `<svg class="art t${t}" viewBox="${VB.join(' ')}" preserveAspectRatio="xMidYMid slice">${defs}<rect width="200" height="130" fill="url(#bg${u})"/>${bg}${back}<g ${t===0?'filter="saturate(0.4)"':''} style="${t===0?'filter:saturate(.45) brightness(.85)':''}">${horse}</g>${front}${fx}${hud}</svg>`; }
+const rkTier=i=>i<=2?0:i<=4?1:i<=6?2:i<=8?3:4;
 function horseCard(h){ const i=rkIdx(h), busy=h.acted===wIdx()||h.trained===wIdx(), inj=(h.injury||0)>0, f=FORM[2+clamp(h.cond||0,-2,2)], col=(COATS[h.coat]||COATS['鹿毛'])[0];
   const planSel=`<select data-plan="${h.id}" ${inj||busy?'disabled':''} onclick="event.stopPropagation()">${planOpts(h)}</select>`;
   const st=inj?`<span class="bad"><i class="ic ic-aid"></i> 故障 あと${h.injury}週</span>`:busy?`<span class="gold">${h.trained===wIdx()?'調教済み':'出走済み'}</span>`:'';
-  return `<div class="tcard rk${i}" style="--rc:${RK_COL[i]}" data-open="${h.id}">
+  return `<div class="tcard rk${i} tier${rkTier(i)}" style="--rc:${RK_COL[i]}" data-open="${h.id}">${rkTier(i)>=3?'<i class="tc-fx"></i>':''}${rkTier(i)>=2?`<b class="tc-wm">${RANKS[i]}</b>`:''}
     <div class="tc-top">${rkBadge(h)}<span class="tc-cls">${classOf(h)}</span><span class="tc-form" title="${f[1]}">${f[0]}</span></div>
     <div class="tc-art">${cardArt(h,true)}${h.awakened?`<span class="tc-aw"><i class="ic ic-bolt"></i>${h.awakened}</span>`:''}</div>
-    <div class="tc-name">${attrChip(attrOf(h),true)}${h.attr2?attrChip(h.attr2,true):''} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}${h.fused?` <span class="fz-tag${h.fusion&&h.fusion.perfect?' p':''}">FUSION</span>`:''}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　成長×${RK_GROW[i]}</div>
+    <div class="tc-name">${attrChip(attrOf(h),true)}${h.attr2?attrChip(h.attr2,true):''} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}${h.fused?` <span class="fz-tag${h.fusion&&h.fusion.perfect?' p':''}">FUSION</span>`:''}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　${h.retired?'':h.age>=MAX_RACE_AGE?'<b class="tc-last" style="white-space:nowrap">ラストイヤー</b>':`<span style="white-space:nowrap">現役残${MAX_RACE_AGE-h.age+1}年</span>`}</div>
     <div class="tc-st">${STATS.map(([k,n])=>`<div><span>${n.slice(0,2)}</span><span>${srk(h.st[k])}<small class="tc-cap">/${SRANK(h.cap[k])}</small></span></div>`).join('')}</div>
     <div class="tc-fat"><i style="width:${h.fat||0}%"></i></div>
     <div class="tc-foot">${st||`${h.races}戦${h.wins}勝`}</div>
@@ -3315,7 +3343,8 @@ function advanceWeek(){
   const rvMsgs=rivalWeek();
   cal.w++; let ny='';
   if(cal.w>=48){ const aw=yearAwards(cal.year); cal.w=0; cal.year++; ny=aw+'<div class="ownres"><i class="ic ic-cal"></i> 新年を迎え、各馬が1つ年をとりました</div>'; rivalList.forEach(r=>{ if(!r.retired) r.age++; }); if(rivals().length<3) makeRival(); saveRivals();
-    stable.forEach(h=>{ if(h.retired) return; h.age++; if(h.age>=7) STATS.forEach(([k])=>{ if(k!=='wis') h.st[k]=Math.max(10,h.st[k]-Math.random()*2.5); }); }); }
+    const ret7=[]; stable.forEach(h=>{ if(h.retired) return; h.age++; if(h.age>MAX_RACE_AGE){ h.retired=true; h.ageRet=true; if(ownId===h.id) ownId=null; tryHall(h); ret7.push(h.name); } });
+    if(ret7.length) ny+=`<div class="ownres"><i class="ic ic-star"></i> ${ret7.join('、')} は${MAX_RACE_AGE+1}歳を迎え、現役を引退しました（お疲れさま！ 引退馬として融合・マーケットで使えます）</div>`; }
   cal.done={}; saveCal(); saveStable(); updCal(); if(balance>=1e6) unlock('rich');
   const g1=weekRaces().filter(r=>r.grade==='G1').map(r=>r.name);
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cal"></i> ${calLabel()}</div>${ny}${rvMsgs.length?`<div class="ownres"><i class="ic ic-swords"></i> ${rvMsgs.join('<br>')}</div>`:''}${cal.w%4===0?`<div class="ownres"><i class="ic ic-hammer"></i> 今月のセリが開催中です（牧場から参加できます）${(marketLots()||[]).some(l=>l.phantom)?'<br><b class="phx-t">噂：とんでもない馬が出品されているらしい…</b>':''}</div>`:''}${studInc?`<div class="ownres"><i class="ic ic-leaf"></i> 引退馬からの収入（種付け料・産駒売却） <b class="plus">+${fmt(studInc)} NOA</b></div>`:''}${g1.length?`<div class="ownres"><i class="ic ic-trophy"></i> 今週はG1「${g1.join('・')}」が開催されます！</div>`:''}${fxNote}${outT?`<div class="ownres"><i class="ic ic-coin"></i> 先週の支出 <b class="bad">-${fmt(outT)} NOA</b><div class="hsub">${brk.map(x=>`${x[0]} ${fmt(x[1])}`).join('　/　')}</div></div>`:''}
@@ -3693,8 +3722,8 @@ const GACHA_RATE=[3,6,11,20,32,17,8,3];   // 新馬ガチャ（%）
 const RETBUY_RATE=[6,10,15,22,26,13,6,2]; // 引退馬ランダム（%）
 const pickRate=(T,R=Math.random)=>{ let x=R()*100; for(let i=0;i<T.length;i++){ x-=T[i]; if(x<0) return i; } return 4; };
 // ランクに合わせて素質（上限）を整える：F≈62 … S≈93
-function tuneToRank(f,r){ const tgt=62+r*4.5+(Math.random()*4-2), cur=STATS.reduce((a,[k])=>a+f.cap[k],0)/STATS.length, d=tgt-cur;
-  STATS.forEach(([k])=>{ f.cap[k]=+clamp(f.cap[k]+d+(Math.random()*4-2),30,100).toFixed(1); f.st[k]=Math.min(f.st[k],f.cap[k]); }); f.rank=r; }
+function tuneToRank(f,r){ const g=(Math.random()+Math.random()+Math.random()-1.5)*2/1.5, tgt=73+r*1.5+g*7, cur=STATS.reduce((a,[k])=>a+f.cap[k],0)/STATS.length, d=tgt-cur;
+  STATS.forEach(([k])=>{ f.cap[k]=+clamp(f.cap[k]+d+(Math.random()*12-6),30,100).toFixed(1); f.st[k]=Math.min(f.st[k],f.cap[k]); }); f.rank=r; }
 function randomFoal(){ const S=ROSTER.filter(m=>m[1]==='牡'), D=ROSTER.filter(m=>m[1]==='牝'); return makeFoal(parentObj(S[Math.floor(Math.random()*S.length)]),parentObj(D[Math.floor(Math.random()*D.length)])); }
 function drawGacha(){ const ri=regInfo(), cost=gachaCost(); if(!ri.ok){ toast(ri.reason); return; } if(balance<cost){ toast(`NOAが足りません（登録料 ${fmt(cost)} NOA）`); return; }
   setBal(balance-cost); const r=pickRate(GACHA_RATE), f=randomFoal(); tuneToRank(f,r);
