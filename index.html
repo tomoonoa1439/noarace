@@ -1189,6 +1189,40 @@ body .trbox .trroll{height:auto;margin:8px 0}body .trbox .trroll .r small{displa
 body .trbox .tbar{height:6px;border-radius:6px;background:#ffffff12}
 body .trbox .tbar i{border-radius:6px}
 body .trbox .trok{border-radius:14px}
+
+/* ===== 調教の強さ・絆・イベント ===== */
+.tc-intw{padding:0 10px 10px;margin-top:-4px}
+.tc-intw.wide{padding:8px 0 0;margin:0;width:100%}
+.tc-int{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:#ffffff08;border:1px solid #ffffff14;border-radius:10px;padding:3px}
+.tc-int button{border:0;background:none;color:#8d97bb;font:700 11px inherit;font-family:inherit;padding:5px 0;border-radius:7px;cursor:pointer}
+.tc-int button.on{color:#04060d}
+.tc-int .i-light.on{background:#7dffb8}.tc-int .i-normal.on{background:#3ff0ff}.tc-int .i-hard.on{background:#ffb347}.tc-int .i-limit.on{background:linear-gradient(90deg,#ff3a5a,#ff6ad5);color:#fff;box-shadow:0 0 12px #ff3a5a88}
+.tc-odds{display:flex;flex-wrap:wrap;gap:3px 8px;font:600 10px "Inter","Hiragino Sans",sans-serif;color:#aeb8de;margin-top:5px}
+.tc-odds .od-g{color:#ffd36a}.tc-odds .od-f{color:#ff8a7a}.tc-odds .od-i{color:#cfd6f5}.tc-odds .od-i.hi{color:#ff3a5a;font-weight:800}.tc-odds .od-x{color:#7dffb8}.tc-odds .od-rest{color:#7dffb8}
+.int-tag{display:inline-block;font:800 10px "Inter",sans-serif;padding:2px 6px;border-radius:6px;color:#04060d;background:#3ff0ff}
+.int-tag.i-light{background:#7dffb8}.int-tag.i-hard{background:#ffb347}.int-tag.i-limit{background:#ff3a5a;color:#fff}
+.tc-bond{display:grid;grid-template-columns:24px 1fr 20px;align-items:center;gap:6px;padding:4px 10px 0;font-size:9.5px;color:#ff9be6}
+.tc-bond i{position:relative;height:5px;border-radius:9px;background:#ffffff12;overflow:hidden;display:block}
+.tc-bond i u{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:linear-gradient(90deg,#ff6ad5,#ffb3ec)}
+.tc-bond em{font:800 10.5px "Inter",sans-serif;font-style:normal;color:#ffd0f0;text-align:right}
+.sbar.bond i{background:linear-gradient(90deg,#ff6ad5,#ffb3ec)!important}
+.evbox{position:relative;margin:10px 0 14px;border-radius:18px;padding:14px;background:linear-gradient(135deg,#1a1440,#0c1124 60%);border:1px solid #b06aff66;box-shadow:0 0 30px #b06aff22;overflow:hidden}
+.evbox::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 3px);pointer-events:none}
+.ev-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ev-h span{font:900 10px/1 "Inter",sans-serif;letter-spacing:.3em;padding:4px 8px;border-radius:6px;background:#b06aff;color:#fff;box-shadow:0 0 12px #b06aff}
+.ev-h b{font-size:14px}
+.ev-body{display:flex;gap:12px;align-items:center}
+.ev-art{width:64px;height:80px;flex:none;border-radius:12px;overflow:hidden;border:1px solid #ffffff22}
+.ev-art .cimg-t,.ev-art .cimg-id,.ev-art .cimg-n,.ev-art .cimg-v,.ev-art .hc{display:none}
+.ev-t{font-size:14px;line-height:1.65;font-weight:700}
+.ev-c{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.ev-b{text-align:left;border-radius:14px;border:1px solid #ffffff26;background:#ffffff0c;color:#fff;padding:10px 12px;cursor:pointer;font-family:inherit;transition:.15s}
+.ev-b:hover{border-color:#3ff0ff;background:#3ff0ff14}
+.ev-b b{display:block;font-size:13.5px}.ev-b small{display:block;font-size:10.5px;color:#aeb8de;margin-top:3px}
+.ev-b[disabled]{opacity:.4}
+.ev-r{margin-top:12px;padding:10px 12px;border-radius:12px;background:#3ff0ff10;border:1px solid #3ff0ff44;font-size:13px;line-height:1.6;animation:fadein .4s}
+.ev-r small{display:block;font-size:10.5px;color:#3ff0ff;letter-spacing:.1em;margin-bottom:2px}
+@media(max-width:420px){.ev-c{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -2512,7 +2546,7 @@ function showResults(){
   if(RACE.weekly){ cal.done[RACE.id]=hs[ord[0]].name; saveCal(); }
   if(oh){ const place=ord.indexOf(oh.i)+1, st=stable.find(x=>x.id===oh.stableId), prize=Math.round((RACE.prize||20000)*(PRATE[place-1]||0)*(st?attrBuff(attrOf(st),'prize'):1)*prizeMult()), fee=0; let extra='', bonus=0; const inc=[];
     inc.push(prize?`賞金 ${fmt(prize)}`:'賞金なし（1〜5着のみ）');
-    if(st){ const cls0=classOf(st); st.races++; if(place===1) st.wins++; if(place<=3) st.top3++; const Y=ryr(st);
+    if(st){ addBond(st,place===1?3:place<=3?1.5:0.8); const cls0=classOf(st); st.races++; if(place===1) st.wins++; if(place<=3) st.top3++; const Y=ryr(st);
       st.jh=st.jh||{}; st.jh[oh.jockey]=(st.jh[oh.jockey]||0)+1; if(place===1){ st.jw=st.jw||{}; st.jw[oh.jockey]=(st.jw[oh.jockey]||0)+1; if(st.jw[oh.jockey]>=5) unlock('jockey'); Y.wins++; }
       if(place===1){ const gr=['G3','G2','G1'].includes(RACE.cls);
         if(st.wins===1){ bonus+=Math.round(3000*prizeMult()); inc.push('初勝利ボーナス'); }
@@ -2638,7 +2672,7 @@ function staReq(D){ return clamp(26+(D-1000)/26,20,105); }
 function ownFit(h,race,style){ const D=race.dist, s=h.st; const pen=Math.max(0,staReq(D)-s.sta)*0.35;
   const out = D<h.dMin? h.dMin-D : D>h.dMax? D-h.dMax : 0;
   const P=0.42*s.spd+0.30*s.pow+0.13*s.gut+0.15*s.wis-pen-out*0.02;
-  let v=86+P*0.40-Math.max(0,(h.fat||0)-50)*0.06;
+  let v=86+P*0.40-Math.max(0,(h.fat||0)-50)*0.06+bondOf(h)*0.015;
   v+=surfAdj(h.dirt??-2,race.surface)+mudAdj(h.mud||0,race.going)+skillAdj(h.skills,{style:style||h.style},race)+gearAdj(h,race);
   if(style&&style!==h.style) v-=1.4*(1-s.wis/140)*(h.pers==='優等生'?0.5:1);
   if(race.intl) v-=0.6;
@@ -2837,7 +2871,7 @@ function renderFarm(){
   renderPair();
   const act=stable.filter(h=>!h.retired), ret=stable.filter(h=>h.retired);
   const addSlot=`<div class="tc-add" onclick="setFarmSub('breed')"><b>＋</b>新馬ガチャ<small>登録料 ${fmt(gachaCost())} NOA</small></div>`;
-  $('#stableList').innerHTML = `<div class="tgrid">${act.map(horseCard).join('')}${addSlot}</div>`;
+  $('#stableList').innerHTML = `${evHTML()}<div class="tgrid">${act.map(horseCard).join('')}${addSlot}</div>`; bindEv();
   $('#retiredList').innerHTML = ret.length? ret.map(h=>`<div class="retrow"><div><b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.races}戦${h.wins}勝${hall.some(x=>x.name===h.name)?'・<span class="gold">殿堂入り</span>':''}</span><div class="hsub">${h.sex==='牡'?'種付け料':'産駒の売却益'} 毎週 <b class="gold">+${fmt(studIncome(h))} NOA</b>${studIncome(h)?'':h.listed?'（出品中は収入停止）':h.imported?'（輸入繁殖牝馬：配合の母として活躍します）':'（実績不足：3戦以上か1勝以上で収入が発生）'}</div>${h.listed?`<div class="hsub"><span class="vo-tag"><i class="ic ic-lock"></i> マーケット出品中・閲覧のみ</span></div>`:''}</div><button class="btn" data-view="${h.id}">詳細</button>${h.listed?'':`<button class="btn" data-salv="${h.id}"><i class="ic ic-gear"></i>分解</button><button class="btn" data-sell="${h.id}"><i class="ic ic-coin"></i> 売却 ${fmt(horseValue(h))}</button><button class="btn gold" data-mkl="${h.id}">出品</button>`}</div>`).join('') : '<span class="hsub">まだいません</span>';
   // 施設
   $('#facList').innerHTML=Object.entries(FAC).map(([k,[n,d]])=>{ const lv=fac[k]; return `<div class="fcard"><div><b>${n}</b> <span class="lv">${'★'.repeat(lv)}${'☆'.repeat(3-lv)}</span><div class="hsub">${d}</div></div>${lv<3?`<button class="btn" data-fac="${k}">強化 ${fmt(FAC_COST[lv])}</button>`:'<span class="gold">最大</span>'}</div>`; }).join('')+((window.NET&&NET.on)?`<div class="fcard"><div><b>厩舎の枠</b><div class="hsub">オンライン経済では、現役馬は1人${NET_MAX_ACT}頭まで（ゲーム全体で${fmt(WORLD_MAX)}頭）。新しい馬を入れるときに登録料がかかります</div></div></div>`:'')+((window.NET&&NET.on)?'':`<div class="fcard"><div><b>厩舎の拡張</b> <span class="lv">${'★'.repeat(expand)}${'☆'.repeat(3-expand)}</span><div class="hsub">現役馬の上限 ${CAP()}頭${expand<3?` → ${CAP()+2}頭`:''}</div></div>${expand<3?`<button class="btn" id="expBtn">拡張 ${fmt(EXP_COST[expand])}</button>`:'<span class="gold">最大</span>'}</div>`);
@@ -2850,7 +2884,7 @@ function renderFarm(){
   renderShop(); renderParts(); renderMarket(); renderFusion(); renderGacha(); bindHorseCtl();
   document.querySelectorAll('[data-mkl]').forEach(b=>b.onclick=()=>mktList(b.dataset.mkl));
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ const h=stable.find(x=>x.id===b.dataset.view); const L=h&&h.listed?mkt.list.find(x=>x.id===h.listed):null; viewHorse(h,L?`マーケット出品中：現在 ${mktHigh(L)?fmt(mktHigh(L).amt)+' NOA':'入札なし'}・即落札 ${fmt(L.buyout)} NOA・${mktLeft(L)}`:h.bought?`${h.bought.from} から ${fmt(h.bought.price)} NOA で購入`:''); });
-  document.querySelectorAll('[data-open]').forEach(c=>c.onclick=e=>{ if(e.target.closest('select,.fsel,.trbtn')) return; openHorse(c.dataset.open); });
+  document.querySelectorAll('[data-open]').forEach(c=>c.onclick=e=>{ if(e.target.closest('select,.fsel,.trbtn,.tc-int,.tc-intw')) return; openHorse(c.dataset.open); });
   document.querySelectorAll('[data-fac]').forEach(b=>b.onclick=()=>upgradeFac(b.dataset.fac));
   document.querySelectorAll('[data-lot]').forEach(b=>b.onclick=()=>bidLot(+b.dataset.lot));
 }
@@ -2866,7 +2900,8 @@ function horseDetail(h){
       <div class="srow"><span class="sl">疲労</span><div class="sbar fat"><i style="width:${h.fat||0}%"></i></div><b>${(h.fat||0).toFixed(0)}</b></div>
       <div class="hsub">距離 ${h.dMin}〜${h.dMax}m・脚質 ${STYLE_N[h.style]}・ダート ${aptMark(h.dirt??-2)}・道悪 ${aptMark(h.mud||0)}　${status}</div>
       <div class="hsub">戦績 ${h.races}戦${h.wins}勝（重賞${h.gw||0}・G1 ${h.g1w||0}）　賞金 ${fmt(h.earn)} NOA${mj?`　主戦 ${mj}`:''}${h.vsR?`　vsライバル ${h.vsR.w}勝${h.vsR.l}敗`:''}${h.log&&h.log.length?`<br>直近：${h.log.slice(-3).join('、')}`:''}</div>
-      ${(h.injury||0)>0||busy?'':hotStrip(h)}<div class="plan">今週の予定：${planSel}${trainBtn(h)}${h.streak&&h.streak.n>=2?`<div class="hsub bad">${MENU[h.streak.k].n}を${h.streak.n}週連続中 → 続けると効果${Math.round(Math.max(0.25,1-h.streak.n*0.18)*100)}%に低下</div>`:''}</div>
+      <div class="srow bondrow"><span class="sl">絆</span><div class="sbar bond"><i style="width:${bondOf(h)}%"></i></div><b>${Math.round(bondOf(h))}</b></div><div class="hsub">絆が高いほど、覚醒しやすく・怪我しにくく・レースで粘れます（調教・休養・レース・イベントで深まる）</div>
+      ${(h.injury||0)>0||busy?'':hotStrip(h)}<div class="plan">今週の予定：${planSel}${trainBtn(h)}${(h.injury||0)>0||busy?'':`<div class="tc-intw wide">${(MENU[h.plan]||{}).main?intChips(h):''}<div class="tc-odds" data-odds="${h.id}">${oddsLine(h)}</div></div>`}${h.streak&&h.streak.n>=2?`<div class="hsub bad">${MENU[h.streak.k].n}を${h.streak.n}週連続中 → 続けると効果${Math.round(Math.max(0.25,1-h.streak.n*0.18)*100)}%に低下</div>`:''}</div>
       <div class="plan opts">飼料 <select data-feed="${h.id}">${Object.entries(FEED).map(([k,f])=>`<option value="${k}" ${(h.feed||'normal')===k?'selected':''}>${f[0]}${f[1]?`（週${fmt(f[1])}）`:''}</option>`).join('')}</select>
         <label class="chk"><input type="checkbox" data-ins="${h.id}" ${h.ins?'checked':''}> <i class="ic ic-shield"></i> 保険（週${fmt(insPrem(h))}）</label>
         <button class="btn sm" data-gear="${h.id}"><i class="ic ic-gear"></i> 馬具${Object.values(h.gear||{}).filter(Boolean).length?`（${Object.values(h.gear).filter(Boolean).length}）`:''}</button></div>
@@ -3119,10 +3154,13 @@ function horseCard(h){ const i=rkIdx(h), busy=h.acted===wIdx()||h.trained===wIdx
     <div class="tc-bars">${STATS.map(([k,n])=>{ const v=h.st[k]||0, c=h.cap[k]||0; return `<div class="tb"><span>${n.slice(0,2)}</span><i><u style="width:${Math.min(100,v).toFixed(1)}%"></u><s style="left:${Math.min(100,c).toFixed(1)}%"></s></i><em>${Math.round(v)}</em></div>`; }).join('')}
       <div class="tb fat"><span>疲労</span><i><u style="width:${h.fat||0}%"></u></i><em>${Math.round(h.fat||0)}</em></div></div>
     <div class="tc-foot">${st||`${h.races}戦${h.wins}勝 · ${h.grow} · 体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>`}</div>
-    ${inj||busy?'':`<div class="tc-hot"><span class="hot-b">HOT</span>${MENU[hotOf(h)].n}</div>`}<div class="tc-plan">${planSel}${trainBtn(h,true)}</div></div>`; }
+    <div class="tc-bond" title="絆：覚醒しやすさ・怪我のしにくさ・レースの粘りに影響"><span>絆</span><i><u style="width:${bondOf(h)}%"></u></i><em>${Math.round(bondOf(h))}</em></div>
+    ${inj||busy?'':`<div class="tc-hot"><span class="hot-b">HOT</span>${MENU[hotOf(h)].n}</div>`}<div class="tc-plan">${planSel}${trainBtn(h,true)}</div>
+    ${inj||busy?'':`<div class="tc-intw">${(MENU[h.plan]||{}).main?intChips(h):''}<div class="tc-odds" data-odds="${h.id}">${oddsLine(h)}</div></div>`}</div>`; }
 function openHorse(id){ const h=stable.find(x=>x.id===id); if(!h) return;
   $('#resBox').innerHTML=`<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px"><div>${rkBadge(h,true)} <span class="hsub">成長スピード ×${RK_GROW[rkIdx(h)]}${h.awakened?`・覚醒 ${h.awakened}回`:''}</span></div><button class="btn" id="hdClose">✕ 閉じる</button></div><div class="art-big" style="--rc:${RK_COL[rkIdx(h)]}">${cardArt(h)}</div>${horseDetail(h)}`;
   $('#resModal').classList.add('on'); bindHorseCtl(); $('#hdClose').onclick=()=>{ $('#resModal').classList.remove('on'); renderFarm(); }; }
+function refreshInt(h){ document.querySelectorAll(`[data-odds="${h.id}"]`).forEach(x=>{ x.innerHTML=oddsLine(h); const w=x.parentNode, has=!!(MENU[h.plan]||{}).main, ch=w.querySelector('.tc-int'); if(has&&!ch){ x.insertAdjacentHTML('beforebegin',intChips(h)); bindHorseCtl(); } if(!has&&ch) ch.remove(); }); }
 function bindHorseCtl(){
   document.querySelectorAll('[data-eqs]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const [id,sl]=b.dataset.eqs.split('|'); equipPick(id,sl); });
   document.querySelectorAll('[data-salv]').forEach(b=>b.onclick=()=>salvage(b.dataset.salv));
@@ -3130,7 +3168,9 @@ function bindHorseCtl(){
   document.querySelectorAll('[data-feed]').forEach(s=>s.onchange=()=>{ const h=stable.find(x=>x.id===s.dataset.feed); h.feed=s.value; saveStable(); renderShop(); });
   document.querySelectorAll('[data-ins]').forEach(c=>c.onchange=()=>{ const h=stable.find(x=>x.id===c.dataset.ins); h.ins=c.checked; saveStable(); renderShop(); toast(c.checked?`${h.name}に保険をかけました（怪我をすると保険金が出ます）`:'保険を解約しました'); });
   document.querySelectorAll('[data-gear]').forEach(b=>b.onclick=()=>openGear(b.dataset.gear));
-  document.querySelectorAll('[data-plan]').forEach(s=>s.onchange=()=>{ const h=stable.find(x=>x.id===s.dataset.plan); h.plan=s.value; saveStable(); });
+  document.querySelectorAll('[data-plan]').forEach(s=>s.onchange=()=>{ const h=stable.find(x=>x.id===s.dataset.plan); h.plan=s.value; saveStable(); refreshInt(h); });
+  document.querySelectorAll('[data-int]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const [id,k]=b.dataset.int.split('|'), h=stable.find(x=>x.id===id); if(!h) return; h.inten=k; saveStable();
+    document.querySelectorAll(`[data-int^="${id}|"]`).forEach(x=>x.classList.toggle('on',x.dataset.int===b.dataset.int)); document.querySelectorAll(`[data-odds="${id}"]`).forEach(x=>x.innerHTML=oddsLine(h)); });
   document.querySelectorAll('[data-race]').forEach(b=>b.onclick=()=>{ ownId=b.dataset.race; renderList(); show('s-select'); toast('出走するレースを選んでください（★印が出走できるレース）'); });
   document.querySelectorAll('[data-retire]').forEach(b=>b.onclick=()=>retire(b.dataset.retire));
   document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>sellHorse(b.dataset.sell));
@@ -3327,6 +3367,20 @@ function renderShop(){
   $('#silkInfo').innerHTML=`<div class="fcard"><div class="silkmini">${silkSVG(silks.base,silks.sub,silks.pat)}</div><div style="flex:1"><b>${silks.set?'あなたの勝負服':'未登録（ランダムな服で出走中）'}</b><div class="hsub">登録すると、あなたの馬の騎手が3Dレースでこの服を着ます</div></div><button class="btn gold" id="silkBtn">${silks.set?'デザイン変更':'デザインする'}</button></div>`;
   $('#silkBtn').onclick=openSilks;
 }
+// ===== 調教の強さ（リスクとリターン）・絆 =====
+const INTEN={light:{n:'軽め',g:0.6,f:0.55,r:0.35,b:1.2,roll:[.08,.86,.05,.01]},normal:{n:'普通',g:1,f:1,r:1,b:0.6,roll:[.14,.66,.13,.07]},hard:{n:'強め',g:1.45,f:1.5,r:1.5,b:0.3,roll:[.19,.55,.13,.13]},limit:{n:'限界',g:2.0,f:2.1,r:1.9,b:-1,roll:[.25,.41,.11,.23]}};
+const INT_KEYS=['light','normal','hard','limit'];
+const bondOf=h=>clamp(h.bond||0,0,100);
+function addBond(h,v){ h.bond=+clamp((h.bond||0)+v,0,100).toFixed(1); }
+function trainProbs(h){ const m=MENU[h.plan]||MENU.rest, I=INTEN[h.inten||'normal']||INTEN.normal, bd=bondOf(h);
+  let [g,o,me,f]=I.roll; if(h.pers==='やんちゃ'){ g=Math.min(.45,g*1.8); f=Math.min(.45,f*2.2); }
+  g=Math.min(.5,g*(1+bd/250)); f=f*(1-bd/200); o=Math.max(0,1-g-me-f);
+  const hp=h.st.hp, fat2=m.main?clamp((h.fat||0)+m.fat*I.f*(1.15-h.st.sta/250)-6,0,100):(h.fat||0), base=(0.01+Math.max(0,fat2-45)*0.007*(1.5-hp/100))*((h.skills||[]).includes('鉄の脚')?0.5:1)*(1-0.18*fac.clinic)*(h.inbred?1.25:1)*(1-sEff('vet'))*(1-sEff('farrier')*0.6)*(h.feed==='best'?0.9:1)*(h.gear&&h.gear.shoe?0.85:1)*attrBuff(attrOf(h),'risk');
+  const inj=Math.min(.9,(base+f*0.04)*I.r*(1-bd/250)*(h.evSafe?0.4:1));
+  return {great:g,ok:o,meh:me,fail:f,inj,base,I,main:!!m.main}; }
+function oddsLine(h){ const P=trainProbs(h); if(!P.main) return `<span class="od-rest">${(MENU[h.plan]||MENU.rest).d}・絆+</span>`;
+  const pc=x=>Math.round(x*100); return `<span class="od-g">大成功${pc(P.great)}%</span><span class="od-f">失敗${pc(P.fail)}%</span><span class="od-i ${P.inj>=.1?'hi':''}">怪我${(P.inj*100).toFixed(P.inj<.1?1:0)}%</span><span class="od-x">伸び×${P.I.g}</span>`; }
+function intChips(h,dis){ return `<div class="tc-int" ${dis?'data-dis':''}>${INT_KEYS.map(k=>`<button class="i-${k} ${(h.inten||'normal')===k?'on':''}" data-int="${h.id}|${k}" ${dis?'disabled':''}>${INTEN[k].n}</button>`).join('')}</div>`; }
 function trainOne(h,C){ const L=[], hp=h.st.hp; let roll=null, cost=0, gcost=0, injured=false, aw=false; const balance0=balance-(C?C.spent:0);
       const m=MENU[h.plan]||MENU.rest;
       if(m.cost&&balance0-cost<m.cost){ L.push(`NOA不足で${m.n}できず休養`); h.fat=Math.max(0,h.fat-28); }
@@ -3336,22 +3390,23 @@ function trainOne(h,C){ const L=[], hp=h.st.hp; let roll=null, cost=0, gcost=0, 
       else if(m.main){ cost+=m.cost;
         if(h.streak&&h.streak.k===h.plan) h.streak.n++; else h.streak={k:h.plan,n:1};
         const mann=Math.max(0.25,1-(h.streak.n-1)*0.18);
-        const yan=h.pers==='やんちゃ', r=Math.random(); roll= r<(yan?0.25:0.14)?['大成功',2.0]: r<(yan?0.68:0.80)?['成功',1.0]: r<(yan?0.84:0.93)?['いまいち',0.45]:['失敗',0];
+        const PR=trainProbs(h), r=Math.random(); roll= r<PR.great?['大成功',2.0]: r<PR.great+PR.ok?['成功',1.0]: r<PR.great+PR.ok+PR.meh?['いまいち',0.45]:['失敗',0];
         const pmul=((h.pers==='負けず嫌い'&&h.plan==='pair')||(h.pers==='優等生'&&h.plan==='gate')?1.3:1)*(1+0.12*(fac[MENU_FAC[h.plan]]||0));
-        const eff=ageF(h)*(1+(h.cond||0)*0.1)*(1-(h.fat||0)/160)*mann*roll[1]*pmul*RK_GROW[rkIdx(h)]*(1+sEff('trainer'))*(1+FEED[h.feed||'normal'][2])*(hotOf(h)===h.plan?HOT_MUL:1);
+        const eff=ageF(h)*(1+(h.cond||0)*0.1)*(1-(h.fat||0)/160)*mann*roll[1]*PR.I.g*pmul*RK_GROW[rkIdx(h)]*(1+sEff('trainer'))*(1+FEED[h.feed||'normal'][2])*(hotOf(h)===h.plan?HOT_MUL:1);
         const g1=gainStat(h,m.main,(Math.max(0.8,(h.cap[m.main]-h.st[m.main])*0.15)+Math.random()*2.2)*eff);
         const g2=gainStat(h,m.side,Math.max(0.3,(h.cap[m.side]-h.st[m.side])*0.05)*eff);
-        h.fat=clamp(h.fat+m.fat*(1.15-h.st.sta/250)*(h.pers==='のんびり'?0.75:1)*(1-0.08*fac.barn)*(1-sEff('farrier')*0.5)*attrBuff(attrOf(h),'fat')-6,0,100);
+        h.fat=clamp(h.fat+m.fat*PR.I.f*(1.15-h.st.sta/250)*(h.pers==='のんびり'?0.75:1)*(1-0.08*fac.barn)*(1-sEff('farrier')*0.5)*attrBuff(attrOf(h),'fat')-6,0,100);
         const tag=roll[0]==='大成功'?'<span class="gold">★大成功！</span>':roll[0]==='失敗'?'<span class="bad">失敗…</span>':roll[0];
         if(hotOf(h)===h.plan) L.push('<span class="hot-b">HOT</span> 今週の狙い目！ 効果×1.5');
         L.push(`${m.n} ${tag}：${STATS.find(s=>s[0]===m.main)[1]} +${g1.toFixed(1)}${g2>0.05?`、${STATS.find(s=>s[0]===m.side)[1]} +${g2.toFixed(1)}`:''}${mann<1?`　<span class="bad">（${h.streak.n}週連続でマンネリ・効果${Math.round(mann*100)}%）</span>`:''}`);
         if(roll[0]==='大成功') h.cond=Math.min(2,h.cond+1);
-        if(Math.random()<(roll[0]==='大成功'?(isMaxed(h)?0.08:0.05):(isMaxed(h)?0.02:0.007))*(1-rkIdx(h)*0.06)){ aw=true; L.push(awaken(h,isMaxed(h)?'限界を超えようとする調教で覚醒':roll[0]==='大成功'?'調教で大成功し、才能が開花':'調教中に突然の覚醒')); }
+        addBond(h,PR.I.b); if((h.inten||'normal')!=='normal') L.push(`<span class="int-tag i-${h.inten}">${PR.I.n}</span> 伸び×${PR.I.g}・疲労×${PR.I.f}`);
+        if(Math.random()<(roll[0]==='大成功'?(isMaxed(h)?0.08:0.05):(isMaxed(h)?0.02:0.007))*(1-rkIdx(h)*0.06)*(1+bondOf(h)/100)*(h.inten==='limit'?2:1)){ aw=true; L.push(awaken(h,isMaxed(h)?'限界を超えようとする調教で覚醒':roll[0]==='大成功'?'調教で大成功し、才能が開花':'調教中に突然の覚醒')); }
         if(h.streak.n>=4&&Math.random()<0.4){ h.cond=Math.max(-2,h.cond-1); L.push('<span class="bad">同じ調教に飽きて気が乗らない様子（調子↓）</span>'); }
         if(h.fat>75&&Math.random()<0.3) h.cond=Math.max(-2,h.cond-1);
-        const risk=(0.01+Math.max(0,h.fat-45)*0.007*(1.5-hp/100)+(roll[0]==='失敗'?0.04:0))*((h.skills||[]).includes('鉄の脚')?0.5:1)*(1-0.18*fac.clinic)*(h.inbred?1.25:1)*(1-sEff('vet'))*(1-sEff('farrier')*0.6)*(h.feed==='best'?0.9:1)*(h.gear&&h.gear.shoe?0.85:1)*attrBuff(attrOf(h),'risk');
+        const P2=PR, risk=(P2.base+(roll[0]==='失敗'?0.04:0))*P2.I.r*(1-bondOf(h)/250)*(h.evSafe?0.4:1); h.evSafe=false;
         if(Math.random()<risk){ injured=true; L.push(injure(h)); }
-      } else { h.streak=null; h.fat=Math.max(0,h.fat+m.fat*(1+0.2*fac.barn)); if(h.pers==='甘えん坊'&&Math.random()<0.5) h.cond=Math.min(2,h.cond+1);
+      } else { h.streak=null; addBond(h,h.plan==='farm'?2:1.5); h.fat=Math.max(0,h.fat+m.fat*(1+0.2*fac.barn)); if(h.pers==='甘えん坊'&&Math.random()<0.5) h.cond=Math.min(2,h.cond+1);
  if(h.plan==='farm'){ h.cond=Math.min(2,h.cond+(Math.random()<0.6?1:0)); } else if(Math.random()<0.4) h.cond=Math.min(2,h.cond+1); L.push(`${m.n}：疲労 ${h.fat.toFixed(0)}`); }
     
   if(C) C.spent+=cost+gcost; return {L,roll:roll&&roll[0],cost,gcost,injured,aw}; }
@@ -3875,6 +3930,63 @@ function trainShow(h,m,R,before,after,rkB,fatB){ TR_BUSY=true;
   setTimeout(()=>box.classList.add('s3'),D+1700);
   const close=()=>{ ov.classList.add('out'); setTimeout(()=>{ ov.remove(); TR_BUSY=false; if($('#resModal').classList.contains('on')&&$('#hdClose')) openHorse(h.id); renderFarm(); runAwaken(); },200); };
   ov.querySelector('.trok').onclick=close; }
+// ===== 育成イベント（数週に1回・選択肢で結果が変わる） =====
+const R_=(a,b)=>a+Math.random()*(b-a);
+const evUp=(h,k,v)=>{ const g=gainStat(h,k,v); return g>0.05?`${STATS.find(x=>x[0]===k)[1]} +${g.toFixed(1)}`:''; };
+const evCond=(h,v)=>{ const c0=h.cond||0; h.cond=clamp(c0+v,-2,2); return h.cond>c0?'調子↑':h.cond<c0?'調子↓':''; };
+const evFat=(h,v)=>{ h.fat=clamp((h.fat||0)+v,0,100); return v<0?`疲労 ${Math.round(v)}`:`疲労 +${Math.round(v)}`; };
+const evBond=(h,v)=>{ addBond(h,v); return v>0?`絆 +${v}`:`絆 ${v}`; };
+const J_=(...a)=>a.filter(Boolean).join('・');
+const TR_EVENTS=[
+ {id:'rain',w:3,t:h=>`雨の中、${h.name}が馬房から馬場のほうをじっと見つめている。`,c:[
+   {t:'雨の中を走らせる',d:'パワー↑・体調を崩すかも',f:h=>Math.random()<0.25?`ずぶ濡れで少し体調を崩した…（${J_(evUp(h,'pow',R_(2,4)),evCond(h,-1),evFat(h,12))}）`:`泥をはね上げて力強く駆け抜けた！（${J_(evUp(h,'pow',R_(3,6)),evBond(h,3))}）`},
+   {t:'馬房でゆっくり休ませる',d:'調子↑・絆↑',f:h=>`雨音を聞きながら穏やかに過ごした。（${J_(evCond(h,1),evFat(h,-10),evBond(h,4))}）`}]},
+ {id:'fight',w:2,t:h=>`${h.name}が隣の馬と小競り合いを始めそうだ…！`,c:[
+   {t:'すぐに引き離す',d:'安全第一',f:h=>`落ち着きを取り戻した。（${J_(evBond(h,2))}）`},
+   {t:'併せ馬で発散させる',d:'根性↑・疲れる',f:h=>Math.random()<0.15?`熱くなりすぎて脚をぶつけた…（${J_(evUp(h,'gut',R_(2,4)),evFat(h,20))}・今週は怪我に注意）`:`闘志むき出しで競り合った！（${J_(evUp(h,'gut',R_(3,6)),evFat(h,15))}）`}]},
+ {id:'food',w:2,t:h=>`${h.name}が飼い葉を半分残している。食欲がないようだ。`,c:[
+   {t:'好物の特製ニンジンを用意',d:'-1,500 NOA・調子↑・絆↑',cost:1500,f:h=>`目を輝かせて完食した！（${J_(evCond(h,1),evBond(h,6))}）`},
+   {t:'様子を見る',d:'無料',f:h=>Math.random()<0.5?`翌日には元に戻った。`:`少し元気がない…（${J_(evCond(h,-1))}）`}]},
+ {id:'dawn',w:3,t:h=>`夜明け前。${h.name}が厩舎の中で落ち着かない様子だ。`,c:[
+   {t:'早朝の散歩に連れ出す',d:'賢さ↑・絆↑',f:h=>`朝焼けの中をゆっくり歩いた。（${J_(evUp(h,'wis',R_(2,4)),evBond(h,5))}）`},
+   {t:'そのまま寝かせておく',d:'疲労回復',f:h=>`ぐっすり眠った。（${J_(evFat(h,-15))}）`}]},
+ {id:'kids',w:2,t:h=>`近所の子どもたちが${h.name}を見に来た。触ってみたいらしい。`,c:[
+   {t:'ふれあわせる',d:'絆↑（性格しだい）',f:h=>h.pers==='神経質'?`人混みに驚いてしまった…（${J_(evCond(h,-1),evBond(h,1))}）`:`子どもたちに囲まれてまんざらでもない様子！（${J_(evCond(h,1),evBond(h,6))}）`},
+   {t:'今日はお断りする',d:'何も起きない',f:h=>`いつもどおりの一日。`}]},
+ {id:'hoof',w:2,t:h=>`${h.name}の蹄が少し欠けているのに気づいた。`,c:[
+   {t:'装蹄師に見せる',d:'-2,000 NOA・今週の怪我率↓',cost:2000,f:h=>{ h.evSafe=true; return `しっかり手当てしてもらった。（今週の調教の怪我率 大幅ダウン・${evBond(h,2)}）`; }},
+   {t:'このまま様子を見る',d:'無料・少し危険',f:h=>Math.random()<0.12?`悪化してしまった…（${J_(evFat(h,25),evCond(h,-1))}）`:`特に問題はなさそうだ。`}]},
+ {id:'spook',w:2,t:h=>`大きな物音に驚いた${h.name}が暴れ出した！`,c:[
+   {t:'やさしくなだめる',d:'絆↑',f:h=>`首を撫でると次第に落ち着いた。（${J_(evBond(h,5))}）`},
+   {t:'毅然と叱る',d:'賢さ↑・絆↓',f:h=>`すぐにおとなしくなった。（${J_(evUp(h,'wis',R_(2,4)),evBond(h,-3))}）`}]},
+ {id:'best',w:3,c0:h=>(h.cond||0)>=1,t:h=>`今日の${h.name}は絶好調。坂路で自己ベストが出そうな気配だ。`,c:[
+   {t:'もう1本追い切る',d:'スピード大↑・疲労大',f:h=>Math.random()<0.2?`最後に脚が上がってしまった…（${J_(evUp(h,'spd',R_(1,3)),evFat(h,22),evCond(h,-1))}）`:`自己ベスト更新！（${J_(evUp(h,'spd',R_(4,7)),evFat(h,20),evBond(h,2))}）`},
+   {t:'今日はここまで',d:'調子キープ',f:h=>`気分よく一日を終えた。（${J_(evBond(h,3))}）`}]},
+ {id:'rival',w:2,t:h=>`ライバル厩舎「${typeof RIVAL_STABLE!=='undefined'?RIVAL_STABLE:'黒鉄ステーブル'}」の馬が、${h.name}に併せ馬を申し込んできた。`,c:[
+   {t:'受けて立つ',d:'勝てば大きく伸びる',f:h=>{ const win=Math.random()<0.35+bondOf(h)/300+(h.cond||0)*0.06; return win?`競り勝った！（${J_(evUp(h,'spd',R_(2,4)),evUp(h,'gut',R_(2,4)),evCond(h,1),evBond(h,3))}）`:`一歩及ばず…（${J_(evUp(h,'gut',R_(1,3)),evCond(h,-1),evFat(h,10))}）`; }},
+   {t:'今回は断る',d:'何も起きない',f:h=>`静かに見送った。`}]},
+ {id:'stars',w:2,t:h=>`雲ひとつない星空の夜。${h.name}が空を見上げている。`,c:[
+   {t:'夜間放牧に出す',d:'疲労回復・月属性は能力↑',f:h=>attrOf(h)==='moon'?`月明かりを浴びて力がみなぎった！（${J_(evFat(h,-20),evUp(h,'spd',R_(1,3)),evUp(h,'wis',R_(1,3)),evBond(h,4))}）`:`星空の下でのびのび過ごした。（${J_(evFat(h,-20),evBond(h,4))}）`},
+   {t:'いつもどおり馬房へ',d:'何も起きない',f:h=>`静かな夜だった。`}]},
+ {id:'limit',w:3,c0:h=>STATS.filter(([k])=>h.st[k]>=h.cap[k]-1).length>=3&&rkIdx(h)<9,t:h=>`${h.name}の能力が限界に近づいている。何かが目覚めそうな気配…`,c:[
+   {t:'限界を超える特訓',d:'覚醒のチャンス・疲労大',f:h=>{ if(Math.random()<0.3+bondOf(h)/250){ const t=awaken(h,'限界を超える特訓で覚醒'); setTimeout(()=>{ try{ runAwaken(); }catch(e){} },400); return `ついに殻を破った！ 覚醒！（${evFat(h,25)}）${t?'<br>'+t:''}`; } return `まだその時ではないようだ…（${J_(evFat(h,25),evBond(h,2))}）`; }},
+   {t:'今は温存する',d:'絆↑',f:h=>`無理はさせなかった。（${J_(evBond(h,4))}）`}]},
+ {id:'press',w:2,c0:h=>h.wins>=1,t:h=>`競馬誌の記者が${h.name}を取材したいと言ってきた。`,c:[
+   {t:'取材を受ける',d:'性格しだいで調子が変化',f:h=>h.pers==='神経質'?`フラッシュに驚いて落ち着かない…（${J_(evCond(h,-1))}）`:`堂々とカメラに収まった！（${J_(evCond(h,1),evBond(h,2))}）`},
+   {t:'丁重に断る',d:'何も起きない',f:h=>`練習に集中した。`}]},
+];
+let pendEv=store.get('pendEv',null); const savePendEv=()=>store.set('pendEv',pendEv);
+function rollEvent(){ if(pendEv&&pendEv.w===wIdx()) return; pendEv=null; const act=stable.filter(h=>!h.retired&&!((h.injury||0)>0)); if(!act.length||Math.random()>0.32){ savePendEv(); return; }
+  const h=act[Math.floor(Math.random()*act.length)], pool=TR_EVENTS.filter(e=>!e.c0||e.c0(h)), tot=pool.reduce((a,e)=>a+e.w,0); let r=Math.random()*tot, E=pool[0];
+  for(const e of pool){ r-=e.w; if(r<=0){ E=e; break; } } pendEv={hid:h.id,id:E.id,w:wIdx()}; savePendEv(); }
+function evHTML(){ if(!pendEv||pendEv.w!==wIdx()) return ''; const h=stable.find(x=>x.id===pendEv.hid), E=TR_EVENTS.find(e=>e.id===pendEv.id); if(!h||!E) return '';
+  return `<div class="evbox" id="evBox"><div class="ev-h"><span>EVENT</span><b>${h.name}</b></div><div class="ev-body"><div class="ev-art">${cardArt(h,true)}</div><div class="ev-t">${E.t(h)}</div></div>
+    <div class="ev-c">${E.c.map((c,i)=>`<button class="ev-b" data-evc="${i}" ${c.cost&&balance<c.cost?'disabled':''}><b>${c.t}</b><small>${c.d||''}</small></button>`).join('')}</div></div>`; }
+function bindEv(){ document.querySelectorAll('[data-evc]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(!pendEv) return; const h=stable.find(x=>x.id===pendEv.hid), E=TR_EVENTS.find(x=>x.id===pendEv.id), C=E&&E.c[+b.dataset.evc]; if(!h||!C) return;
+    if(C.cost){ if(balance<C.cost){ toast('NOAが足りません'); return; } setBal(balance-C.cost); }
+    const out=C.f(h); pendEv=null; savePendEv(); saveStable();
+    document.querySelectorAll('.evbox').forEach(x=>{ x.classList.add('done'); x.querySelector('.ev-c').outerHTML=`<div class="ev-r"><small>${C.t}</small>${out}</div>`; });
+    if($('#s-farm').classList.contains('active')) setTimeout(()=>renderFarm(),1600); }); }
 function advanceWeek(){
   const logs=[], wi=wIdx(); let cost=0, gcost=0; const fx=weeklyFixed();
   stable.filter(h=>!h.retired).forEach(h=>{
@@ -3901,11 +4013,12 @@ function advanceWeek(){
     if(ret7.length) ny+=`<div class="ownres"><i class="ic ic-star"></i> ${ret7.join('、')} は${MAX_RACE_AGE+1}歳を迎え、現役を引退しました（お疲れさま！ 引退馬として融合・マーケットで使えます）</div>`; }
   cal.done={}; saveCal(); saveStable(); updCal(); if(balance>=1e6) unlock('rich');
   const g1=weekRaces().filter(r=>r.grade==='G1').map(r=>r.name);
-  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cal"></i> ${calLabel()}</div>${ny}${rvMsgs.length?`<div class="ownres"><i class="ic ic-swords"></i> ${rvMsgs.join('<br>')}</div>`:''}${cal.w%4===0?`<div class="ownres"><i class="ic ic-hammer"></i> 今月のセリが開催中です（牧場から参加できます）${(marketLots()||[]).some(l=>l.phantom)?'<br><b class="phx-t">噂：とんでもない馬が出品されているらしい…</b>':''}</div>`:''}${studInc?`<div class="ownres"><i class="ic ic-leaf"></i> 引退馬からの収入（種付け料・産駒売却） <b class="plus">+${fmt(studInc)} NOA</b></div>`:''}${g1.length?`<div class="ownres"><i class="ic ic-trophy"></i> 今週はG1「${g1.join('・')}」が開催されます！</div>`:''}${fxNote}${outT?`<div class="ownres"><i class="ic ic-coin"></i> 先週の支出 <b class="bad">-${fmt(outT)} NOA</b><div class="hsub">${brk.map(x=>`${x[0]} ${fmt(x[1])}`).join('　/　')}</div></div>`:''}
+  rollEvent();
+  $('#resBox').innerHTML=`<div class="win"><i class="ic ic-cal"></i> ${calLabel()}</div>${evHTML()}${ny}${rvMsgs.length?`<div class="ownres"><i class="ic ic-swords"></i> ${rvMsgs.join('<br>')}</div>`:''}${cal.w%4===0?`<div class="ownres"><i class="ic ic-hammer"></i> 今月のセリが開催中です（牧場から参加できます）${(marketLots()||[]).some(l=>l.phantom)?'<br><b class="phx-t">噂：とんでもない馬が出品されているらしい…</b>':''}</div>`:''}${studInc?`<div class="ownres"><i class="ic ic-leaf"></i> 引退馬からの収入（種付け料・産駒売却） <b class="plus">+${fmt(studInc)} NOA</b></div>`:''}${g1.length?`<div class="ownres"><i class="ic ic-trophy"></i> 今週はG1「${g1.join('・')}」が開催されます！</div>`:''}${fxNote}${outT?`<div class="ownres"><i class="ic ic-coin"></i> 先週の支出 <b class="bad">-${fmt(outT)} NOA</b><div class="hsub">${brk.map(x=>`${x[0]} ${fmt(x[1])}`).join('　/　')}</div></div>`:''}
     ${logs.length?`<div class="sub" style="margin:8px 0">先週の調教結果</div>${logs.join('')}`:'<div class="sub">厩舎に馬がいません。牧場で配合してみましょう。</div>'}
     <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="wFarm"><i class="ic ic-horse"></i> 牧場へ</button><button class="btn gold" id="wRace"><i class="ic ic-horse"></i> 今週のレースへ</button></div>`;
   $('#resModal').classList.add('on');
-  $('#wFarm').onclick=()=>{ $('#resModal').classList.remove('on'); openFarm(); };
+  bindEv(); $('#wFarm').onclick=()=>{ $('#resModal').classList.remove('on'); openFarm(); };
   $('#wRace').onclick=()=>{ $('#resModal').classList.remove('on'); renderList(); show('s-select'); };
   if($('#s-farm').classList.contains('active')) renderFarm();
 }
