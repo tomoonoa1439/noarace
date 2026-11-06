@@ -340,6 +340,19 @@ tr.rvrow td{background:#2a1515}
 .farmbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 10px}
 .fb-i{background:#0a1230cc;border:1px solid #2a3a6a;padding:6px 10px}.fb-i small{display:block;font-size:10px;color:#8fa0c8;letter-spacing:.1em}.fb-i b{font-size:18px;color:#fff}.fb-i b span{font-size:11px;color:#8fa0c8}
 @media(max-width:720px){ .subnav button{min-width:64px;padding:7px 4px}.subnav button b{font-size:12px}.subnav button small{font-size:9px}.farmbar{gap:4px}.fb-i{padding:4px 6px}.fb-i small{font-size:9px;letter-spacing:0}.fb-i b{font-size:14px}.fb-i b[style]{font-size:10px!important} }
+.fu-odds{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.fo{padding:6px 10px;border:1px solid #2a3a6a;background:#0a1230}.fo small{display:block;font-size:10px;letter-spacing:.2em}.fo b{font-size:22px}
+.fo.p{border-color:#ffd166aa}.fo.p b{color:#ffd166}.fo.s b{color:#7dffb0}.fo.f{border-color:#ff5a7a88}.fo.f b{color:#ff7a8a}
+.fz-tag{display:inline-block;font-size:9px;font-weight:900;padding:0 5px;letter-spacing:.1em;color:#0a0618;background:linear-gradient(90deg,#8fd3ff,#b18cff);vertical-align:middle}.fz-tag.p{background:linear-gradient(90deg,#ffd166,#ff9bd2,#8fd3ff)}
+.fz-t{background:linear-gradient(90deg,#8fd3ff,#b18cff,#ff9bd2);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.15em}
+.fz-ov{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle,#1a0a3acc,#03020cf2 70%);transition:opacity .5s}.fz-ov.out{opacity:0}
+.fz-cards{position:relative;width:min(70vw,360px);height:min(60vh,420px)}.fz-c{position:absolute;top:0;width:58%;height:100%;overflow:hidden;border:2px solid #8fd3ff;box-shadow:0 0 30px #4db8ff88}.fz-c>*{width:100%;height:100%}
+.fz-c.l{left:0;animation:fzL 2.2s cubic-bezier(.7,0,.3,1) forwards}.fz-c.r{right:0;animation:fzR 2.2s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes fzL{0%{transform:translateX(-30%) rotate(-8deg)}70%{transform:translateX(18%) rotate(0)}100%{transform:translateX(18%) rotate(0)}}@keyframes fzR{0%{transform:translateX(30%) rotate(8deg)}70%{transform:translateX(-18%) rotate(0)}100%{transform:translateX(-18%) rotate(0)}}
+.fz-flash{position:absolute;inset:-40%;background:radial-gradient(circle,#fff,#b18cffaa 30%,transparent 60%);opacity:0;animation:fzF 3.6s ease forwards}@keyframes fzF{0%,55%{opacity:0;transform:scale(.3)}68%{opacity:1;transform:scale(1.2)}100%{opacity:.25;transform:scale(1)}}
+.fz-ov.fail .fz-flash{background:radial-gradient(circle,#ff9a9a,#ff3a5a88 30%,transparent 60%)}.fz-ov.fail .fz-c{animation-name:none;filter:grayscale(1) brightness(.5);transition:opacity 1s 2.4s;opacity:.15}
+.fz-ov.perfect .fz-flash{background:radial-gradient(circle,#fff,#ffd166 25%,#ff9bd2aa 40%,transparent 62%)}
+.fz-txt{text-align:center;opacity:0;animation:fzT 3.6s ease forwards}@keyframes fzT{0%,62%{opacity:0;transform:translateY(10px)}75%,100%{opacity:1;transform:none}}
+.fz-txt small{display:block;letter-spacing:.4em;font-size:12px;color:#8fd3ff;font-weight:900}.fz-txt b{display:block;font-size:40px;font-weight:900;color:#fff;text-shadow:0 0 20px #b18cff}.fz-ov.fail .fz-txt b{color:#ff8a9a;text-shadow:0 0 20px #ff3a5a}.fz-ov.perfect .fz-txt b{color:#ffd166;text-shadow:0 0 24px #ff9bd2}.fz-txt span{font-size:13px;color:#dfe6ff}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -802,6 +815,7 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     </div>
     <div data-fp="retired">
     <div class="sec-h"><i class="ic ic-leaf"></i> 引退馬<span class="hsub">配合の親になり、毎週 種付け料・産駒の売却益が入ります</span><span id="incomeInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="retiredList"></div></div>
+    <div class="sec-h"><i class="ic ic-spark"></i> 融合<span class="hsub">引退馬2頭から新しい現役馬を生み出す。失敗すると2頭とも消えます</span></div><div class="panel"><div id="fuseBox"></div></div>
     <div class="sec-h"><i class="ic ic-coin"></i> ホースマーケット<span class="hsub" id="mktSub">引退馬をオークションで売買。落札されると馬のデータごと移籍します（ログイン中はみんなと取引・未ログイン時はAI馬主と取引）</span></div><div class="panel"><div id="mktList" class="flist"></div></div>
     </div>
   </section>
@@ -1201,8 +1215,8 @@ function generateRace(tpl,own,opt={}){
   const n=ents.length, used=new Set(); ents.forEach(e=>{ if(e.jockeyFixed) used.add(e.jockeyFixed); });
   const hs=ents.map((e,i)=>({...e,no:i+1,rating:e.fit}));
   [...hs].sort((a,b)=>b.rating-a.rating).forEach(h=>{ if(h.jockeyFixed){ h.jockey=h.jockeyFixed; return; } let j=(h.jockeys||[]).find(x=>!used.has(x)); if(!j){ const pool=JOCKEY_POOL.filter(x=>!used.has(x)); j=pool[hash(h.name+tpl.id)%Math.max(1,pool.length)]||'見習い騎手'; } used.add(j); h.jockey=j; });
-  hs.forEach(h=>{ const st_=h.own?stable.find(x=>x.id===h.stableId):null; h.attr=st_?attrOf(st_):h.netAttr||legendAttr(h.name); h.venueB=venueBonus(h.attr,race); h.fit+=h.venueB; h.sd=(h.sd||4.2)*attrBuff(h.attr,'sd'); });
-  { const W=WX[race.wx]||WX.clear; hs.forEach(h=>{ h.wxAttr=W.attr.includes(h.attr); h.wxB=(h.wxAttr?1.0:0)+((W.sty||{})[h.style]||0); h.fit+=h.wxB; if(W.sd) h.sd=(h.sd||4.2)*W.sd(race); }); }
+  hs.forEach(h=>{ const st_=h.own?stable.find(x=>x.id===h.stableId):null; h.attr=st_?attrOf(st_):h.netAttr||legendAttr(h.name); h.attr2=st_&&st_.attr2||null; h.venueB=venueBonus(h.attr,race)+(h.attr2?venueBonus(h.attr2,race)*0.5:0); h.fit+=h.venueB; h.sd=(h.sd||4.2)*attrBuff(h.attr,'sd'); });
+  { const W=WX[race.wx]||WX.clear; hs.forEach(h=>{ h.wxAttr=W.attr.includes(h.attr)||(h.attr2&&W.attr.includes(h.attr2)); h.wxB=(W.attr.includes(h.attr)?1.0:h.attr2&&W.attr.includes(h.attr2)?0.5:0)+((W.sty||{})[h.style]||0); h.fit+=h.wxB; if(W.sd) h.sd=(h.sd||4.2)*W.sd(race); }); }
   if(tpl.gimmick==='moon') hs.forEach(h=>h.sd=(h.sd||4.2)*1.25);
   hs.forEach(h=>{ const r=h.formR??0.5; let f= r<0.08?0: r<0.28?1: r<0.72?2: r<0.92?3:4; if(h.own||h.netUid) f=2+clamp(h.ownForm||0,-2,2); h.form=FORM[f]; h.base=h.fit+h.form[2]*0.9; h.waku=wakuOf(h.no,n); });
   // オッズ＝「予想上の強さ（能力・距離・馬場・調子・適性）」から算出。実際の着順はレース時に別途抽選する。
@@ -2131,8 +2145,8 @@ function runAwaken(){ if(awBusy||TR_BUSY||!AW_Q.length) return; awBusy=true; con
   el.onclick=()=>{ el.remove(); awBusy=false; if($('#s-farm').classList.contains('active')) renderFarm(); setTimeout(runAwaken,200); }; }
 const _mkF=makeFoal; makeFoal=function(s,d,R=Math.random){ const f=_mkF(s,d,R); f.st.hp=f.cap.hp; f.attr=inheritAttr(s,d,R); if(f.attr===(s.own?attrOf(s):legendAttr(s.name))&&f.attr===(d.own?attrOf(d):legendAttr(d.name))) STATS.forEach(([k])=>f.cap[k]=+Math.min(100,f.cap[k]+1.5).toFixed(1)); f.rank=rollRank(f,R,f.inbred?0.4:0); applyRankCap(f); return f; };
 const parentObj=m=>({name:m[0],sex:m[1],dMin:m[4],dMax:m[5],style:m[6],coat:m[7],tag:m[8],st:legendStats(m)});
-function sires(){ return [...ROSTER.filter(m=>m[1]==='牡').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牡'&&!h.listed).map(h=>({...h,own:true,tag:h.retired?'自家・種牡馬':'自家・現役'}))]; }
-function dams(){ return [...ROSTER.filter(m=>m[1]==='牝').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牝'&&!h.listed).map(h=>({...h,own:true,tag:h.retired?'自家・繁殖牝馬':'自家・現役'}))]; }
+function sires(){ return [...ROSTER.filter(m=>m[1]==='牡').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牡'&&!h.listed&&!h.fused).map(h=>({...h,own:true,tag:h.retired?'自家・種牡馬':'自家・現役'}))]; }
+function dams(){ return [...ROSTER.filter(m=>m[1]==='牝').sort((a,b)=>b[3]-a[3]).map(parentObj), ...stable.filter(h=>h.sex==='牝'&&!h.listed&&!h.fused).map(h=>({...h,own:true,tag:h.retired?'自家・繁殖牝馬':'自家・現役'}))]; }
 const avgSt=p=>(p.st.spd+p.st.pow+p.st.sta+p.st.gut+p.st.wis)/5;
 const studFee=p=>p.own?0:clamp(Math.round((avgSt(p)-60)*120/500)*500,500,6000);
 function nickOf(s,d){ return ((hash(s.name+'×'+d.name)%7)-2)*0.7; }
@@ -2251,7 +2265,7 @@ function renderFarm(){
   $('#marketList').innerHTML = !lots? `<span class="hsub">セリは毎月第1週に開催されます（次回：${Math.floor(cal.w/4)+2>12?'1':Math.floor(cal.w/4)+2}月 第1週）</span>`
     : lots.map((l,k)=>`<div class="fcard ${l.phantom?'phx':''}"><div>${l.phantom?'<div class="phx-tag">幻の逸材</div>':''}<b>${l.foal.dam}の仔</b> <span class="hsub">${l.foal.sex}・${l.foal.coat}</span><div class="hsub">父 ${l.foal.sire}（${l.foal.line}）・母父系 ${l.foal.damLine}</div><div class="hsub">馬体評価 ${l.phantom?'<b class="phx-t">測定不能</b>':srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[l.est])}・開始 ${fmt(l.price)} NOA</div></div>${l.sold?'<span class="hsub">終了</span>':`<button class="btn gold" data-lot="${k}"><i class="ic ic-hammer"></i> セリに参加</button>`}</div>`).join('');
   const inc=ret.reduce((a,h)=>a+studIncome(h),0); $('#incomeInfo').innerHTML=inc?`引退馬からの収入 毎週 <b class="gold">+${fmt(inc)} NOA</b>`:'';
-  renderShop(); renderParts(); renderMarket(); bindHorseCtl();
+  renderShop(); renderParts(); renderMarket(); renderFusion(); bindHorseCtl();
   document.querySelectorAll('[data-mkl]').forEach(b=>b.onclick=()=>mktList(b.dataset.mkl));
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ const h=stable.find(x=>x.id===b.dataset.view); const L=h&&h.listed?mkt.list.find(x=>x.id===h.listed):null; viewHorse(h,L?`マーケット出品中：現在 ${mktHigh(L)?fmt(mktHigh(L).amt)+' NOA':'入札なし'}・即落札 ${fmt(L.buyout)} NOA・${mktLeft(L)}`:h.bought?`${h.bought.from} から ${fmt(h.bought.price)} NOA で購入`:''); });
   document.querySelectorAll('[data-open]').forEach(c=>c.onclick=e=>{ if(e.target.closest('select,.fsel,.trbtn')) return; openHorse(c.dataset.open); });
@@ -2514,7 +2528,7 @@ function horseCard(h){ const i=rkIdx(h), busy=h.acted===wIdx()||h.trained===wIdx
   return `<div class="tcard rk${i}" style="--rc:${RK_COL[i]}" data-open="${h.id}">
     <div class="tc-top">${rkBadge(h)}<span class="tc-cls">${classOf(h)}</span><span class="tc-form" title="${f[1]}">${f[0]}</span></div>
     <div class="tc-art">${cardArt(h,true)}${h.awakened?`<span class="tc-aw"><i class="ic ic-bolt"></i>${h.awakened}</span>`:''}</div>
-    <div class="tc-name">${attrChip(attrOf(h),true)} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　成長×${RK_GROW[i]}</div>
+    <div class="tc-name">${attrChip(attrOf(h),true)}${h.attr2?attrChip(h.attr2,true):''} ${h.name}${h.phantom?' <span class="phx-tag sm">幻</span>':''}${h.fused?` <span class="fz-tag${h.fusion&&h.fusion.perfect?' p':''}">FUSION</span>`:''}</div><div class="tc-sub">${h.sex}・${h.age}歳・${h.grow}・体質<b style="color:${taishitsu(h)[1]}">${taishitsu(h)[0]}</b>　成長×${RK_GROW[i]}</div>
     <div class="tc-st">${STATS.map(([k,n])=>`<div><span>${n.slice(0,2)}</span><span>${srk(h.st[k])}<small class="tc-cap">/${SRANK(h.cap[k])}</small></span></div>`).join('')}</div>
     <div class="tc-fat"><i style="width:${h.fat||0}%"></i></div>
     <div class="tc-foot">${st||`${h.races}戦${h.wins}勝`}</div>
@@ -2597,7 +2611,7 @@ function horseValue(h){ return Math.round(_hv(h)*(0.75+rkIdx(h)*0.09)/100)*100; 
 function _hv(h){ const capAvg=(h.cap.spd+h.cap.pow+h.cap.sta+h.cap.gut+h.cap.wis)/5, base=Math.max(avg5(h),h.age<=3?capAvg*0.6:0);
   let v=Math.pow(Math.max(0,base-35),1.7)*30+h.wins*2500+(h.gw||0)*8000+(h.g1w||0)*25000+h.earn*0.15;
   v*=AGEMUL[clamp(h.age-2,0,6)]*(h.retired?0.6:1)*(h.races===0?0.5:1)*((h.injury||0)>0?0.7:1); return Math.max(1000,Math.round(v/100)*100); }
-function studIncome(h){ if(h.listed||(h.races<3&&!h.wins)) return 0; const v=(avg5(h)-45)*14+h.wins*120+(h.gw||0)*500+(h.g1w||0)*1500; return Math.max(100,Math.round((h.sex==='牡'?v:v*0.6)/10)*10); }
+function studIncome(h){ if(h.listed||h.fused||(h.races<3&&!h.wins)) return 0; const v=(avg5(h)-45)*14+h.wins*120+(h.gw||0)*500+(h.g1w||0)*1500; return Math.max(100,Math.round((h.sex==='牡'?v:v*0.6)/10)*10); }
 function sellHorse(id){ const h=stable.find(x=>x.id===id); if(!h) return; const v=horseValue(h);
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-coin"></i> ${h.name} を売却しますか？</div><div class="sub">${h.sex}・${h.age}歳・${h.retired?'引退馬':classOf(h)}・${h.races}戦${h.wins}勝</div>
     <div class="ownres" style="font-size:18px">売却価格 <b class="gold">${fmt(v)} NOA</b></div><div class="hsub">売却すると厩舎からいなくなり、配合にも使えなくなります。</div>
@@ -3598,6 +3612,51 @@ function viewHorse(h,sub){ if(!h) return;
     <div class="hsub">戦績 ${h.races}戦${h.wins}勝（重賞${h.gw||0}・G1 ${h.g1w||0}）　賞金 ${fmt(h.earn||0)} NOA${(h.skills||[]).length?`　特性 <span class="gold">${h.skills.join('・')}</span>`:''}</div>
     <div class="sub" style="margin:10px 0 4px">血統</div>${pedTable(h)}`;
   $('#resModal').classList.add('on'); $('#vhClose').onclick=()=>$('#resModal').classList.remove('on'); }
+// ======================= 融合（フュージョン） =======================
+// 引退馬2頭＋融合費で新しい現役馬1頭。失敗すると2頭とも失う。融合馬は繁殖できず、融合の素材にもならない
+const FUSE_BASE_FAIL=0.25, FUSE_PERFECT=0.4; // 成功系のうち4割が大成功（基準：大成功30%・成功45%・失敗25%）
+const fuseFee=(a,b)=>10000+3000*(rkIdx(a)+rkIdx(b));
+const equippedUids=()=>new Set(stable.flatMap(h=>Object.values(h.eq||{})));
+function fuseOdds(a,b,cat){ const L=[]; let f=FUSE_BASE_FAIL; const add=(d,t)=>{ f+=d; L.push([t,d]); };
+  if(attrOf(a)===attrOf(b)) add(-0.15,'同じ属性'); const d=Math.abs(rkIdx(a)-rkIdx(b)); if(d<=1) add(-0.10,'ランクが近い'); if(d>=3) add(0.15,'ランクの差が大きい');
+  if(rkIdx(a)>=8||rkIdx(b)>=8) add(0.10,'SS以上を含む'); const g=(a.g1w?1:0)+(b.g1w?1:0); if(g) add(0.05*g,`G1馬 ${g}頭`); if((fac.vet||fac.clinic||0)>=3) add(-0.05,'診療所Lv3');
+  if(cat){ const v={N:0.05,R:0.10,SR:0.15}[cat.r]||0; add(-v,`触媒パーツ（${cat.r}）`); }
+  f=Math.min(0.8,Math.max(0.1,f)); const ok=1-f; return {fail:f,perfect:ok*FUSE_PERFECT,success:ok*(1-FUSE_PERFECT),log:L}; }
+function fusionCands(){ return stable.filter(h=>h.retired&&!h.listed&&!h.fused); }
+function renderFusion(){ const el=$('#fuseBox'); if(!el) return; const C=fusionCands(); const eq=equippedUids(), cats=parts.filter(p=>!eq.has(p.uid));
+  if(C.length<2){ el.innerHTML='<span class="hsub">融合には、出品中でない引退馬が2頭必要です（融合馬は素材にできません）</span>'; return; }
+  const opt=(sel)=>C.map(h=>`<option value="${h.id}" ${sel===h.id?'selected':''}>${RANKS[rkIdx(h)]}・${ATTR[attrOf(h)].n}｜${h.name}（${h.sex}・${h.races}戦${h.wins}勝）</option>`).join('');
+  const A=el.dataset.a&&C.find(h=>h.id===el.dataset.a)?el.dataset.a:C[0].id, B=el.dataset.b&&C.find(h=>h.id===el.dataset.b)&&el.dataset.b!==A?el.dataset.b:(C.find(h=>h.id!==A)||{}).id;
+  el.innerHTML=`<div class="pairsel"><label>素材A<select id="fuA">${opt(A)}</select></label><label>素材B<select id="fuB">${opt(B)}</select></label></div>
+    <label class="mk-in" style="margin:8px 0">触媒パーツ <select id="fuCat"><option value="">使わない</option>${cats.map(p=>`<option value="${p.uid}">${p.r}・${PARTS[p.k].n}（失敗率 −${({N:5,R:10,SR:15})[p.r]}%）</option>`).join('')}</select></label>
+    <div id="fuInfo"></div>`;
+  const upd=()=>{ el.dataset.a=$('#fuA').value; el.dataset.b=$('#fuB').value; const a=stable.find(h=>h.id===el.dataset.a), b=stable.find(h=>h.id===el.dataset.b), cat=parts.find(p=>p.uid===$('#fuCat').value);
+    if(!a||!b||a===b){ $('#fuInfo').innerHTML='<span class="bad">別々の2頭を選んでください</span>'; return; }
+    const O=fuseOdds(a,b,cat), fee=fuseFee(a,b), ri=regInfo(), pc=x=>(x*100).toFixed(0)+'%';
+    const capP=STATS.map(([k,n])=>`${n} ${((a.cap[k]+b.cap[k])/2+1).toFixed(0)}±3`).join('・');
+    $('#fuInfo').innerHTML=`<div class="fu-odds"><div class="fo p"><small>大成功</small><b>${pc(O.perfect)}</b></div><div class="fo s"><small>成功</small><b>${pc(O.success)}</b></div><div class="fo f"><small>失敗</small><b>${pc(O.fail)}</b></div></div>
+      <div class="hsub">失敗率の内訳：基本25%${O.log.map(([t,d])=>`・${t} ${d>0?'+':'−'}${Math.abs(d*100).toFixed(0)}%`).join('')}</div>
+      <div class="hsub">生まれる馬の上限の目安：${capP}（大成功で全能力+2）${attrOf(a)!==attrOf(b)?'・属性が違うので20%で<b class="gold">両属性</b>':''}</div>
+      <div class="ownres">融合費 <b class="gold">${fmt(fee)} NOA</b>${ri.fee?`＋登録料 ${fmt(ri.fee)} NOA`:''}　<span class="bad">失敗すると2頭とも失います</span>　融合馬は繁殖できません</div>
+      <button class="btn gold" id="fuGo" style="width:100%;padding:12px;margin-top:6px" ${ri.ok?'':'disabled'}>融合する</button>${ri.ok?'':`<div class="bad hsub">${ri.reason}</div>`}`;
+    const g=$('#fuGo'); if(g) g.onclick=()=>doFusion(a,b,cat); };
+  ['#fuA','#fuB','#fuCat'].forEach(s=>$(s).onchange=upd); upd(); }
+function doFusion(a,b,cat){ const fee=fuseFee(a,b), ri=regInfo(); if(!ri.ok){ toast(ri.reason); return; } if(balance<fee+ri.fee){ toast('NOAが足りません'); return; }
+  if(!confirm(`${a.name} と ${b.name} を融合します。\n融合費 ${fmt(fee)} NOA${ri.fee?`＋登録料 ${fmt(ri.fee)} NOA`:''}\n失敗すると2頭とも失います。よろしいですか？`)) return;
+  const O=fuseOdds(a,b,cat), r=Math.random(), res=r<O.fail?'fail':r<O.fail+O.perfect?'perfect':'success';
+  setBal(balance-fee); if(cat){ parts=parts.filter(p=>p.uid!==cat.uid); store.set('parts',parts); }
+  stable=stable.filter(h=>h!==a&&h!==b); saveStable();
+  let f=null; if(res!=='fail'){ const s=a.sex==='牡'?a:b, d=s===a?b:a; f=makeFoal({...s,own:true},{...d,own:true});
+    STATS_ALL.forEach(([k])=>{ f.cap[k]=+clamp((a.cap[k]+b.cap[k])/2+1+(Math.random()*6-3)+(res==='perfect'?2:0),30,100).toFixed(1); f.st[k]=Math.min(f.st[k],f.cap[k]); }); f.st.hp=f.cap.hp;
+    const sk=[]; [...(a.skills||[]),...(b.skills||[])].forEach(k=>{ if(sk.length<2&&!sk.includes(k)&&Math.random()<0.5) sk.push(k); }); f.skills=sk;
+    f.attr=Math.random()<0.5?attrOf(a):attrOf(b); if(attrOf(a)!==attrOf(b)&&Math.random()<0.2) f.attr2=f.attr===attrOf(a)?attrOf(b):attrOf(a);
+    f.fused=true; f.fusion={a:a.name,b:b.name,perfect:res==='perfect'}; f.rank=rollRank(f,Math.random,res==='perfect'?1:0); applyRankCap(f); }
+  fusionShow(a,b,res,()=>{ if(f) nameFoal(f,`<b class="fz-t">${res==='perfect'?'PERFECT FUSION':'FUSION'}</b>　${a.name} × ${b.name}`); else renderFarm(); }); }
+function fusionShow(a,b,res,next){ const el=document.createElement('div'); el.className='fz-ov '+res;
+  el.innerHTML=`<div class="fz-cards"><div class="fz-c l">${cardArt(a)}</div><div class="fz-c r">${cardArt(b)}</div><div class="fz-flash"></div></div>
+    <div class="fz-txt"><small>${res==='fail'?'FUSION FAILED':res==='perfect'?'PERFECT FUSION':'FUSION SUCCESS'}</small><b>${res==='fail'?'融合失敗…':res==='perfect'?'大成功！':'融合成功'}</b><span>${res==='fail'?`${a.name} と ${b.name} は光の中に消えた`:`${a.name} × ${b.name}`}</span></div>`;
+  document.body.appendChild(el); sfx(res==='fail'?'lose':'fanfare'); setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>{ el.remove(); next(); },500); },3600); }
+
 function renderMarket(){ if(window.NET&&NET.on) return NET.renderMarket(); const el=$('#mktList'); if(!el) return; mktTick(); mktFill(); saveMkt();
   const row=L=>{ const h=mktHorse(L); if(!h) return ''; const hi=mktHigh(L), mine=L.seller==='me', meHi=hi&&hi.me;
     return `<div class="fcard mkt ${mine?'mine':''} ${meHi?'lead':''}"><div style="flex:1;min-width:0"><div>${rkBadge(h)} ${attrChip(attrOf(h),true)} <b>${h.name}</b> <span class="hsub">${h.sex==='牡'?'種牡馬':'繁殖牝馬'}・${h.age}歳・${h.races}戦${h.wins}勝${h.g1w?`・G1 ${h.g1w}勝`:''}</span></div>
