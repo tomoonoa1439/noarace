@@ -52,7 +52,7 @@ const NET=window.NET={on:false,down:0,uid:null,name:'',code:'',master:null,maste
   races:{},fields:{},pools:{},board:null,boardAt:0,rankDoc:null,rankAt:0,botsDoc:null,inboxAt:0,
   // ------------------------------------------------ 起動
   async start(user){ this.uid=user.uid; this.code=codeOf(user.uid);
-    await this.ensureBase(); await this.loadRank(true);
+    await this.ensureBase(); await this.loadRank(true); await this.loadAdmin();
     const row=(this.rankDoc.rows||{})[this.uid];
     if(row){ this.name=row.name||user.displayName||'プレイヤー'; this.lastBal=+row.balance||0; } else { this.name=(user.displayName||'プレイヤー').slice(0,16); this.lastBal=0; }
     this.on=true; hookGame();
@@ -73,7 +73,7 @@ const NET=window.NET={on:false,down:0,uid:null,name:'',code:'',master:null,maste
   // ------------------------------------------------ 記帳（5分ごと・画面を閉じたとき・送金などの直後）
   async flush(force){ if(!this.on||this.busy||this.isDown()) return; const bal=balance, d=bal-this.lastBal-this.p2pAcc;
     if(!force&&!d&&this.lastBal===bal&&now()-(this.flushAt||0)<30*60e3) return; this.busy=true; const p2p=this.p2pAcc;
-    try{ const b=db.batch(); b.set(R_('meta/rank'),{rows:{[this.uid]:{name:this.name,code:this.code,balance:bal,...myStats(),t:now()}}},{merge:true});
+    try{ const b=db.batch(); b.set(R_('meta/rank'),{rows:{[this.uid]:{name:this.name,code:this.code,balance:bal,...myStats(),admin:!!this.isAdmin,t:now()}}},{merge:true});
       if(d) b.update(R_('master/v2'),{balance:inc(-d)}); await b.commit(); this.lastBal=bal; this.p2pAcc-=p2p; this.flushAt=now(); if(d&&this.master) this.master.balance-=d;
     }catch(e){ console.warn('flush',e); try{ this.guard(e); }catch(_){} } this.busy=false; },
   p2p(delta){ this.p2pAcc+=Math.round(delta); this._skip=(this._skip||0)+Math.round(delta); },
@@ -81,7 +81,7 @@ const NET=window.NET={on:false,down:0,uid:null,name:'',code:'',master:null,maste
   async applyInbox(force){ if(!this.on||this.isDown()) return; if(!force&&now()-this.inboxAt<INBOX_MS) return; this.inboxAt=now();
     const q=await db.collection('players/'+this.uid+'/inbox').get().catch(e=>this.guard(e)); if(!q.docs.length) return;
     for(const d of q.docs){ const x=d.data(); try{ await d.ref.delete(); }catch(e){ continue; }
-      const amt=Math.round(+x.amt||0); if(amt){ this.p2p(amt); setBal(balance+amt); } toast(`<i class="ic ic-coin"></i> ${esc(x.msg||'NOAを受け取りました')}　+${fmt(amt)} NOA`); }
+      const amt=Math.round(+x.amt||0); if(amt){ if(x.kind!=='admin') this.p2p(amt); setBal(balance+amt); } toast(`<i class="ic ic-coin"></i> ${esc(x.msg||'NOAを受け取りました')}　+${fmt(amt)} NOA`); }
     await this.flush(true); },
   // ------------------------------------------------ ランキング・送金
   async loadRank(force){ if(!force&&this.rankDoc&&now()-this.rankAt<RANK_MS) return this.rankDoc; const s=await R_('meta/rank').get().catch(e=>this.guard(e)); this.rankDoc=s.exists?s.data():{rows:{}}; this.rankAt=now(); return this.rankDoc; },
@@ -231,12 +231,12 @@ NET.renderTop=async function(){ const el=$('#netTop'); if(!el) return; this.appl
   el.innerHTML=`<div class="net-grid">
    <div class="net-card"><small>MASTER</small><b>${fmt(Math.round(M.balance))} <span>NOA</span></b><div class="net-bar"><i style="width:${Math.max(0,Math.min(100,r*100)).toFixed(1)}%"></i></div><div class="hsub">総量 ${fmt(M.total)} のうち ${(r*100).toFixed(1)}% を保有・賞金倍率 <b class="gold">×${this.mult}</b>${this.mult<=0.4?'（ログインボーナス停止中）':''}</div></div>
    <div class="net-card"><small>YOU</small><b style="font-size:17px">${esc(this.name)}</b><div class="hsub">フレンドコード <b class="gold">${this.code}</b>　<a href="#" class="lnk" id="netRename">名前を変更</a></div><div class="hsub">今日の通信：読み ${fmt(u.r)}・書き ${fmt(u.w)}${this.isDown()?'　<b class="bad">無料枠切れ・17時ごろ復旧</b>':''}</div></div></div>
-   <div class="row" style="gap:8px;margin-top:8px"><button class="btn" id="netRankBtn"><i class="ic ic-trophy"></i> ランキング</button><button class="btn" id="netSendBtn"><i class="ic ic-coin"></i> 送金</button></div>`;
+   <div class="row" style="gap:8px;margin-top:8px"><button class="btn" id="netRankBtn"><i class="ic ic-trophy"></i> ランキング</button><button class="btn" id="netSendBtn"><i class="ic ic-coin"></i> 送金</button><span id="netAdmin"></span></div>`; this.adminRow();
   $('#netRename').onclick=e=>{ e.preventDefault(); const n=prompt('表示名（16文字まで）',this.name); if(n&&n.trim()){ this.name=n.trim().slice(0,16); this.flush(true); this.renderTop(); } };
   $('#netRankBtn').onclick=()=>this.openRank(); $('#netSendBtn').onclick=()=>this.openSend(); };
 NET.openRank=async function(){ $('#resBox').innerHTML='<div class="win"><i class="ic ic-trophy"></i> ランキング</div><div class="sub">読み込み中…</div>'; $('#resModal').classList.add('on');
   try{ await this.flush(true); const [rk,bt]=await Promise.all([this.loadRank(true),this.loadBots()]); const M=this.master||{balance:0,total:TOTAL};
-    const R=[...Object.entries(rk.rows||{}).map(([id,x])=>({id,...x})),...BOTS.map(b=>({id:b.id,name:b.name,balance:(bt.bal||{})[b.id]||0,bot:true}))].sort((a,b)=>b.balance-a.balance);
+    const R=[...Object.entries(rk.rows||{}).map(([id,x])=>({id,...x})).filter(x=>!x.admin),...BOTS.map(b=>({id:b.id,name:b.name,balance:(bt.bal||{})[b.id]||0,bot:true}))].sort((a,b)=>b.balance-a.balance);
     const sp=R.filter(x=>!x.bot).reduce((a,x)=>a+x.balance,0), sb=R.filter(x=>x.bot).reduce((a,x)=>a+x.balance,0);
     $('#resBox').innerHTML=`<div class="win"><i class="ic ic-trophy"></i> 所持金ランキング</div><div class="hsub">流通量：プレイヤー ${fmt(sp)}・運用アカウント ${fmt(sb)}・マスター ${fmt(Math.round(M.balance))}（総量 ${fmt(M.total)}）</div>
     <table class="ent" style="margin-top:8px"><tr><th>#</th><th>名前</th><th class="num">所持金</th><th class="num">勝利</th></tr>${R.slice(0,40).map((x,i)=>`<tr class="${x.id===this.uid?'own':''}"><td>${i+1}</td><td>${esc(x.name)}${x.bot?' <span class="botmk">運用</span>':''}</td><td class="num">${fmt(Math.round(x.balance))}</td><td class="num">${x.bot?'-':x.wins||0}</td></tr>`).join('')}</table>
@@ -281,4 +281,44 @@ NET.openList=function(id){ const h=stable.find(x=>x.id===id); if(!h||!h.retired|
   $('#resModal').classList.add('on'); $('#mkNo').onclick=()=>$('#resModal').classList.remove('on');
   $('#mkYes').onclick=async()=>{ const v=Math.round(+$('#mkStart').value/100)*100; if(!(v>=1000)){ toast('開始価格は1,000 NOA以上にしてください'); return; }
     try{ await this.list(h,v); $('#resModal').classList.remove('on'); toast(`${esc(h.name)} を ${fmt(v)} NOA から出品しました`); renderFarm(); }catch(e){ toast(esc(e.message)); } }; };
+
+// ---------------------------------------------------------------- 運営アカウント
+NET.loadAdmin=async function(){ const s=await R_('meta/admin').get().catch(()=>null); this.adminDoc=s&&s.exists?s.data():null; this.isAdmin=!!(this.adminDoc&&(this.adminDoc.uids||[]).includes(this.uid)); return this.adminDoc; };
+NET.claimAdmin=async function(){ let ok=false; await db.runTransaction(async t=>{ const s=await t.get(R_('meta/admin')); if(s.exists&&(s.data().uids||[]).length) return; t.set(R_('meta/admin'),{uids:[this.uid],names:{[this.uid]:this.name},at:now()}); ok=true; });
+  await this.loadAdmin(); await this.flush(true); return ok; };
+NET.adminRow=function(){ const el=$('#netAdmin'); if(!el) return; if(this.isAdmin) el.innerHTML=`<button class="btn gold" id="admOpen"><i class="ic ic-gear"></i> 運営パネル</button>`;
+  else if(!this.adminDoc) el.innerHTML=`<button class="btn sm" id="admClaim">運営アカウントとして登録する（最初の1人だけ）</button>`; else el.innerHTML='';
+  const o=$('#admOpen'); if(o) o.onclick=()=>this.openAdmin(); const c=$('#admClaim'); if(c) c.onclick=async()=>{ if(!confirm('このアカウントを運営アカウントにしますか？（最初の1人だけ登録できます）')) return; const ok=await this.claimAdmin(); toast(ok?'運営アカウントに登録しました':'すでに運営アカウントが登録されています'); this.renderTop(); }; };
+NET.openAdmin=async function(tab){ if(!this.isAdmin) return; tab=tab||this.admTab||'dash'; this.admTab=tab;
+  const box=$('#resBox'); box.innerHTML='<div class="win"><i class="ic ic-gear"></i> 運営パネル</div><div class="sub">読み込み中…</div>'; $('#resModal').classList.add('on');
+  await this.refreshMaster(true); const [rk,bt]=await Promise.all([this.loadRank(true),this.loadBots()]); const M=this.master, rows=Object.entries(rk.rows||{}).map(([id,x])=>({id,...x})).sort((a,b)=>b.balance-a.balance);
+  const sp=rows.reduce((a,x)=>a+(+x.balance||0),0), sb=Object.values(bt.bal||{}).reduce((a,v)=>a+v,0), diff=M.total-(Math.round(M.balance)+sp+sb), u=USAGE.get(), loan=store.get('adminLoan',0);
+  const T=(k,l)=>`<button class="btn sm ${tab===k?'gold':''}" data-at="${k}">${l}</button>`;
+  let body='';
+  if(tab==='dash') body=`<div class="net-grid"><div class="net-card"><small>MASTER</small><b>${fmt(Math.round(M.balance))} <span>/ ${fmt(M.total)}</span></b><div class="hsub">保有率 ${(M.balance/M.total*100).toFixed(1)}%・賞金倍率 ×${this.mult}</div></div>
+      <div class="net-card"><small>SUPPLY</small><b style="font-size:16px">プレイヤー ${fmt(sp)}<br>運用 ${fmt(sb)}</b><div class="hsub">総量との差 <b class="${Math.abs(diff)>1000?'bad':'plus'}">${fmt(diff)}</b>（預かり中の馬券・入札・端数を含む）</div></div></div>
+    <div class="hsub">この端末の今日の通信：読み ${fmt(u.r)}・書き ${fmt(u.w)}</div>
+    <table class="ent" style="margin-top:8px"><tr><th>名前</th><th>コード</th><th class="num">所持金</th><th class="num">現役</th><th>更新</th></tr>${rows.map(x=>`<tr class="${x.id===this.uid?'own':''}"><td>${esc(x.name)}${x.admin?' <span class="botmk">運営</span>':''}</td><td>${x.code||''}</td><td class="num">${fmt(Math.round(x.balance))}</td><td class="num">${x.horses||0}</td><td class="hsub">${x.t?new Date(x.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):''}</td></tr>`).join('')}</table>`;
+  if(tab==='money') body=`<div class="ownres"><b>テスト用NOA</b><div class="hsub">マスターから借りて、テストが終わったら返します（総量は変わりません）。今借りている額：<b class="gold">${fmt(loan)}</b></div>
+      <div class="row" style="gap:6px;margin-top:6px"><input type="number" id="admAmt" value="100000" step="10000" style="width:130px"><button class="btn gold" id="admBorrow">借りる</button><button class="btn" id="admReturn">返す</button></div></div>
+    <div class="ownres"><b>追加発行</b><div class="hsub">NOAの総量とマスター残高を同時に増やします（人数が増えたとき用）。元に戻せないので注意。</div>
+      <div class="row" style="gap:6px;margin-top:6px"><input type="number" id="admIssue" value="1000000" step="100000" style="width:150px"><button class="btn" id="admIssueBtn">追加発行する</button></div></div>
+    <div class="ownres"><b>プレイヤーの所持金を修正</b><div class="hsub">マスターとの間でやり取りします（プラスで渡す・マイナスで回収）。相手が次に開いたときに反映。</div>
+      <div class="row" style="gap:6px;margin-top:6px"><select id="admWho">${rows.filter(x=>x.id!==this.uid).map(x=>`<option value="${x.id}">${esc(x.name)}（${fmt(Math.round(x.balance))}）</option>`).join('')}</select><input type="number" id="admFix" value="10000" step="1000" style="width:120px"><input id="admMsg" placeholder="理由" style="width:140px"><button class="btn" id="admFixBtn">送る</button></div></div>`;
+  if(tab==='ops'){ await this.loadBoard(true); const L=Object.entries(this.board||{}).filter(([id,x])=>x.status==='open');
+    const keys=onlineDayKeys(); body=`<div class="ownres"><b>自動処理</b><div class="hsub">精算・運用アカウントのマーケット処理を、10分待たずに今すぐ実行します。</div><button class="btn" id="admMaint" style="margin-top:6px">今すぐ実行</button></div>
+    <div class="ownres"><b>テスト観戦</b><div class="hsub">今日のオンラインレースを、時刻を待たずに今の出走表で観戦します（精算はされません）。</div><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${keys.map(k=>`<button class="btn sm" data-tw="${k}">${onlineSpec(k).hour}時</button>`).join('')}</div></div>
+    <div class="ownres"><b>マーケットの出品（${L.length}件）</b>${L.map(([id,x])=>`<div class="row" style="justify-content:space-between;margin-top:4px"><span class="hsub">${esc(x.horse.name)}／${esc(x.sellerName)}／${x.high?fmt(x.high.amt)+'（'+esc(x.high.name)+'）':'入札なし'}</span><button class="btn sm" data-mc="${id}">取り消す</button></div>`).join('')||'<div class="hsub">なし</div>'}</div>`; }
+  box.innerHTML=`<div class="win"><i class="ic ic-gear"></i> 運営パネル</div><div class="row" style="gap:6px;margin:6px 0 10px">${T('dash','ダッシュボード')}${T('money','お金')}${T('ops','操作')}</div>${body}
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn gold" id="admClose">閉じる</button></div>`;
+  box.querySelectorAll('[data-at]').forEach(b=>b.onclick=()=>this.openAdmin(b.dataset.at)); $('#admClose').onclick=()=>$('#resModal').classList.remove('on');
+  const v=id=>Math.round(+($('#'+id)||{}).value||0), done=m=>{ toast(m); this.openAdmin(tab); };
+  if($('#admBorrow')) $('#admBorrow').onclick=async()=>{ const x=v('admAmt'); if(x<=0) return; setBal(balance+x); store.set('adminLoan',loan+x); await this.flush(true); done(`テスト用に ${fmt(x)} NOA を借りました`); };
+  if($('#admReturn')) $('#admReturn').onclick=async()=>{ const x=Math.min(v('admAmt'),balance); if(x<=0) return; setBal(balance-x); store.set('adminLoan',Math.max(0,loan-x)); await this.flush(true); done(`${fmt(x)} NOA をマスターに返しました`); };
+  if($('#admIssueBtn')) $('#admIssueBtn').onclick=async()=>{ const x=v('admIssue'); if(x<=0||!confirm(`総量を ${fmt(x)} NOA 増やします。元に戻せません。よろしいですか？`)) return; await R_('master/v2').update({total:inc(x),balance:inc(x)}); await this.refreshMaster(true); done(`${fmt(x)} NOA を追加発行しました`); };
+  if($('#admFixBtn')) $('#admFixBtn').onclick=async()=>{ const who=$('#admWho').value, x=v('admFix'); if(!who||!x) return; await db.collection('players/'+who+'/inbox').doc(rid()).set({amt:x,kind:'admin',msg:`運営より${x>0?'付与':'回収'}${$('#admMsg').value?'「'+$('#admMsg').value.slice(0,30)+'」':''}`,t:now()}); done('送りました（相手が次に開いたときに反映）'); };
+  if($('#admMaint')) $('#admMaint').onclick=async()=>{ await R_('meta/state').set({lastMaint:0},{merge:true}); this.maintTry=0; await this.maint(); done('自動処理を実行しました'); };
+  box.querySelectorAll('[data-tw]').forEach(b=>b.onclick=async()=>{ $('#resModal').classList.remove('on'); await this.ensure(b.dataset.tw,true); this.testWatch=true; const sp=onlineSpec(b.dataset.tw), keep=sp.post; sp.post=Date.now()-1000; try{ onlineWatch(b.dataset.tw,false); } finally{ setTimeout(()=>{ sp.post=keep; },3000); } });
+  box.querySelectorAll('[data-mc]').forEach(b=>b.onclick=async()=>{ if(!confirm('この出品を取り消しますか？（入札者には返金されます）')) return; await this.boardTx(async(t,L)=>{ const x=L[b.dataset.mc]; if(!x||x.status!=='open') return; if(x.high) refundBid(t,x.high,x.horse.name); x.high=null; x.status='cancel'; x.closed=now(); }); done('取り消しました'); });
+};
 })();

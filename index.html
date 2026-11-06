@@ -3501,7 +3501,7 @@ function doRescue(){ if(!rescueOK()){ toast('再起支援は所持金5,000 NOA�
   const act=stable.filter(h=>!h.retired); if(!act.length){ const S=sires(), D=dams(); const f=makeFoal(S[Math.floor(Math.random()*S.length)],D[Math.floor(Math.random()*D.length)]); f.rank=Math.min(f.rank,3); nameFoal(f,'再起支援で若駒を1頭支給しました'); }
   toast('再起支援：20,000 NOA を受け取りました'); updRescue(); }
 
-function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; if(window.NET&&NET.on&&(online.bets[key]||online.entries[key])&&!(online.done[key]&&online.done[key].settled)){ NET.settleMine(key).catch(()=>{}).finally(()=>onlineAfterRace()); return; } const d=(window.NET&&NET.on?null:onlineSettle(key))||online.done[key]||{};
+function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; if(window.NET&&NET.on&&Date.now()>=onlineSpec(key).post&&(online.bets[key]||online.entries[key])&&!(online.done[key]&&online.done[key].settled)){ NET.settleMine(key).catch(()=>{}).finally(()=>onlineAfterRace()); return; } const d=(window.NET&&NET.on?null:onlineSettle(key))||online.done[key]||{};
   const bets=online.bets[key]||[]; const rows=bets.map(b=>{ const pay=payout(b,ord); return `<tr><td>${labelItem(b)}</td><td class="num">${fmt(itemCost(b))}</td><td class="num ${pay?'hit':'miss'}">${pay?'的中 '+fmt(pay):'—'}</td></tr>`; }).join('');
   const oh=hs.find(h=>h.own);
   $('#resBox').innerHTML=`<div class="win"><i class="ic ic-trophy"></i> ${hs[ord[0]].name}</div><div class="sub">オンライン ${RACE.hour}:00 ${RACE.name}　確定</div>
