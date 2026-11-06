@@ -330,6 +330,16 @@ tr.rvrow td{background:#2a1515}
 .net-bar{height:6px;background:#ffffff14;margin:6px 0}.net-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff5a7a,#ffd166,#7dffb0)}
 .botmk{display:inline-block;font-size:9px;font-weight:900;padding:0 4px;color:#0a0618;background:#9fb0d8;vertical-align:middle}
 .hotstrip.mx{border-color:#ffd16688;background:linear-gradient(90deg,#ffd16622,transparent)}.hotstrip.mx .hot-b{background:linear-gradient(90deg,#ffd166,#ff8a3d)}
+.subnav{display:flex;gap:6px;margin:4px 0 14px;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:20;padding:6px 0;background:linear-gradient(180deg,rgba(4,7,20,.95),rgba(4,7,20,.8))}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:1;min-width:96px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 10px;background:#0a1230;border:1px solid #2a3a6a;color:#9fb0d8;cursor:pointer;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.subnav button .ic{width:18px;height:18px;background:#9fb0d8}.subnav button b{font-size:13px;color:#dfe8ff;letter-spacing:.04em}.subnav button small{font-size:10px;color:#7f8fb8;white-space:nowrap}
+.subnav button small.hot{color:#7dffb0}
+.subnav button.on{background:linear-gradient(135deg,#1a3a8a,#4a2a9a);border-color:#8fd3ff;color:#fff;box-shadow:0 0 14px #4db8ff55 inset}
+.subnav button.on .ic{background:#8fd3ff}.subnav button.on small{color:#cfe8ff}
+.farmbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 10px}
+.fb-i{background:#0a1230cc;border:1px solid #2a3a6a;padding:6px 10px}.fb-i small{display:block;font-size:10px;color:#8fa0c8;letter-spacing:.1em}.fb-i b{font-size:18px;color:#fff}.fb-i b span{font-size:11px;color:#8fa0c8}
+@media(max-width:720px){ .subnav button{min-width:64px;padding:7px 4px}.subnav button b{font-size:12px}.subnav button small{font-size:9px}.farmbar{gap:4px}.fb-i{padding:4px 6px}.fb-i small{font-size:9px;letter-spacing:0}.fb-i b{font-size:14px}.fb-i b[style]{font-size:10px!important} }
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -691,20 +701,25 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
 <div class="sparks" aria-hidden="true"></div>
 <header>
   <div class="brand">NOA<span>競馬</span></div>
-  <nav class="mtabs"><button id="navRace" class="on"><i class="ic ic-horse"></i> レース</button><button id="navFarm"><i class="ic ic-horse"></i> 牧場</button><button id="navOnline"><i class="ic ic-globe"></i> オンライン</button><button id="navAch"><i class="ic ic-trophy"></i> 実績</button></nav>
+  <nav class="mtabs"><button id="navRace" class="on"><i class="ic ic-horse"></i> レース</button><button id="navFarm"><i class="ic ic-horse"></i> 牧場</button><button id="navAch"><i class="ic ic-trophy"></i> 実績</button></nav>
   <div class="cal"><span id="calLbl"></span><button id="nextWeek">翌週へ ▶</button></div>
   <div class="wallet"><div class="coin"><i></i><span id="bal">0</span></div><button class="ghost" id="rescue" title="再起支援（所持金5,000 NOA未満・週1回）" style="display:none">再起支援</button><button class="ghost" id="saveBtn" title="セーブ"><i class="ic ic-cloud"></i></button></div>
 </header>
 <main>
   <!-- race select -->
   <section class="screen active" id="s-select">
+    <div class="subnav" data-g="race"><button data-rs="week"><i class="ic ic-clock"></i><b>今週のレース</b><small id="rsWeek"></small></button><button data-rs="online"><i class="ic ic-globe"></i><b>オンライン</b><small id="rsOn"></small></button><button data-rs="dream"><i class="ic ic-spark"></i><b>ドリーム</b><small>いつでも</small></button></div>
+    <div data-rp="week">
     <div class="hero" id="hero"><img src="assets/hero.jpg" alt="" class="on"><div class="hero-t"><div class="hero-logo">NOA<span>競馬</span></div><div class="hero-sub">CYBER DERBY // 時代を超えた名馬と、未来の競走馬</div></div></div>
     <h2 id="weekHead"></h2>
     <div class="sub">各馬は1週に1回、レースに出走するか調教ができます。</div>
     <div class="wlist" id="weekList"></div>
-    <h2 style="margin-top:28px"><i class="ic ic-spark"></i> ドリームレース</h2>
+    </div>
+    <div data-rp="dream">
+    <h2><i class="ic ic-spark"></i> ドリームレース</h2>
     <div class="sub">時代を超えた名馬が集結。いつでも馬券を楽しめます（週は進みません）。</div>
     <div class="races" id="raceList"></div>
+    </div>
     <div class="foot" id="histBox"></div>
   </section>
 
@@ -761,11 +776,14 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
 
   <!-- farm -->
   <section class="screen" id="s-farm">
-    <h2><i class="ic ic-horse"></i> 牧場</h2>
+    <div class="subnav farm" data-g="farm"><button data-fs="stable"><i class="ic ic-home"></i><b>厩舎</b><small id="fsStable"></small></button><button data-fs="breed"><i class="ic ic-heart"></i><b>生産</b><small id="fsBreed"></small></button><button data-fs="parts"><i class="ic ic-gear"></i><b>パーツ</b><small id="fsParts"></small></button><button data-fs="manage"><i class="ic ic-build"></i><b>経営</b><small id="fsManage"></small></button><button data-fs="retired"><i class="ic ic-coin"></i><b>引退馬</b><small id="fsRet"></small></button></div>
+    <div class="farmbar" id="farmBar"></div>
+    <div data-fp="stable">
     <div class="sub">馬を育てて、新馬戦 → 条件戦 → 重賞 → G1と勝ち上がろう。<br><span class="hsub">※「牡・2歳」などは競走馬としての年齢です。馬は2歳で牧場に入り、新年（1月第1週）を迎えるたびに1歳ずつ年をとります。画面右上の「○年目」はゲームの経過年数で、馬の年齢とは別です。</span></div>
     <div class="sec-h"><i class="ic ic-home"></i> 厩舎<span class="hsub">「今週の予定」を選んで、右上の「翌週へ ▶」で実行</span></div>
     <div id="stableList" class="stable"></div>
-    <div class="sec-h"><i class="ic ic-users"></i> スタッフ<span class="hsub">雇うと毎週給料がかかる代わりに、厩舎全体が強くなる</span><span id="costInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="staffList" class="flist"></div></div>
+    </div>
+    <div data-fp="breed">
     <div class="sec-h"><i class="ic ic-heart"></i> 配合<span class="hsub">名馬や引退馬を親にして、新しい馬を誕生させる（1週に1回）</span></div>
     <div class="panel">
       <div class="pairsel"><label>父（牡）<select id="sireSel"></select></label><label>母（牝）<select id="damSel"></select></label></div>
@@ -773,15 +791,24 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     </div>
     <div class="sec-h"><i class="ic ic-hammer"></i> セリ市場<span class="hsub">毎月第1週に開催。名馬の子を競り落とせます</span></div><div class="panel"><div id="marketList" class="flist"></div></div>
     <div class="sec-h"><i class="ic ic-globe"></i> 輸入繁殖牝馬<span class="hsub">毎月第1週に海外の良血牝馬が売りに出る。買うと配合の母に選べます</span></div><div class="panel"><div id="mareList" class="flist"></div></div>
-    <div class="sec-h"><i class="ic ic-palette"></i> 勝負服</div><div class="panel"><div id="silkInfo"></div></div>
+    </div>
+    <div data-fp="parts">
     <div class="sec-h"><i class="ic ic-gear"></i> パーツ<span class="hsub">馬に装着すると能力や作戦が強化される（頭・背・コアの3部位）</span></div><div class="panel"><div id="partList"></div></div>
+    </div>
+    <div data-fp="manage">
+    <div class="sec-h"><i class="ic ic-users"></i> スタッフ<span class="hsub">雇うと毎週給料がかかる代わりに、厩舎全体が強くなる</span><span id="costInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="staffList" class="flist"></div></div>
     <div class="sec-h"><i class="ic ic-build"></i> 施設<span class="hsub">強化すると調教効果アップ・怪我が減る</span></div><div class="panel"><div id="facList" class="flist"></div></div>
+    <div class="sec-h"><i class="ic ic-palette"></i> 勝負服</div><div class="panel"><div id="silkInfo"></div></div>
+    </div>
+    <div data-fp="retired">
     <div class="sec-h"><i class="ic ic-leaf"></i> 引退馬<span class="hsub">配合の親になり、毎週 種付け料・産駒の売却益が入ります</span><span id="incomeInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="retiredList"></div></div>
     <div class="sec-h"><i class="ic ic-coin"></i> ホースマーケット<span class="hsub" id="mktSub">引退馬をオークションで売買。落札されると馬のデータごと移籍します（ログイン中はみんなと取引・未ログイン時はAI馬主と取引）</span></div><div class="panel"><div id="mktList" class="flist"></div></div>
+    </div>
   </section>
 
 
   <section class="screen" id="s-online">
+    <div class="subnav" data-g="race"><button data-rs="week"><i class="ic ic-clock"></i><b>今週のレース</b><small class="rsWeek2"></small></button><button data-rs="online"><i class="ic ic-globe"></i><b>オンライン</b><small class="rsOn2"></small></button><button data-rs="dream"><i class="ic ic-spark"></i><b>ドリーム</b><small>いつでも</small></button></div>
     <h2><i class="ic ic-globe"></i> オンラインレース</h2>
     <div class="sub">毎日10時〜21時、毎時0分に発走（全12R）。発走60分前〜15分前にエントリー（1人1頭）、30分前に会場発表、15分前にオッズ公開、5分前に投票締切。見逃したレースはリプレイで見られます。<br><span class="hsub">ログイン中は、みんなと運用アカウントのエントリーが共有され、定員16頭を超えたら抽選。空き枠は過去の馬で埋まります。馬券はパリミュチュエル方式（賭け金の合計から控除20%をマスターへ・残りを的中者で分配）。</span></div>
     <div id="netTop"></div>
@@ -1212,7 +1239,7 @@ function oddsCalc(race){
 
 // ======================= SELECT SCREEN =======================
 let RACE=null, ODDS=null, mode='hist';
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id)); document.body.dataset.scr=id; $('#navRace').classList.toggle('on',!['s-farm','s-ach','s-online'].includes(id)); $('#navOnline').classList.toggle('on',id==='s-online'); $('#navFarm').classList.toggle('on',id==='s-farm'); $('#navAch').classList.toggle('on',id==='s-ach'); window.scrollTo(0,0); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id)); document.body.dataset.scr=id; $('#navRace').classList.toggle('on',!['s-farm','s-ach'].includes(id)); $('#navFarm').classList.toggle('on',id==='s-farm'); $('#navAch').classList.toggle('on',id==='s-ach'); window.scrollTo(0,0); }
 let WEEKMAP={};
 function renderList(){
   const wr=weekRaces(), act=stable.filter(h=>!h.retired), sel=ownId?stable.find(h=>h.id===ownId):null; WEEKMAP={};
@@ -1557,7 +1584,7 @@ function buildWorld(){
   const ringM=(col,op)=>new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false,fog:false});
   const hr=new THREE.Mesh(new THREE.TorusGeometry(1,0.012,6,96),ringM(0x4db8ff,0.9)); hr.rotation.x=Math.PI/2; hr.scale.set(G.r*0.55,G.r*0.55,G.r*0.55); hr.position.set(cx,0.3,-cz); sc.add(hr);
   const hr2=new THREE.Mesh(new THREE.TorusGeometry(1,0.006,6,96),ringM(0xa77bff,0.8)); hr2.rotation.x=Math.PI/2; hr2.scale.set(G.r*0.38,G.r*0.38,G.r*0.38); hr2.position.set(cx,0.3,-cz); sc.add(hr2);
-  const disc=new THREE.Mesh(new THREE.CircleGeometry(1,64),ringM(0x2a6bff,0.12)); disc.rotation.x=-Math.PI/2; disc.scale.set(G.r*0.55,G.r*0.55,1); disc.position.set(cx,0.08,-cz); sc.add(disc);
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(1,64),ringM(0x2a6bff,0.12)); disc.rotation.x=-Math.PI/2; disc.scale.set(G.r*0.55,G.r*0.55,1); disc.position.set(cx,0.08,-cz); sc.add(disc); T.holo=[hr,hr2,disc];
   // 浮遊リング（イラストの空中都市風）
   T.cyRings=[]; for(let k=0;k<3;k++){ const rr=new THREE.Mesh(new THREE.TorusGeometry(1,0.012,6,96),ringM(k==1?0xa77bff:0x4db8ff,0.45)); const sz=G.r*(0.25+k*0.12); rr.scale.set(sz,sz,sz); rr.position.set(cx+(k-1)*G.Lt*0.28,38+k*16,-cz); rr.rotation.x=Math.PI/2+0.2*(k-1); sc.add(rr); T.cyRings.push(rr); }
   // ダート（夜間照明で暗め）
@@ -1575,6 +1602,7 @@ function buildWorld(){
   sc.add(inst(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0xc8d4ee,metalness:0.8,roughness:0.25}),rails,true));
   sc.add(inst(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x6a7898,metalness:0.8,roughness:0.3}),posts,true));
   sc.add(inst(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),strip,false));
+  const _s0=sc.children.length;
   // ---- スタンド：近未来アリーナ ----
   const x0=-80, x1=G.Lt+60, sw=x1-x0, sxm=G.mirror?-(x0+x1)/2:(x0+x1)/2;
   const ct=A.crowd.clone(); ct.needsUpdate=true; ct.repeat.set(sw/26,1);
@@ -1594,6 +1622,7 @@ function buildWorld(){
   // ナイター照明塔
   for(let k=0;k<8;k++){ const s=k/8*G.C, [x,z]=cp(s,-60-(k%2)*10), h=55; const tw=new THREE.Mesh(new THREE.CylinderGeometry(0.8,1.4,h,8),metal); tw.position.set(x,h/2,-z); sc.add(tw);
     const head=new THREE.Mesh(new THREE.BoxGeometry(9,4,1.5),new THREE.MeshBasicMaterial({color:0xe8f4ff})); head.position.set(x,h+2,-z); head.lookAt(cx,h,-cz); sc.add(head); glow(x,h+2,-z,46,0xbfe0ff,0.85); }
+  sc.children.slice(_s0).forEach(o=>o.userData.layer='stand');
   const _c0=sc.children.length;
   // ---- 未来都市（木の代わりのビル群） ----
   const winT=CYB.win||(CYB.win=canvasTex(64,128,(c,w,h)=>{ c.fillStyle='#0a0f26'; c.fillRect(0,0,w,h); const R=rng(9); for(let y=4;y<h;y+=8) for(let x=4;x<w;x+=8){ if(R()<0.45){ const v=R(); c.fillStyle=v<0.6?'rgba(120,200,255,.85)':v<0.85?'rgba(180,140,255,.8)':'rgba(255,230,170,.8)'; c.fillRect(x,y,4,4); } } }));
@@ -2204,7 +2233,7 @@ function bidLot(k){ const lot=cal.market.lots[k]; if(!lot||lot.sold) return; if(
   $('#resModal').classList.add('on'); render(false); }
 
 const aptMark=v=>v>=2?'◎':v>=0.5?'○':v>=-1?'△':'×';
-function openFarm(){ renderFarm(); show('s-farm'); }
+function openFarm(){ renderFarm(); show('s-farm'); if(typeof applySubs==='function') applySubs(); }
 function renderFarm(){
   const S=sires(), D=dams(), si=+($('#sireSel').value||0), di=+($('#damSel').value||0);
   const opt=(arr,sel)=>arr.map((p,i)=>`<option value="${i}" ${i===sel?'selected':''}>${p.own?'★ ':FOREIGN.has(p.name)?'［海外］':''}${p.name}（${p.tag||''}）</option>`).join('');
@@ -2821,10 +2850,10 @@ function spaceTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
   const dn=900, dg=new THREE.BufferGeometry(), da=new Float32Array(dn*3); for(let i=0;i<dn;i++){ da[i*3]=(R()-.5)*300; da[i*3+1]=R()*80; da[i*3+2]=(R()-.5)*300; } dg.setAttribute('position',new THREE.BufferAttribute(da,3));
   const dust=add(new THREE.Points(dg,new THREE.PointsMaterial({map:CYB.glow,color:0x9fd8ff,size:0.7,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})));
   // ガラスの軌道コース
-  if(T.turfMesh){ T.turfMesh.material=new THREE.MeshStandardMaterial({color:0x0a2a48,metalness:0.92,roughness:0.12,envMap:sc.background,envMapIntensity:1.4,transparent:true,opacity:0.6,emissive:0x05304a,emissiveIntensity:0.6,side:THREE.DoubleSide,
+  if(T.turfMesh){ T.turfMesh.material=new THREE.MeshStandardMaterial({color:0x0a2a48,metalness:0.3,roughness:0.3,transparent:true,opacity:0.6,emissive:0x05304a,emissiveIntensity:0.6,side:THREE.DoubleSide,
     emissiveMap:CYB.lane||(CYB.lane=canvasTex(256,256,(c,w,h)=>{ c.fillStyle='#000'; c.fillRect(0,0,w,h); c.strokeStyle='rgba(90,200,255,.55)'; c.lineWidth=2; for(let i=0;i<=w;i+=32){ c.beginPath(); c.moveTo(i,0); c.lineTo(i,h); c.stroke(); } c.strokeStyle='rgba(90,200,255,.18)'; for(let j=0;j<=h;j+=64){ c.beginPath(); c.moveTo(0,j); c.lineTo(w,j); c.stroke(); } }))});
     T.turfMesh.material.emissiveMap.wrapS=T.turfMesh.material.emissiveMap.wrapT=THREE.RepeatWrapping; }
-  if(T.dirtMesh) T.dirtMesh.material=new THREE.MeshStandardMaterial({color:0x14102a,metalness:0.9,roughness:0.18,envMap:sc.background,envMapIntensity:1.1,transparent:true,opacity:0.62,emissive:0x1a0a3a,emissiveIntensity:0.5,side:THREE.DoubleSide});
+  if(T.dirtMesh) T.dirtMesh.material=new THREE.MeshStandardMaterial({color:0x14102a,metalness:0.3,roughness:0.3,transparent:true,opacity:0.62,emissive:0x1a0a3a,emissiveIntensity:0.5,side:THREE.DoubleSide});
   // コースの下面ライン（地平線の上に浮いて見えるように）
   const ul=[]; for(let s=0;s<G.C;s+=18){ const p=V3(s,13,0); ul.push({p:[p[0],-5,p[2]],s:[1.2,1.2,1.2],c:new THREE.Color(0x5ad0ff)}); } add(inst(new THREE.SphereGeometry(1,8,6),new THREE.MeshBasicMaterial({color:0xffffff}),ul,false));
   // 遠くを行き交う宇宙船（2機）
@@ -2841,6 +2870,173 @@ function spaceTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
     tw.forEach(t=>{ const v=t.b*(0.7+0.3*Math.sin(S.rt*t.sp+t.ph)); t.s.scale.set(v,v,1); });
     ships.forEach(o=>{ o.ph+=dt*o.sp; const x=cx+Math.cos(o.ph)*o.r, z=-cz+Math.sin(o.ph)*o.r; o.g.position.set(x,o.h+Math.sin(o.ph*3)*10,z); o.g.rotation.y=-o.ph+(o.sp>0?-Math.PI/2:Math.PI/2); }); });
   o.meteors(true); }
+// ---------------------------------------------------------------- 会場リニューアル共通
+// 空の絵（正距円筒）：グラデーション＋雲や星雲の帯＋星
+function skyCanvas(key,o){ if(SPACE_TEX['sky_'+key]) return SPACE_TEX['sky_'+key]; const W=2048,H=1024, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,H); o.stops.forEach(([p,col])=>g.addColorStop(p,col)); x.fillStyle=g; x.fillRect(0,0,W,H);
+  (o.bands||[]).forEach((b,bi)=>{ const n=noise2(b.seed||(100+bi)), n2=noise2((b.seed||100+bi)+33), w=512, h=256, nc=document.createElement('canvas'); nc.width=w; nc.height=h; const nx=nc.getContext('2d'), im=nx.createImageData(w,h);
+    for(let j=0;j<h;j++){ const band=Math.exp(-Math.pow((j/h-b.y)/b.w,2)); if(band<0.01) continue; for(let i=0;i<w;i++){ const u=i/w*(b.sx||6), v=j/h*(b.sy||3); let s=0,a=.5,f=1; for(let k=0;k<5;k++){ s+=a*n(u*f,v*f,(b.sx||6)*f); a*=.5; f*=2; }
+        const d=Math.max(0,s*(b.amp||1)+(b.bias||0.12))*band*(0.6+0.4*Math.max(0,n2(u*2,v*2,(b.sx||6)*2)+.4)), q=(j*w+i)*4; im.data[q]=b.col[0]*d; im.data[q+1]=b.col[1]*d; im.data[q+2]=b.col[2]*d; im.data[q+3]=255; } }
+    nx.putImageData(im,0,0); x.globalCompositeOperation=b.mode||'lighter'; x.drawImage(nc,0,0,W,H); x.globalCompositeOperation='source-over'; });
+  const R=rng(17+key.length); for(let i=0;i<(o.stars||0);i++){ const yy=R()*H*(o.starTop||0.6), a=(0.2+R()*0.7)*(1-yy/(H*(o.starTop||0.6)))*1.2, sz=R()<0.04?1.6:R()*0.9+0.3; x.fillStyle=`rgba(${190+R()*65|0},${215+R()*40|0},255,${Math.min(1,a)})`; x.fillRect(R()*W,yy,sz,sz); }
+  for(let i=0;i<(o.bright||0);i++){ const px=R()*W, py=R()*H*(o.starTop||0.6)*0.9, r=2+R()*4, gg=x.createRadialGradient(px,py,0,px,py,r*3); gg.addColorStop(0,'rgba(230,245,255,.95)'); gg.addColorStop(.3,'rgba(140,200,255,.3)'); gg.addColorStop(1,'rgba(80,160,255,0)'); x.fillStyle=gg; x.fillRect(px-r*3,py-r*3,r*6,r*6); }
+  if(o.glow) o.glow.forEach(([gx,gy,gr,col])=>{ const gg=x.createRadialGradient(gx*W,gy*H,0,gx*W,gy*H,gr*W); gg.addColorStop(0,col); gg.addColorStop(1,'rgba(0,0,0,0)'); x.globalCompositeOperation='lighter'; x.fillStyle=gg; x.fillRect(0,0,W,H); x.globalCompositeOperation='source-over'; });
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; t.mapping=THREE.EquirectangularReflectionMapping; return SPACE_TEX['sky_'+key]=t; }
+// 主役の背景（カメラの向きにゆっくり追従し、どのカメラでも画面に入る）
+function heroRig(add,ticks){ const g=new THREE.Group(); add(g); const H={g,add:o=>{ g.add(o); return o; },fns:[],yaw:null,cam:new THREE.Vector3(),dir:new THREE.Vector3()};
+  ticks.push((dt,S)=>{ const c0=T.cam; if(!c0) return; c0.getWorldPosition(H.cam); c0.getWorldDirection(H.dir); const ty=Math.atan2(-H.dir.x,-H.dir.z); if(H.yaw==null) H.yaw=ty; let dy=ty-H.yaw; dy=Math.atan2(Math.sin(dy),Math.cos(dy)); H.yaw+=dy*Math.min(1,dt*0.8);
+    g.position.copy(H.cam); g.rotation.set(0,H.yaw,0); g.updateMatrixWorld(); H.fns.forEach(f=>f(dt,S)); }); return H; }
+// 恒星・太陽のフレア（核・光輪・十字の光芒）。カメラが向くほど強く
+function starFlare(H,LS,o){ o=o||{}; const streak=CYB.streak||(CYB.streak=canvasTex(512,32,(c,w,h)=>{ const g=c.createLinearGradient(0,0,w,0); g.addColorStop(0,'rgba(120,200,255,0)'); g.addColorStop(.5,'rgba(235,248,255,1)'); g.addColorStop(1,'rgba(120,200,255,0)'); c.fillStyle=g; c.fillRect(0,h*0.42,w,h*0.16); }));
+  const sp=(map,sx,sy,col,op,rot)=>{ const m=new THREE.Sprite(new THREE.SpriteMaterial({map,color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,rotation:rot||0})); m.position.copy(LS); m.scale.set(sx,sy,1); m.renderOrder=5; return H.add(m); };
+  const s=o.size||1, core=sp(CYB.glow,420*s,420*s,o.core||0xffffff,1), halo=sp(CYB.glow,1500*s,1500*s,o.halo||0x5ab8ff,.6), halo2=sp(CYB.glow,3200*s,3200*s,o.halo2||0x1a5aa8,.25);
+  const sh=sp(streak,(o.hLen||7200)*s,180*s,o.streak||0xdff4ff,.95,0), sv=o.noV?null:sp(streak,3800*s,140*s,o.streak||0xbfe6ff,.8,Math.PI/2), d1=o.noD?null:sp(streak,2400*s,90*s,o.streak||0x9fd8ff,.45,Math.PI/4), d2=o.noD?null:sp(streak,2400*s,90*s,o.streak||0x9fd8ff,.45,-Math.PI/4);
+  const wS=new THREE.Vector3(), toS=new THREE.Vector3();
+  H.fns.push((dt,S)=>{ wS.copy(LS).applyMatrix4(H.g.matrixWorld); toS.copy(wS).sub(H.cam).normalize(); const k=Math.pow(Math.max(0,H.dir.dot(toS)),6);
+    sh.material.opacity=.35+.65*k; if(sv) sv.material.opacity=.25+.6*k; if(d1) d1.material.opacity=d2.material.opacity=.1+.4*k; halo.material.opacity=(.35+.35*k)*(o.haloMul||1); const fl=1+Math.sin(S.rt*7)*0.02; core.scale.set(420*s*fl,420*s*fl,1); });
+  return {wS}; }
+// 天体（昼夜・都市の灯り・大気の縁）をHeroに置く
+function heroPlanet(H,pos,r,tex,LS,amb,atm,rot){ const m=H.add(new THREE.Mesh(new THREE.SphereGeometry(r,64,40),planetMat(tex[0],tex[1],LS.clone().sub(pos),amb||0.05))); m.position.copy(pos); if(rot) m.rotation.set(...rot);
+  if(atm!==false){ const a=H.add(new THREE.Mesh(new THREE.SphereGeometry(r*1.05,64,40),atmoMat(atm||0x6ad0ff,3.2,1.3))); a.position.copy(pos); }
+  const wS=new THREE.Vector3(), wP=new THREE.Vector3(); H.fns.push(()=>{ wS.copy(LS).applyMatrix4(H.g.matrixWorld); wP.copy(pos).applyMatrix4(H.g.matrixWorld); m.material.uniforms.sd.value.copy(wS).sub(wP).normalize(); }); return m; }
+// 路面の着せ替え
+function trackSkin(sc,o){ const lane=(col)=>{ const k='lane_'+col; if(CYB[k]) return CYB[k]; const t=canvasTex(256,256,(c,w,h)=>{ c.fillStyle='#000'; c.fillRect(0,0,w,h); c.strokeStyle=col; c.globalAlpha=.6; c.lineWidth=2; for(let i=0;i<=w;i+=32){ c.beginPath(); c.moveTo(i,0); c.lineTo(i,h); c.stroke(); } c.globalAlpha=.2; for(let j=0;j<=h;j+=64){ c.beginPath(); c.moveTo(0,j); c.lineTo(w,j); c.stroke(); } }); t.wrapS=t.wrapT=THREE.RepeatWrapping; return CYB[k]=t; };
+  const mk=p=>new THREE.MeshStandardMaterial({color:p.color,metalness:Math.min(0.35,p.metal??0.3),roughness:Math.max(0.3,p.rough??0.3),envMap:null,transparent:p.opacity<1,opacity:p.opacity??1,emissive:p.emissive||0x000000,emissiveIntensity:p.ei??0.6,emissiveMap:p.lane?lane(p.lane):null,map:p.map||null,side:THREE.DoubleSide});
+  if(o.turf&&T.turfMesh) T.turfMesh.material=mk(o.turf); if(o.dirt&&T.dirtMesh) T.dirtMesh.material=mk(o.dirt); }
+// 地面の絵（タイル）
+function groundTex(key,W,draw){ if(SPACE_TEX['g_'+key]) return SPACE_TEX['g_'+key]; const t=canvasTex(W,W,draw); t.wrapS=t.wrapT=THREE.RepeatWrapping; return SPACE_TEX['g_'+key]=t; }
+const groundOf=sc=>sc.children.find(o=>o.userData.layer==='ground');
+
+// ================================================================ ネオンシティ・ナイター
+function nightDim(sc,k){ sc.children.forEach(o=>{ if(o.isHemisphereLight||o.isAmbientLight) o.intensity*=k; }); if(T.sun) T.sun.intensity*=Math.max(k,0.5); }
+function cityTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  sc.background=skyCanvas('city',{stops:[[0,'#04020c'],[.3,'#0c0626'],[.45,'#1c0a3a'],[.5,'#3a0f52'],[.53,'#ff3aa8'],[.56,'#3a1460'],[.65,'#0a0618'],[1,'#030208']],
+    bands:[{y:.44,w:.07,col:[255,90,200],seed:301,amp:1.2,sx:8,sy:4},{y:.4,w:.05,col:[90,200,255],seed:302,amp:.9,sx:10,sy:4}],stars:1200,starTop:.4,bright:30,glow:[[.5,.52,.25,'rgba(255,60,170,.25)']]});
+  sc.fog=new THREE.Fog(0x14061e,1400,6500);
+  const H=heroRig(add,ticks), LS=new THREE.Vector3(900,700,-5000);
+  heroPlanet(H,new THREE.Vector3(-1600,1150,-4800),900,planetTex(944,512,256,{k:'cityMoon',sea:[120,40,110],land:[200,90,170],land2:[250,170,230]}),LS,0.12,0xff5ad8,[0.3,1.2,0]);
+  starFlare(H,LS,{core:0xffe6fa,halo:0xff5ad8,halo2:0x6a1a8a,streak:0xffc8f0,size:.7});
+  // ホログラム看板
+  const words=['NOA','CYBER DERBY','LEGEND RUN','NEON CUP','GALAXY','ノア競馬'];
+  for(let k=0;k<10;k++){ const a=R()*6.283, d=RB*0.75+R()*500, x=cx+Math.cos(a)*d, z=-cz+Math.sin(a)*d, w=120+R()*120, h=w*0.45, col=['#ff3aa8','#3ad8ff','#a77bff','#ffd166'][k%4];
+    const tx=canvasTex(512,230,(c,W,Hh)=>{ const g=c.createLinearGradient(0,0,W,Hh); g.addColorStop(0,col+'33'); g.addColorStop(1,'#00000000'); c.fillStyle=g; c.fillRect(0,0,W,Hh); c.strokeStyle=col; c.lineWidth=6; c.strokeRect(6,6,W-12,Hh-12); c.fillStyle=col; c.font='bold 90px sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.shadowColor=col; c.shadowBlur=30; c.fillText(words[k%words.length],W/2,Hh/2); });
+    const m=add(new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tx,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}))); m.position.set(x,80+R()*220,z); m.lookAt(cx,m.position.y,-cz); m.userData.ph=R()*6; ticks.push((dt,S)=>{ m.material.opacity=.75+.25*Math.sin(S.rt*3+m.userData.ph)*(Math.random()<.02?0:1); }); }
+  // サーチライト
+  const beamT=canvasTex(64,256,(c,w,h)=>{ const g=c.createLinearGradient(0,h,0,0); g.addColorStop(0,'rgba(255,255,255,.55)'); g.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=g; c.fillRect(0,0,w,h); });
+  const beams=[]; for(let k=0;k<8;k++){ const a=k/8*6.283+R(), d=RB*0.9+R()*300, b=add(new THREE.Mesh(new THREE.ConeGeometry(40,1400,16,1,true),new THREE.MeshBasicMaterial({map:beamT,color:k%2?0xff5ad8:0x5ad0ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false})));
+    b.geometry.translate(0,-700,0); b.geometry.rotateX(Math.PI); b.position.set(cx+Math.cos(a)*d,0,-cz+Math.sin(a)*d); beams.push({b,ph:R()*6,sp:.2+R()*.3}); }
+  // 空を流れる車の光の列
+  const lanes=[]; for(let k=0;k<5;k++){ const n=60, g=new THREE.BufferGeometry(), arr=new Float32Array(n*3); g.setAttribute('position',new THREE.BufferAttribute(arr,3));
+    const p=add(new THREE.Points(g,new THREE.PointsMaterial({map:CYB.glow,color:k%2?0xffd166:0xff4a6a,size:9,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}))); lanes.push({g,arr,n,r:RB*0.8+k*140,h:120+k*45,sp:(0.03+k*0.008)*(k%2?1:-1),ph:R()*6}); }
+  ticks.push((dt,S)=>{ beams.forEach(o=>{ o.b.rotation.set(Math.sin(S.rt*o.sp+o.ph)*0.45,0,Math.cos(S.rt*o.sp*0.8+o.ph)*0.45); });
+    lanes.forEach(l=>{ l.ph+=dt*l.sp; for(let i=0;i<l.n;i++){ const a=l.ph+i*0.018; l.arr[i*3]=cx+Math.cos(a)*l.r; l.arr[i*3+1]=l.h+Math.sin(a*3)*8; l.arr[i*3+2]=-cz+Math.sin(a)*l.r; } l.g.attributes.position.needsUpdate=true; }); });
+  // 濡れた路面のような光沢
+  trackSkin(sc,{turf:{color:0x1a3a2a,metal:.35,rough:.35,env:1.6,emissive:0x0a3a2a,ei:.4,map:T.assets&&T.assets.grass},dirt:{color:0x2a1a3a,metal:.7,rough:.25,env:1.4,emissive:0x1a0a2a,ei:.4}});
+  
+  nightDim(sc,0.7); o.meteors(true); }
+
+// ================================================================ ルナ・クレーターパーク
+function moonTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  sc.background=skyCanvas('moon',{stops:[[0,'#000000'],[.5,'#02030a'],[.55,'#05070f'],[1,'#000000']],bands:[{y:.3,w:.09,col:[120,140,200],seed:411,amp:.9,sx:6,sy:3},{y:.33,w:.04,col:[200,170,255],seed:412,amp:.6,sx:12,sy:4}],stars:11000,starTop:.56,bright:160});
+  sc.fog=new THREE.Fog(0x05060c,2600,9000);
+  const H=heroRig(add,ticks), LS=new THREE.Vector3(1400,900,-5000);
+  // 地平線から昇る地球
+  heroPlanet(H,new THREE.Vector3(-900,420,-4800),1250,planetTex(311,1024,512,{k:'low',sea:[34,96,178],land:[70,128,96],land2:[176,160,120]}),LS,0.03,0x5ac8ff,[0.4,2.0,0.2]);
+  starFlare(H,LS,{core:0xffffff,halo:0xbfd8ff,halo2:0x3a4a6a,streak:0xffffff,size:.8});
+  // 月面（クレーターの地面）
+  const gt=groundTex('moon',512,(c,w,h)=>{ c.fillStyle='#5c5e66'; c.fillRect(0,0,w,h); const RR=rng(9); for(let i=0;i<4000;i++){ const v=RR()*60|0; c.fillStyle=`rgba(${80+v},${82+v},${90+v},.35)`; c.fillRect(RR()*w,RR()*h,1+RR()*3,1+RR()*3); }
+    for(let i=0;i<70;i++){ const x=RR()*w,y=RR()*h,r=4+RR()*26; const g=c.createRadialGradient(x-r*.3,y-r*.3,r*.2,x,y,r); g.addColorStop(0,'rgba(30,30,36,.55)'); g.addColorStop(.75,'rgba(60,62,70,.3)'); g.addColorStop(.9,'rgba(170,172,180,.45)'); g.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=g; c.beginPath(); c.arc(x,y,r,0,6.283); c.fill(); } });
+  const gr=groundOf(sc); if(gr){ gr.visible=true; gr.material=new THREE.MeshStandardMaterial({map:gt,color:0xb8bcc8,roughness:.95,metalness:0}); gt.repeat.set(40,40); }
+  // クレーターの縁（立体）
+  const cr=[]; for(let k=0;k<40;k++){ const a=R()*6.283, d=RB*0.6+R()*1800, r=20+R()*90; cr.push({p:[cx+Math.cos(a)*d,0,-cz+Math.sin(a)*d],s:[r,r,r*0.25],c:new THREE.Color(0x7a7c86)}); }
+  add(inst(new THREE.TorusGeometry(1,0.18,6,24).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),cr.map(x=>({...x,s:[x.s[0],x.s[0]*0.6,x.s[0]]})),false));
+  // 透明ドームの基地と通信塔
+  const dome=[]; for(let k=0;k<10;k++){ const a=R()*6.283, d=RB+R()*500; dome.push({p:[cx+Math.cos(a)*d,0,-cz+Math.sin(a)*d],s:[30+R()*40,20+R()*30,30+R()*40],c:new THREE.Color(0x8fd3ff)}); }
+  add(inst(new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.35,metalness:.6,roughness:.1,emissive:0x0a2a5a,envMap:T.envTex||null}),dome,false));
+  dome.forEach((d,i)=>{ if(i%2) return; const b=glowSprite(d.p[0],d.s[1]+40,d.p[2],18,new THREE.Color(0xff4a6a),.9); ticks.push((dt,S)=>{ b.material.opacity=(Math.sin(S.rt*3+i)>0)?.95:.1; }); });
+  trackSkin(sc,{turf:{color:0x2a2e3a,metal:.85,rough:.2,env:1.3,opacity:.92,emissive:0x0a2a4a,ei:.7,lane:'rgba(120,220,255,1)'},dirt:{color:0x3a3a44,metal:.6,rough:.4,env:1,emissive:0x101420,ei:.4}});
+  o.meteors(true); }
+
+// ================================================================ サンセット・デザートライン
+function desertTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  sc.background=skyCanvas('desert',{stops:[[0,'#120a3a'],[.22,'#3a1a6a'],[.38,'#a03a7a'],[.46,'#ff6a5a'],[.5,'#ffb04a'],[.53,'#ffe0a0'],[.56,'#c06a3a'],[.7,'#3a1a10'],[1,'#120604']],
+    bands:[{y:.4,w:.06,col:[255,140,120],seed:511,amp:1.4,sx:5,sy:6,bias:.05},{y:.3,w:.08,col:[200,90,160],seed:512,amp:1.1,sx:4,sy:5,bias:.02}],stars:500,starTop:.22,bright:10});
+  sc.fog=new THREE.Fog(0xd8906a,1600,7500);
+  const H=heroRig(add,ticks), LS=new THREE.Vector3(300,380,-5000);
+  const warm=new THREE.DirectionalLight(0xffb070,0.9); warm.position.set(cx+300,220,-cz-3000); warm.target.position.set(cx,0,-cz); sc.add(warm); sc.add(warm.target);
+  // 沈む巨大な太陽
+  const sun=H.add(new THREE.Mesh(new THREE.CircleGeometry(520,64),new THREE.MeshBasicMaterial({color:0xffd27a,fog:false,transparent:true,opacity:.95}))); sun.position.copy(LS); sun.lookAt(0,0,0);
+  starFlare(H,LS,{core:0xfff0c0,halo:0xff9a4a,halo2:0xff5a3a,streak:0xffd8a0,size:1.1,hLen:9000,noD:true,haloMul:1.2});
+  // 空に浮かぶ環のある巨大ガス惑星（うっすら）
+  const gp=new THREE.Vector3(-2000,1900,-4600); const gas=heroPlanet(H,gp,700,planetTex(822,512,256,{k:'gas',sea:[200,140,170],land:[230,170,150],land2:[250,210,190]}),LS,0.25,0xffb0d0,[1.2,0,0.3]); gas.material.transparent=true;
+  const rg=H.add(new THREE.Mesh(new THREE.RingGeometry(900,1500,96),new THREE.MeshBasicMaterial({color:0xffc8b0,transparent:true,opacity:.35,side:THREE.DoubleSide,fog:false,blending:THREE.AdditiveBlending,depthWrite:false}))); rg.position.copy(gp); rg.rotation.set(1.25,0.3,0.2);
+  // 砂の地面と砂丘
+  const gt=groundTex('sand',512,(c,w,h)=>{ c.fillStyle='#c98a4a'; c.fillRect(0,0,w,h); const n=noise2(55); for(let j=0;j<h;j+=2) for(let i=0;i<w;i+=2){ const v=Math.sin((i*0.09+n(i/64,j/64,8)*7))*0.5+0.5; c.fillStyle=v>0.5?`rgba(255,215,160,${(v-.5)*.6})`:`rgba(120,60,20,${(.5-v)*.5})`; c.fillRect(i,j,2,2); } });
+  const gr=groundOf(sc); if(gr){ gr.material=new THREE.MeshStandardMaterial({map:gt,color:0xe8a060,roughness:.85,metalness:.05,emissive:0x1a0802}); gt.repeat.set(60,60); }
+  const dn=[]; for(let k=0;k<140;k++){ const a=R()*6.283, d=RB+60+R()*1800; dn.push({p:[cx+Math.cos(a)*d,-10,-cz+Math.sin(a)*d],s:[80+R()*220,22+R()*60,50+R()*130],ry:R()*6,c:new THREE.Color().setHSL(.06,.65,.38+R()*.12)}); }
+  add(inst(new THREE.SphereGeometry(1,20,10),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9,map:gt}),dn,false));
+  // ネオンのピラミッドとオベリスク
+  const py=[], pe=[]; for(let k=0;k<5;k++){ const a=-1.9+k*0.35, d=RB*2.2+R()*600, x=cx+Math.cos(a)*d, z=-cz+Math.sin(a)*d, h=80+R()*90; py.push({p:[x,h/2,z],s:[h*0.9,h,h*0.9],ry:.78}); pe.push({p:[x,h+6,z],s:[7,7,7],c:new THREE.Color(0x4db8ff)}); }
+  add(inst(new THREE.ConeGeometry(1,1,4),new THREE.MeshStandardMaterial({color:0x1a1630,metalness:.85,roughness:.2,emissive:0x05020a,envMap:T.envTex||null}),py,false)); add(inst(new THREE.SphereGeometry(1,10,8),new THREE.MeshBasicMaterial({color:0xffffff}),pe,false));
+  pe.forEach(p=>{ const b=add(new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,1600,8,1,true),new THREE.MeshBasicMaterial({color:0x4db8ff,transparent:true,opacity:.25,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}))); b.position.set(p.p[0],p.p[1]+800,p.p[2]); });
+  // 舞い上がる砂粒
+  const n=700, g=new THREE.BufferGeometry(), arr=new Float32Array(n*3); for(let i=0;i<n;i++){ arr[i*3]=(R()-.5)*300; arr[i*3+1]=R()*40; arr[i*3+2]=(R()-.5)*300; } g.setAttribute('position',new THREE.BufferAttribute(arr,3));
+  const dust=add(new THREE.Points(g,new THREE.PointsMaterial({map:CYB.glow,color:0xffc890,size:.6,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false})));
+  ticks.push((dt,S)=>{ dust.position.set(H.cam.x,0,H.cam.z); const a=g.attributes.position.array; for(let i=0;i<a.length;i+=3){ a[i]+=dt*14; if(a[i]>150) a[i]-=300; } g.attributes.position.needsUpdate=true; sun.material.opacity=.9+.05*Math.sin(S.rt); });
+  trackSkin(sc,{turf:{color:0x6a4a1a,metal:.75,rough:.2,env:1.4,opacity:.95,emissive:0x3a1a04,ei:.6,lane:'rgba(255,200,120,1)'},dirt:{color:0xb07840,metal:.3,rough:.55,env:.9,emissive:0x2a1004,ei:.3}}); }
+
+// ================================================================ オーロラ・スノーフィールド
+function auroraTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  sc.background=skyCanvas('aurora',{stops:[[0,'#01030a'],[.35,'#020c1a'],[.48,'#031a26'],[.52,'#05262e'],[.56,'#020a10'],[1,'#010306']],bands:[{y:.3,w:.08,col:[40,200,140],seed:611,amp:.7,sx:4,sy:8,bias:-.08},{y:.24,w:.06,col:[110,80,220],seed:612,amp:.6,sx:5,sy:8,bias:-.1}],stars:9000,starTop:.53,bright:120});
+  sc.fog=new THREE.Fog(0x041826,1200,6000);
+  const H=heroRig(add,ticks), LS=new THREE.Vector3(1300,1100,-4800);
+  heroPlanet(H,new THREE.Vector3(1300,1100,-4800),300,planetTex(733,512,256,{k:'moon',sea:[150,155,165],land:[175,178,186],land2:[215,215,220]}),new THREE.Vector3(1300,1100,-3000),0.6,0xcfe8ff);
+  const mh=H.add(new THREE.Sprite(new THREE.SpriteMaterial({map:CYB.glow,color:0x9fd8ff,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}))); mh.position.copy(LS); mh.scale.set(1800,1800,1);
+  // オーロラのカーテン（流れる光）
+  const auroraMat=(c1,c2,sp)=>new THREE.ShaderMaterial({uniforms:{t:{value:0},c1:{value:new THREE.Color(c1)},c2:{value:new THREE.Color(c2)},sp:{value:sp}},transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false,
+    vertexShader:'varying vec2 vU;uniform float t;uniform float sp;void main(){vU=uv;vec3 p=position;p.z+=sin(p.x*0.004+t*0.5*sp)*120.0+sin(p.x*0.011-t*0.3)*40.0;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}',
+    fragmentShader:'varying vec2 vU;uniform float t;uniform vec3 c1;uniform vec3 c2;uniform float sp;float h(float x){return fract(sin(x*127.1)*43758.5);}float n(float x){float i=floor(x),f=fract(x);return mix(h(i),h(i+1.0),f*f*(3.0-2.0*f));}void main(){float x=vU.x*40.0+t*0.4*sp;float rays=0.55+0.45*n(x)*n(x*2.3+t*0.2);float bottom=smoothstep(0.0,0.12,vU.y);float top=1.0-smoothstep(0.35,1.0,vU.y);vec3 c=mix(c1,c2,smoothstep(0.2,0.9,vU.y));float streak=pow(n(vU.x*90.0+t*0.6*sp),3.0);float a=(0.04+0.96*streak)*rays*bottom*top*(0.5+0.5*n(vU.x*6.0-t*0.1))*(0.35+0.65*exp(-vU.y*3.0));gl_FragColor=vec4(c*a*1.3,a);}'});
+  const curtains=[]; [[0x3affb0,0x7a5aff,1,0],[0x3ae8ff,0xff6ad5,.7,1],[0x5aff8a,0x3ab8ff,1.3,2]].forEach(([a,b,sp,i])=>{ const m=add(new THREE.Mesh(new THREE.PlaneGeometry(7000,1300,140,1),auroraMat(a,b,sp))); const ang=-0.4+i*0.5, d=4600+i*500; m.position.set(cx+Math.sin(ang)*d,480+i*120,-cz-Math.cos(ang)*d); m.lookAt(cx,500,-cz); curtains.push(m); });
+  // 雪原と氷の結晶
+  const gt=groundTex('snow',512,(c,w,h)=>{ c.fillStyle='#dfeefa'; c.fillRect(0,0,w,h); const RR=rng(4); for(let i=0;i<5000;i++){ c.fillStyle=`rgba(${RR()<.5?170:255},${RR()<.5?200:255},255,${.2+RR()*.4})`; c.fillRect(RR()*w,RR()*h,1,1); } });
+  const gr=groundOf(sc); if(gr){ gr.material=new THREE.MeshStandardMaterial({map:gt,color:0x1a2e44,roughness:.4,metalness:.1,emissive:0x030c16,emissiveIntensity:.8}); gt.repeat.set(30,30); }
+  const mt=[]; for(let k=0;k<70;k++){ const a=R()*6.283, d=RB*4+R()*3500, h=(50+R()*120)*(0.6+d/(RB*8)); mt.push({p:[cx+Math.cos(a)*d,h/2-10,-cz+Math.sin(a)*d],s:[h*0.8,h,h*0.8],ry:R()*6,c:new THREE.Color().setHSL(.6,.4,.06+R()*.08)}); }
+  add(inst(new THREE.ConeGeometry(1,1,7),new THREE.MeshBasicMaterial({color:0x040a12}),mt.map(m=>({p:m.p,s:m.s,ry:m.ry})),false));
+  const ice=[]; for(let k=0;k<90;k++){ const a=R()*6.283, d=RB*1.4+R()*900, h=14+R()*50; ice.push({p:[cx+Math.cos(a)*d,h/2,-cz+Math.sin(a)*d],s:[h*0.18,h,h*0.18],ry:R()*6,c:new THREE.Color().setHSL(.52+R()*.08,.8,.65)}); }
+  add(inst(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.75,metalness:.4,roughness:.05,emissive:0x0a4a5a,envMap:T.envTex||null}),ice,false));
+  // 雪
+  const n=1800, sa=new Float32Array(n*3); for(let i=0;i<n;i++){ sa[i*3]=(R()-.5)*240; sa[i*3+1]=R()*90; sa[i*3+2]=(R()-.5)*240; } const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.BufferAttribute(sa,3));
+  const snow=add(new THREE.Points(sg,new THREE.PointsMaterial({map:CYB.glow,color:0xffffff,size:.6,transparent:true,opacity:.9,depthWrite:false})));
+  ticks.push((dt,S)=>{ curtains.forEach(m=>m.material.uniforms.t.value=S.rt); snow.position.set(H.cam.x,0,H.cam.z); const pa=sg.attributes.position.array; for(let i=1;i<pa.length;i+=3){ pa[i]-=dt*9; pa[i-1]+=Math.sin(S.rt+i)*dt*2; if(pa[i]<0) pa[i]+=90; } sg.attributes.position.needsUpdate=true; });
+  trackSkin(sc,{turf:{color:0x0a2234,metal:.3,rough:.3,emissive:0x0a5a6a,ei:.9,lane:'rgba(160,255,240,1)'},dirt:{color:0x16283a,metal:.3,rough:.35,emissive:0x0a2a3a,ei:.5}});
+  nightDim(sc,0.45);
+  o.meteors(true); }
+
+// ================================================================ スカイアイランド・クラウドコース
+function skyTheme(sc,o){ const {add,ticks,glowSprite,cx,cz,RB,R}=o;
+  sc.background=skyCanvas('sky',{stops:[[0,'#0a2a8a'],[.25,'#1a4ac8'],[.42,'#4a8af0'],[.5,'#9ac8ff'],[.54,'#ffe0ec'],[.58,'#fff0f4'],[.66,'#c8d8f8'],[1,'#8aa8e8']],bands:[{y:.47,w:.05,col:[255,255,255],seed:711,amp:1.6,sx:6,sy:6,bias:-.02},{y:.36,w:.06,col:[255,240,250],seed:712,amp:1.2,sx:4,sy:5,bias:-.05}],stars:0});
+  sc.fog=new THREE.Fog(0xb8ccf4,1800,8000);
+  const H=heroRig(add,ticks), LS=new THREE.Vector3(800,900,-5000);
+  starFlare(H,LS,{core:0xffffff,halo:0xfff0c8,halo2:0xffd8a0,streak:0xffffff,size:1,haloMul:.8});
+  heroPlanet(H,new THREE.Vector3(-2200,1700,-5200),600,planetTex(733,512,256,{k:'moon',sea:[150,155,165],land:[175,178,186],land2:[215,215,220]}),LS,0.5,0xffffff).material.transparent=true;
+  // 雲海（下に広がる雲の海）
+  const ct=groundTex('cloud',512,(c,w,h)=>{ const n=noise2(90), n2=noise2(91), im=c.createImageData(w,h); for(let j=0;j<h;j++) for(let i=0;i<w;i++){ let s=0,a=.5,f=1; for(let k=0;k<5;k++){ s+=a*n(i/w*4*f,j/h*4*f,4*f); a*=.5; f*=2; } const v=Math.max(0,Math.min(1,s*1.6+.55)), q=(j*w+i)*4; im.data[q]=235+20*v; im.data[q+1]=225+30*v; im.data[q+2]=245+10*v; im.data[q+3]=255*Math.min(1,v*1.2); } c.putImageData(im,0,0); });
+  ct.repeat.set(6,6); const sea=add(new THREE.Mesh(new THREE.PlaneGeometry(16000,16000),new THREE.MeshLambertMaterial({map:ct,transparent:true,color:0xe8ecff,emissive:0x5a6a9a,emissiveIntensity:.35,depthWrite:false}))); sea.rotation.x=-Math.PI/2; sea.position.set(cx,-120,-cz);
+  const sea2=add(new THREE.Mesh(new THREE.PlaneGeometry(16000,16000),new THREE.MeshLambertMaterial({map:ct,transparent:true,opacity:.6,color:0xffe8f0,emissive:0x6a5a7a,depthWrite:false}))); sea2.rotation.x=-Math.PI/2; sea2.position.set(cx,-70,-cz);
+  const cl=[]; for(let k=0;k<260;k++){ const a=R()*6.283, d=RB*0.4+R()*2400; cl.push({p:[cx+Math.cos(a)*d,-80-R()*40,-cz+Math.sin(a)*d],s:[60+R()*120,20+R()*40,60+R()*120],c:new THREE.Color().setHSL(.9,.3,.92+R()*.06)}); }
+  const clouds=add(inst(new THREE.SphereGeometry(1,12,8),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x9a8aaa}),cl,false));
+  // 浮島（滝つき）と浮遊アーチ
+  const isl=[], top=[], fall=[]; for(let k=0;k<16;k++){ const a=R()*6.283, d=RB+R()*1400, x=cx+Math.cos(a)*d, z=-cz+Math.sin(a)*d, y=40+R()*320, r=30+R()*80; isl.push({p:[x,y-r*.7,z],s:[r,r*1.6,r],ry:Math.PI,c:new THREE.Color(0x7a6a9a)}); top.push({p:[x,y+2,z],s:[r*1.02,6,r*1.02],c:new THREE.Color(0x7aef9a)}); if(k%2) fall.push([x+r*0.6,y,z,r]); }
+  add(inst(new THREE.ConeGeometry(1,1,9),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.8,flatShading:true}),isl,false)); add(inst(new THREE.CylinderGeometry(1,1,1,9),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x0a3a14}),top,false));
+  const wf=canvasTex(32,256,(c,w,h)=>{ const g=c.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(255,255,255,.9)'); g.addColorStop(1,'rgba(200,230,255,0)'); c.fillStyle=g; c.fillRect(0,0,w,h); for(let i=0;i<40;i++){ c.fillStyle='rgba(255,255,255,.5)'; c.fillRect(Math.random()*w,Math.random()*h,1,8); } }); wf.wrapT=THREE.RepeatWrapping;
+  const falls=fall.map(([x,y,z,r])=>{ const m=add(new THREE.Mesh(new THREE.PlaneGeometry(r*0.35,y+160),new THREE.MeshBasicMaterial({map:wf,transparent:true,depthWrite:false,side:THREE.DoubleSide}))); m.position.set(x,(y-160)/2,z); m.lookAt(cx,m.position.y,-cz); return m; });
+  const arch=[]; for(let k=0;k<6;k++){ const a=k/6*6.283+.3, d=RB*0.95; const m=add(new THREE.Mesh(new THREE.TorusGeometry(70,3,10,48,Math.PI),new THREE.MeshStandardMaterial({color:0xfff4e0,metalness:.6,roughness:.2,emissive:0x3a2a10,envMap:T.envTex||null}))); m.position.set(cx+Math.cos(a)*d,30,-cz+Math.sin(a)*d); m.lookAt(cx,30,-cz); arch.push(m); }
+  // コース下面の光
+  const ul=[]; for(let s=0;s<G.C;s+=20){ const p=V3(s,13,0); ul.push({p:[p[0],-4,p[2]],s:[1.3,1.3,1.3],c:new THREE.Color(0xffd166)}); } add(inst(new THREE.SphereGeometry(1,8,6),new THREE.MeshBasicMaterial({color:0xffffff}),ul,false));
+  ticks.push((dt,S)=>{ ct.offset.x+=dt*0.004; clouds.position.x=Math.sin(S.rt*0.05)*30; falls.forEach(m=>m.material.map.offset.y-=dt*0.6); });
+  if(T.infMesh) T.infMesh.visible=false;
+  trackSkin(sc,{turf:{color:0x3a7a5a,metal:.25,rough:.4,env:1,emissive:0x0a2a1a,ei:.3,map:T.assets&&T.assets.grass},dirt:{color:0xc8a878,metal:.2,rough:.5,env:.8,emissive:0x2a1a0a,ei:.2}}); }
+
 function applyTheme(sc){ const th=raceTheme(RACE); T.themeTick=null; T.theme=th; let cx=G.Lt/2; if(G.mirror) cx=-cx; const cz=G.r;
   const hide=l=>sc.children.forEach(o=>{ if(o.userData.layer===l) o.visible=false; });
   const add=o=>{ sc.add(o); return o; }, ticks=[];
@@ -2862,43 +3058,13 @@ function applyTheme(sc){ const th=raceTheme(RACE); T.themeTick=null; T.theme=th;
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:CYB.glow,color:i?0xff5ad8:0x4db8ff,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false})); sp.scale.set(5,5,1); g.add(sp); return add(g); });
   ticks.push((dt,S,rk)=>{ if(!rk||!rk[0]||!rk[0].obj) return; drones.forEach((d,i)=>{ const h=rk[Math.min(i*2,rk.length-1)].obj.root.position, t=S.rt; const tx=h.x+Math.sin(t*0.7+i)*6, ty=9+i*3+Math.sin(t*1.3+i)*1.5, tz=h.z+Math.cos(t*0.6+i*2)*6;
     d.position.x+= (tx-d.position.x)*Math.min(1,dt*2); d.position.y+=(ty-d.position.y)*Math.min(1,dt*2); d.position.z+=(tz-d.position.z)*Math.min(1,dt*2); d.rotation.y+=dt*2; }); });
-  if(th==='city'){ meteors(true); }
+  (T.cyRings||[]).forEach(r=>r.visible=false); if(th!=='city') (T.holo||[]).forEach(r=>r.visible=false);
+  if(th==='city'){ cityTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
   if(th==='space'){ hide('city'); hide('moon'); hide('ground'); spaceTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
-  if(th==='moon'){ hide('city'); hide('moon'); sc.background=eqBg(gradTex([[0,'#000002'],[.6,'#05061a'],[.8,'#0a0d24'],[1,'#000']],1600)); sc.fog=new THREE.Fog(0x07081a,900,5000);
-    sc.children.forEach(o=>{ if(o.userData.layer==='ground'){ o.material=new THREE.MeshLambertMaterial({map:canvasTex(256,256,(c,w,h)=>{ c.fillStyle='#6b6e7a'; c.fillRect(0,0,w,h); const RR=rng(9); for(let i=0;i<500;i++){ c.fillStyle=`rgba(${RR()<.5?30:200},${RR()<.5?30:200},${RR()<.5?40:210},${RR()*0.12})`; c.beginPath(); c.arc(RR()*w,RR()*h,RR()*10,0,7); c.fill(); } }),color:0x9a9cab}); o.material.map.wrapS=o.material.map.wrapT=THREE.RepeatWrapping; o.material.map.repeat.set(300,300); } });
-    stars(1600); const dome=[]; for(let k=0;k<14;k++){ const a=R()*6.283, d=RB+R()*400; dome.push({p:[cx+Math.cos(a)*d,0,-cz+Math.sin(a)*d],s:[30+R()*40,20+R()*30,30+R()*40],c:new THREE.Color(0x8fd3ff)}); }
-    add(inst(new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.35,metalness:.6,roughness:.1,emissive:0x0a2a5a}),dome,false));
-    meteors(true); }
-  if(th==='desert'){ hide('city'); hide('moon');
-    sc.background=eqBg(gradTex([[0,'#1a0838'],[.35,'#5a1a6a'],[.55,'#ff5a7a'],[.66,'#ffb04a'],[.72,'#ffd27a'],[1,'#3a1a10']],120)); sc.fog=new THREE.Fog(0xb05a5a,600,3800);
-    sc.children.forEach(o=>{ if(o.userData.layer==='ground'){ o.material=new THREE.MeshLambertMaterial({color:0xd89a5a,emissive:0x2a1004}); } });
-    const sun=glowSprite(cx+200,120,-cz-3000,1400,new THREE.Color(0xffb04a),1); const sunC=add(new THREE.Mesh(new THREE.CircleGeometry(160,48),new THREE.MeshBasicMaterial({color:0xffe0a0,fog:false}))); sunC.position.set(cx+200,120,-cz-3050); sunC.lookAt(cx,0,-cz);
-    const dn=[]; for(let k=0;k<120;k++){ const a=R()*6.283, d=RB+60+R()*1400; dn.push({p:[cx+Math.cos(a)*d,-8,-cz+Math.sin(a)*d],s:[60+R()*160,20+R()*50,40+R()*100],ry:R()*6,c:new THREE.Color().setHSL(.07,.6,.45+R()*.12)}); }
-    add(inst(new THREE.SphereGeometry(1,16,8),new THREE.MeshLambertMaterial({color:0xffffff}),dn,false));
-    const py=[]; const pe=[]; for(let k=0;k<5;k++){ const a=-1.9+k*0.35, d=RB*1.6+R()*300, x=cx+Math.cos(a)*d, z=-cz+Math.sin(a)*d, h=90+R()*120; py.push({p:[x,h/2,z],s:[h*0.9,h,h*0.9],ry:.78}); pe.push({p:[x,h+6,z],s:[6,6,6],c:new THREE.Color(0x4db8ff)}); }
-    add(inst(new THREE.ConeGeometry(1,1,4),new THREE.MeshStandardMaterial({color:0x2a2240,metalness:.7,roughness:.3,emissive:0x1a0830}),py,false)); add(inst(new THREE.SphereGeometry(1,10,8),new THREE.MeshBasicMaterial({color:0xffffff}),pe,false));
-    ticks.push((dt,S)=>{ sun.material.opacity=.85+.1*Math.sin(S.rt*.8); }); }
-  if(th==='aurora'){ hide('city'); hide('moon');
-    sc.background=eqBg(gradTex([[0,'#010814'],[.5,'#04203a'],[.75,'#0a3a4a'],[1,'#02101a']],1200)); sc.fog=new THREE.Fog(0x0a2a3a,500,3500);
-    sc.children.forEach(o=>{ if(o.userData.layer==='ground'){ o.material=new THREE.MeshStandardMaterial({color:0xe8f4ff,roughness:.6,metalness:.1,emissive:0x0a1a2a}); } });
-    const mt=[]; for(let k=0;k<60;k++){ const a=R()*6.283, d=RB+120+R()*1500, h=150+R()*420; mt.push({p:[cx+Math.cos(a)*d,h/2-10,-cz+Math.sin(a)*d],s:[h*0.8,h,h*0.8],ry:R()*6,c:new THREE.Color().setHSL(.58,.25,.55+R()*.25)}); }
-    add(inst(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:.8}),mt,false));
-    const aur=[]; [['77,255,184'],['77,184,255'],['167,123,255']].forEach(([col],i)=>{ const tx=canvasTex(256,128,(c,w,h)=>{ const g=c.createLinearGradient(0,h,0,0); g.addColorStop(0,`rgba(${col},0)`); g.addColorStop(.25,`rgba(${col},.8)`); g.addColorStop(1,`rgba(${col},0)`); c.fillStyle=g; c.fillRect(0,0,w,h); });
-      tx.wrapS=THREE.RepeatWrapping; const geo=new THREE.PlaneGeometry(2600,420,60,1); const m=add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tx,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false,opacity:.75})));
-      m.position.set(cx-200+i*300,520+i*90,-cz-1700-i*200); m.lookAt(cx,300,-cz); aur.push({m,base:geo.attributes.position.array.slice(),i}); });
-    const n=1800, sa=new Float32Array(n*3); for(let i=0;i<n;i++){ sa[i*3]=(R()-.5)*240; sa[i*3+1]=R()*90; sa[i*3+2]=(R()-.5)*240; } const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.BufferAttribute(sa,3));
-    const snow=add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.45,transparent:true,opacity:.85})));
-    ticks.push((dt,S)=>{ aur.forEach(o=>{ const a=o.m.geometry.attributes.position.array; for(let k=0;k<a.length;k+=3){ a[k+2]=o.base[k+2]+Math.sin(o.base[k]*0.004+S.rt*0.6+o.i)*60; } o.m.geometry.attributes.position.needsUpdate=true; o.m.material.map.offset.x+=dt*0.01; });
-      const L=S.cam&&S.cam.look; if(L) snow.position.set(L[0],0,L[2]); const pa=sg.attributes.position.array; for(let i=1;i<pa.length;i+=3){ pa[i]-=dt*9; if(pa[i]<0) pa[i]+=90; } sg.attributes.position.needsUpdate=true; }); }
-  if(th==='sky'){ hide('city'); hide('moon'); hide('ground');
-    sc.background=eqBg(gradTex([[0,'#2a4aa8'],[.4,'#6a8ad8'],[.62,'#ffb0c8'],[.72,'#ffe0ea'],[1,'#ffffff']],0)); sc.fog=new THREE.Fog(0xd8e0ff,700,4200);
-    const cl=[]; for(let k=0;k<420;k++){ const a=R()*6.283, d=R()*G.r*5+60; cl.push({p:[cx+Math.cos(a)*d*1.3,-50-R()*30,-cz+Math.sin(a)*d],s:[40+R()*70,14+R()*20,40+R()*70],c:new THREE.Color().setHSL(.9,.4,.9+R()*.08)}); }
-    const clouds=add(inst(new THREE.SphereGeometry(1,12,8),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x8a7a9a}),cl,false));
-    const isl=[], top=[]; for(let k=0;k<12;k++){ const a=R()*6.283, d=RB+R()*900, x=cx+Math.cos(a)*d, z=-cz+Math.sin(a)*d, y=40+R()*260, r=30+R()*60; isl.push({p:[x,y-r*.6,z],s:[r,r*1.4,r],ry:Math.PI,c:new THREE.Color(0x6a5a8a)}); top.push({p:[x,y+2,z],s:[r*1.02,6,r*1.02],c:new THREE.Color(0x6adf9a)}); }
-    add(inst(new THREE.ConeGeometry(1,1,8),new THREE.MeshLambertMaterial({color:0xffffff}),isl,false)); add(inst(new THREE.CylinderGeometry(1,1,1,8),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x0a2a10}),top,false));
-    glowSprite(cx-600,600,-cz-2800,1600,new THREE.Color(0xfff0d0),.9);
-    const ul=[]; for(let s=0;s<G.C;s+=25){ const p=V3(s,13,0); ul.push({p:[p[0],-4,p[2]],s:[1.4,1.4,1.4],c:new THREE.Color(0xff9be0)}); } add(inst(new THREE.SphereGeometry(1,8,6),new THREE.MeshBasicMaterial({color:0xffffff}),ul,false));
-    ticks.push((dt,S)=>{ clouds.position.x=Math.sin(S.rt*0.05)*30; }); }
+  if(th==='moon'){ hide('city'); hide('moon'); hide('stand'); moonTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
+  if(th==='desert'){ hide('city'); hide('moon'); hide('stand'); desertTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
+  if(th==='aurora'){ hide('city'); hide('moon'); hide('stand'); auroraTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
+  if(th==='sky'){ hide('city'); hide('moon'); hide('ground'); hide('stand'); skyTheme(sc,{add,ticks,glowSprite,cx,cz,RB,R,meteors}); }
   wxScene(sc,{add,ticks,glowSprite,cx,cz,RB,R});
   T.themeTick=(dt,S,rk)=>ticks.forEach(f=>f(dt,S,rk));
 }
@@ -3113,8 +3279,26 @@ function advanceWeek(){
 function updCal(){ $('#calLbl').textContent=calLabel(); }
 $('#nextWeek').onclick=()=>{ if(SIM&&!SIM.ended&&$('#s-race').classList.contains('active')){ toast('レース中は進められません'); return; } advanceWeek(); };
 updCal();
-$('#navRace').onclick=()=>{ renderList(); show('s-select'); };
-$('#navFarm').onclick=openFarm;
+// ---- サブタブ（レース：今週／オンライン／ドリーム、牧場：厩舎／生産／パーツ／経営／引退・売買）
+let raceSub=sessionStorage.getItem('noa_rs')||'week', farmSub=sessionStorage.getItem('noa_fs')||'stable';
+function setRaceSub(k){ raceSub=k; sessionStorage.setItem('noa_rs',k); if(k==='online'){ openOnline(); } else { renderList(); show('s-select'); } applySubs(); }
+function setFarmSub(k){ farmSub=k; sessionStorage.setItem('noa_fs',k); applySubs(); window.scrollTo(0,0); }
+function applySubs(){ document.querySelectorAll('[data-rs]').forEach(b=>b.classList.toggle('on',b.dataset.rs===raceSub)); document.querySelectorAll('[data-rp]').forEach(d=>d.style.display=d.dataset.rp===raceSub?'':'none');
+  document.querySelectorAll('[data-fs]').forEach(b=>b.classList.toggle('on',b.dataset.fs===farmSub)); document.querySelectorAll('[data-fp]').forEach(d=>d.style.display=d.dataset.fp===farmSub?'':'none'); subBadges(); }
+function subBadges(){ try{ const t=Date.now(), keys=onlineDayKeys(), nx=keys.map(onlineSpec).find(sp=>sp.post>t-60e3), ph=nx?onPhase(nx):'';
+    const on=nx?`${nx.hour}時 ${({soon:'準備中',entry:'受付中',entry2:'受付中',bet:'投票受付中',closed:'まもなく発走',live:'LIVE'})[ph]||''}`:'本日終了';
+    document.querySelectorAll('#rsOn,.rsOn2').forEach(e=>{ e.textContent=on; e.classList.toggle('hot',['entry','entry2','bet','live'].includes(ph)); });
+    const wk=`${Math.floor(cal.w/4)+1}月 第${cal.w%4+1}週`; document.querySelectorAll('#rsWeek,.rsWeek2').forEach(e=>e.textContent=wk);
+    const act=stable.filter(h=>!h.retired), ret=stable.filter(h=>h.retired), plan=act.filter(h=>!h.trained&&!h.inj).length;
+    const S=(id,txt,hot)=>{ const e=$('#'+id); if(e){ e.textContent=txt; e.classList.toggle('hot',!!hot); } };
+    S('fsStable',`${act.length}/${CAP()}頭`); S('fsBreed',cal.w%4===0?'セリ開催中':'配合',cal.w%4===0); S('fsParts',`${(typeof parts!=='undefined'?parts.length:0)}個`);
+    S('fsManage',`週 ${fmt(weeklyFixed().total)}`); S('fsRet',`${ret.length}頭${ret.some(h=>h.listed)?'・出品中':''}`,ret.some(h=>h.listed));
+    const fb=$('#farmBar'); if(fb) fb.innerHTML=`<div class="fb-i"><small>現役</small><b>${act.length}<span>/${CAP()}</span></b></div><div class="fb-i"><small>引退馬</small><b>${ret.length}</b></div><div class="fb-i"><small>毎週の固定費</small><b>${fmt(weeklyFixed().total)}<span> NOA</span></b></div><div class="fb-i"><small>今週</small><b style="font-size:13px">${cal.w%4===0?'<span class="gold">セリ・輸入牝馬あり</span>':'通常週'}</b></div>`;
+  }catch(e){} }
+document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>setRaceSub(b.dataset.rs));
+document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>setFarmSub(b.dataset.fs));
+$('#navRace').onclick=()=>{ if(raceSub==='online') openOnline(); else { renderList(); show('s-select'); } applySubs(); };
+$('#navFarm').onclick=()=>{ openFarm(); applySubs(); };
 
 // ======================= サウンド（WebAudioで合成） =======================
 const SND={ctx:null,on:store.get('snd',true),crowd:null,crowdGain:null};
@@ -3302,7 +3486,7 @@ function onlineBuy(){ const key=CUR.id, sp=CUR; if(onPhase(sp)!=='bet'){ toast('
 function onlineWatch(key,live){ const sp=onlineSpec(key), t=Date.now();
   if(live&&t<sp.post){ toast(`発走まで ${fmtCD(sp.post-t)}。時間になったら自動で始まります`); const w=setInterval(()=>{ if(Date.now()>=sp.post){ clearInterval(w); onlineWatch(key,true); } },1000); return; }
   slip=[]; CUR=sp; OWN=entryHorse(key); RACE=onlineRace(key); ODDS=oddsCalc(RACE); RACE.liveFrom=live?sp.post:null; startRace(); }
-function openOnline(){ renderOnline(); show('s-online'); }
+function openOnline(){ renderOnline(); show('s-online'); raceSub='online'; if(typeof applySubs==='function') applySubs(); }
 // ---- 経済：ログインボーナス・再起支援 ----
 function jstDay(){ const d=jstNow(); return d.toISOString().slice(0,10); }
 // 高額配当の納付（オンライン経済のときのみ）：1レースの払戻のうち、10万超〜50万は10%・50万超〜100万は20%・100万超は30%をマスターへ
@@ -3326,7 +3510,7 @@ function onlineAfterRace(){ const key=RACE.id, S=SIM, ord=S.order, hs=S.hs; if(w
     ${bets.length?`<table class="ent" style="margin-top:8px"><tr><th>馬券</th><th class="num">購入</th><th class="num">払戻</th></tr>${rows}</table>`:''}
     <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" id="onRep"><i class="ic ic-replay"></i> リプレイ</button><button class="btn gold" id="onBack">オンラインへ</button></div>`;
   $('#resModal').classList.add('on'); $('#onBack').onclick=()=>{ $('#resModal').classList.remove('on'); openOnline(); }; $('#onRep').onclick=()=>{ $('#resModal').classList.remove('on'); onlineWatch(key,false); }; }
-$('#navOnline').onclick=openOnline;
+applySubs(); setInterval(subBadges,30000);
 $('#rescue').onclick=doRescue;
 // ======================= ホースマーケット（引退馬の売買） =======================
 // いまはAIの馬主が入札・出品する仮運用。Firebase導入後にプレイヤー同士の売買へ切り替える。

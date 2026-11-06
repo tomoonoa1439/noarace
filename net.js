@@ -26,13 +26,19 @@ const R_=p=>db.doc(p);
 
 // ---------------------------------------------------------------- 運用アカウントの持ち馬（決まった計算で全端末同じ）
 const botHorseCache={};
+const BOT_NM_A=['ネオ','クロム','ステラ','ギャラクシ','サイバー','ルミナ','ヴォルト','ノクス','アストラ','ゼニス','オーロラ','プリズム','ミラージュ','シリウス','ネビュラ','エクリプス','フォトン','クォーク','ヘリオス','セレス','オメガ','ヴェガ','リゲル','アルタイル','カイロス','ゼファー','トリトン','ラグナ','エーテル','グリッド','ノヴァ','パルサー','ルクス','ソーラ','ブレイズ','フロスト','サクラ','ミドリ','ライデン','ツクヨミ','アマテラ','ホムラ','シズク','ハヤテ','イカズチ'];
+const BOT_NM_B=['ブレイヴ','ランナー','ファントム','ハート','クラウン','ストーム','ウイング','ドリーム','ソウル','フレア','ナイト','スター','アロー','エッジ','ロード','ギア','コード','ライン','ゲート','ダンサー','キング','クイーン','セイバー','ハンター','レジェンド','シャドウ','ライト','ノート','ビート','ウェーブ','オー','ボルト','リバー','バレット','テイル','ムーン','ブルーム','ダスト','スパーク'];
+const BOT_RANK_W=[4,6,9,12,13,11,8,4,2]; // F〜SS の出やすさ
 function botHorses(bt){ const day=Math.floor((now()-ORIGIN)/86400e3); const ck=bt.id+'|'+day; if(botHorseCache[ck]) return botHorseCache[ck];
-  const R=rng(hash(bt.id+'horses')), S=ROSTER.filter(m=>m[1]==='牡'), D=ROSTER.filter(m=>m[1]==='牝'), lvl=Math.min(0.95,0.74+day*0.003);
-  const hs=[0,1].map(n=>{ const f=makeFoal(parentObj(S[Math.floor(R()*S.length)]),parentObj(D[Math.floor(R()*D.length)]),R);
-    f.id=bt.id+'_h'+n; f.name=NPC_NM1[Math.floor(R()*NPC_NM1.length)]+NPC_NM2[Math.floor(R()*NPC_NM2.length)];
-    STATS_ALL.forEach(([k])=>f.st[k]=+(f.cap[k]*lvl).toFixed(1)); f.st.hp=f.cap.hp; f.age=3+Math.floor(R()*3); f.races=5+Math.floor(R()*10); f.wins=Math.floor(R()*4); f.cond=0; f.fat=0; delete f.log; return f; });
+  const R=rng(hash(bt.id+'stable2')), S=ROSTER.filter(m=>m[1]==='牡'), D=ROSTER.filter(m=>m[1]==='牝'), n=3+Math.floor(R()*4), used=new Set(), grow=Math.min(0.08,day*0.002);
+  const pickRank=()=>{ const t=BOT_RANK_W.reduce((a,b)=>a+b,0); let x=R()*t; for(let i=0;i<BOT_RANK_W.length;i++){ x-=BOT_RANK_W[i]; if(x<0) return i; } return 4; };
+  const hs=[]; for(let k=0;k<n;k++){ const f=makeFoal(parentObj(S[Math.floor(R()*S.length)]),parentObj(D[Math.floor(R()*D.length)]),R);
+    let nm; do{ nm=BOT_NM_A[Math.floor(R()*BOT_NM_A.length)]+BOT_NM_B[Math.floor(R()*BOT_NM_B.length)]; }while(used.has(nm)); used.add(nm);
+    f.id=bt.id+'_h'+k; f.name=nm; f.rank=pickRank(); applyRankCap(f); const lvl=Math.min(0.97,0.68+R()*0.22+grow+f.rank*0.008);
+    STATS_ALL.forEach(([k2])=>f.st[k2]=+(f.cap[k2]*lvl).toFixed(1)); f.st.hp=f.cap.hp; f.age=3+Math.floor(R()*4); f.races=4+Math.floor(R()*16);
+    f.wins=Math.min(f.races,Math.floor(R()*(1+f.rank*0.8))); f.gw=f.rank>=6&&R()<0.5?1+Math.floor(R()*3):0; f.g1w=f.rank>=7&&R()<0.4?1+Math.floor(R()*2):0; f.cond=Math.floor(R()*3)-1; f.fat=0; delete f.log; hs.push(f); }
   return botHorseCache[ck]=hs; }
-function botEntries(key){ return BOTS.map(bt=>{ const R=rng(hash(bt.id+key+'entry')); if(R()>0.45) return null; const h=botHorses(bt)[Math.floor(R()*2)]; return {uid:bt.id,owner:bt.name,snap:h,bot:true}; }).filter(Boolean); }
+function botEntries(key){ return BOTS.map(bt=>{ const R=rng(hash(bt.id+key+'entry')); if(R()>0.45) return null; const hs=botHorses(bt); const h=hs[Math.floor(R()*hs.length)]; return {uid:bt.id,owner:bt.name,snap:h,bot:true}; }).filter(Boolean); }
 function botBets(key,race){ const fav=race.hs.map((h,i)=>({i,o:h.odds})).sort((a,b)=>a.o-b.o), out=[];
   BOTS.forEach(bt=>{ const R=rng(hash(bt.id+key+'bet')); if(R()>0.6) return; const amt=500+Math.floor(R()*6)*500; let items;
     if(bt.persona==='steady') items=[{type:'fuku',amount:amt,keys:[NET.comboKey('fuku',[fav[0].i])]}];
