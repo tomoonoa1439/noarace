@@ -353,6 +353,32 @@ tr.rvrow td{background:#2a1515}
 .fz-ov.perfect .fz-flash{background:radial-gradient(circle,#fff,#ffd166 25%,#ff9bd2aa 40%,transparent 62%)}
 .fz-txt{text-align:center;opacity:0;animation:fzT 3.6s ease forwards}@keyframes fzT{0%,62%{opacity:0;transform:translateY(10px)}75%,100%{opacity:1;transform:none}}
 .fz-txt small{display:block;letter-spacing:.4em;font-size:12px;color:#8fd3ff;font-weight:900}.fz-txt b{display:block;font-size:40px;font-weight:900;color:#fff;text-shadow:0 0 20px #b18cff}.fz-ov.fail .fz-txt b{color:#ff8a9a;text-shadow:0 0 20px #ff3a5a}.fz-ov.perfect .fz-txt b{color:#ffd166;text-shadow:0 0 24px #ff9bd2}.fz-txt span{font-size:13px;color:#dfe6ff}
+.gz-box{border:1px solid #2a3a6a;background:linear-gradient(135deg,#0b1240cc,#2a1a6a66);padding:12px;margin-bottom:10px}.gz-box.ret{background:#0a1230aa}
+.gz-h b{font-size:17px;margin-right:8px}.gz-rates{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:8px 0}.gz-rates div{text-align:center;padding:4px 0;border:1px solid var(--rc);background:color-mix(in srgb,var(--rc) 14%,transparent)}
+.gz-rates b{display:block;font-size:12px;color:var(--rc)}.gz-rates span{font-size:11px;color:#dfe6ff}.gz-btn{width:100%;padding:12px;font-size:15px}
+.gz-ov{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#0a1030ee,#020208fa 70%);overflow:hidden;transition:opacity .35s;cursor:pointer}.gz-ov.out{opacity:0}
+.gz-core{position:relative;width:min(60vw,260px);aspect-ratio:9/16;perspective:900px}
+.gz-cap{position:absolute;inset:18% 10%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--rc) 45%,#000 100%);box-shadow:0 0 60px var(--rc);animation:gzCap .9s ease forwards}
+.gz-card{position:absolute;inset:0;border:2px solid var(--rc);box-shadow:0 0 40px var(--rc);opacity:0;transform:rotateY(90deg) scale(.8);animation:gzCard .6s ease .8s forwards}.gz-card>*{width:100%;height:100%}
+@keyframes gzCap{0%{transform:scale(.2);opacity:0}40%{transform:scale(1.1);opacity:1}75%{transform:scale(1) rotate(8deg)}100%{transform:scale(1.6);opacity:0}}
+@keyframes gzCard{to{opacity:1;transform:none}}
+.gz-txt{text-align:center;margin-top:16px;opacity:0;animation:gzT .5s ease 1.1s forwards}.gz-txt small{display:block;font-size:11px;letter-spacing:.3em;color:#9fb0d8}.gz-txt b{display:block;font-size:56px;font-weight:900;color:var(--rc);text-shadow:0 0 24px var(--rc);line-height:1.05}.gz-txt span{font-size:15px;font-weight:900;color:#fff}
+@keyframes gzT{from{opacity:0;transform:scale(1.6)}to{opacity:1;transform:none}}
+.gz-tap{position:absolute;bottom:18px;font-size:11px;color:#6f7fa8}
+.gz-rays,.gz-ring,.gz-sp{position:absolute;inset:0;pointer-events:none}
+.gz-ov.t0 .gz-rays,.gz-ov.t0 .gz-ring{display:none}
+.gz-ring{display:flex;align-items:center;justify-content:center}.gz-ring::before{content:'';width:min(90vw,520px);aspect-ratio:1;border-radius:50%;border:3px solid var(--rc);box-shadow:0 0 40px var(--rc),inset 0 0 40px var(--rc);opacity:0;animation:gzRing 1.4s ease .7s forwards}
+@keyframes gzRing{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.4);opacity:0}}
+.gz-sp i{position:absolute;left:50%;top:45%;width:6px;height:6px;border-radius:50%;background:var(--rc);box-shadow:0 0 10px var(--rc);opacity:0;animation:gzSp 1.6s ease-out calc(.8s + var(--d)) forwards;transform:rotate(var(--a)) translateY(0)}
+@keyframes gzSp{0%{opacity:1;transform:rotate(var(--a)) translateY(0)}100%{opacity:0;transform:rotate(var(--a)) translateY(-46vh)}}
+.gz-ov.t2 .gz-rays,.gz-ov.t3 .gz-rays{background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--rc) 40%,transparent) 0 6deg,transparent 6deg 18deg);opacity:0;animation:gzRays 6s linear .6s infinite,gzFade .6s ease .6s forwards;mask:radial-gradient(circle,#000 10%,transparent 70%);-webkit-mask:radial-gradient(circle,#000 10%,transparent 70%)}
+@keyframes gzRays{to{transform:rotate(360deg)}}@keyframes gzFade{to{opacity:1}}
+.gz-ov.t2 .gz-txt span{background:linear-gradient(90deg,#ff9bd2,#ffd166,#7dffb0,#8fd3ff,#b18cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gz-ov.t3{background:radial-gradient(circle,#3a2a00ee,#0a0602fa 70%);animation:gzShake .5s ease .75s 2}
+.gz-ov.t3 .gz-cap{animation-duration:1.6s;box-shadow:0 0 120px #ffd166,0 0 40px #fff}.gz-ov.t3 .gz-card{animation-delay:1.5s}.gz-ov.t3 .gz-txt{animation-delay:1.9s}.gz-ov.t3 .gz-txt b{font-size:84px;background:linear-gradient(180deg,#fff,#ffd166 50%,#ff9a3d);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px #ffd166)}
+.gz-ov.t3 .gz-rays{background:repeating-conic-gradient(from 0deg,#ffd16688 0 5deg,transparent 5deg 12deg)}
+@keyframes gzShake{0%,100%{transform:none}25%{transform:translate(6px,-4px)}50%{transform:translate(-6px,4px)}75%{transform:translate(4px,6px)}}
+@media(max-width:720px){.gz-rates{grid-template-columns:repeat(4,1fr)}}
 .fcard{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#070d21;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .lv{color:var(--gold);letter-spacing:1px}
 .ped{border-collapse:collapse;width:100%;margin-top:8px}.ped td{border:1px solid #1f3271;padding:8px 10px;font-size:13px}.ped .p1{font-weight:800;width:45%}.ped .m{background:#14263a}.ped .f{background:#3a1a28}
@@ -789,7 +815,7 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
 
   <!-- farm -->
   <section class="screen" id="s-farm">
-    <div class="subnav farm" data-g="farm"><button data-fs="stable"><i class="ic ic-home"></i><b>厩舎</b><small id="fsStable"></small></button><button data-fs="breed"><i class="ic ic-heart"></i><b>生産</b><small id="fsBreed"></small></button><button data-fs="parts"><i class="ic ic-gear"></i><b>パーツ</b><small id="fsParts"></small></button><button data-fs="manage"><i class="ic ic-build"></i><b>経営</b><small id="fsManage"></small></button><button data-fs="retired"><i class="ic ic-coin"></i><b>引退馬</b><small id="fsRet"></small></button></div>
+    <div class="subnav farm" data-g="farm"><button data-fs="stable"><i class="ic ic-home"></i><b>厩舎</b><small id="fsStable"></small></button><button data-fs="breed"><i class="ic ic-spark"></i><b>新馬</b><small id="fsBreed"></small></button><button data-fs="parts"><i class="ic ic-gear"></i><b>パーツ</b><small id="fsParts"></small></button><button data-fs="manage"><i class="ic ic-build"></i><b>経営</b><small id="fsManage"></small></button><button data-fs="retired"><i class="ic ic-coin"></i><b>引退馬</b><small id="fsRet"></small></button></div>
     <div class="farmbar" id="farmBar"></div>
     <div data-fp="stable">
     <div class="sub">馬を育てて、新馬戦 → 条件戦 → 重賞 → G1と勝ち上がろう。<br><span class="hsub">※「牡・2歳」などは競走馬としての年齢です。馬は2歳で牧場に入り、新年（1月第1週）を迎えるたびに1歳ずつ年をとります。画面右上の「○年目」はゲームの経過年数で、馬の年齢とは別です。</span></div>
@@ -797,13 +823,14 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     <div id="stableList" class="stable"></div>
     </div>
     <div data-fp="breed">
-    <div class="sec-h"><i class="ic ic-heart"></i> 配合<span class="hsub">名馬や引退馬を親にして、新しい馬を誕生させる（1週に1回）</span></div>
-    <div class="panel">
+    <div class="sec-h"><i class="ic ic-spark"></i> 新馬ガチャ・引退馬ショップ<span class="hsub">新しい馬はガチャで迎えます。ランクが高いほど演出が派手に</span></div>
+    <div class="panel"><div id="gachaBox"></div></div>
+    <div class="panel" style="display:none">
       <div class="pairsel"><label>父（牡）<select id="sireSel"></select></label><label>母（牝）<select id="damSel"></select></label></div>
       <div id="pairInfo"></div>
     </div>
     <div class="sec-h"><i class="ic ic-hammer"></i> セリ市場<span class="hsub">毎月第1週に開催。名馬の子を競り落とせます</span></div><div class="panel"><div id="marketList" class="flist"></div></div>
-    <div class="sec-h"><i class="ic ic-globe"></i> 輸入繁殖牝馬<span class="hsub">毎月第1週に海外の良血牝馬が売りに出る。買うと配合の母に選べます</span></div><div class="panel"><div id="mareList" class="flist"></div></div>
+    <div style="display:none"><div class="sec-h"><i class="ic ic-globe"></i> 輸入繁殖牝馬<span class="hsub">毎月第1週に海外の良血牝馬が売りに出る。買うと配合の母に選べます</span></div><div class="panel"><div id="mareList" class="flist"></div></div></div>
     </div>
     <div data-fp="parts">
     <div class="sec-h"><i class="ic ic-gear"></i> パーツ<span class="hsub">馬に装着すると能力や作戦が強化される（頭・背・コアの3部位）</span></div><div class="panel"><div id="partList"></div></div>
@@ -814,7 +841,7 @@ body[data-scr="s-race"]::after{display:none}body[data-scr="s-race"]::before,body
     <div class="sec-h"><i class="ic ic-palette"></i> 勝負服</div><div class="panel"><div id="silkInfo"></div></div>
     </div>
     <div data-fp="retired">
-    <div class="sec-h"><i class="ic ic-leaf"></i> 引退馬<span class="hsub">配合の親になり、毎週 種付け料・産駒の売却益が入ります</span><span id="incomeInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="retiredList"></div></div>
+    <div class="sec-h"><i class="ic ic-leaf"></i> 引退馬<span class="hsub">毎週 引退馬からの収入が入ります。融合の素材やマーケットでの売買にも使えます</span><span id="incomeInfo" style="margin-left:auto;font-size:14px"></span></div><div class="panel"><div id="retiredList"></div></div>
     <div class="sec-h"><i class="ic ic-spark"></i> 融合<span class="hsub">引退馬2頭から新しい現役馬を生み出す。失敗すると2頭とも消えます</span></div><div class="panel"><div id="fuseBox"></div></div>
     <div class="sec-h"><i class="ic ic-coin"></i> ホースマーケット<span class="hsub" id="mktSub">引退馬をオークションで売買。落札されると馬のデータごと移籍します（ログイン中はみんなと取引・未ログイン時はAI馬主と取引）</span></div><div class="panel"><div id="mktList" class="flist"></div></div>
     </div>
@@ -2265,7 +2292,7 @@ function renderFarm(){
   $('#marketList').innerHTML = !lots? `<span class="hsub">セリは毎月第1週に開催されます（次回：${Math.floor(cal.w/4)+2>12?'1':Math.floor(cal.w/4)+2}月 第1週）</span>`
     : lots.map((l,k)=>`<div class="fcard ${l.phantom?'phx':''}"><div>${l.phantom?'<div class="phx-tag">幻の逸材</div>':''}<b>${l.foal.dam}の仔</b> <span class="hsub">${l.foal.sex}・${l.foal.coat}</span><div class="hsub">父 ${l.foal.sire}（${l.foal.line}）・母父系 ${l.foal.damLine}</div><div class="hsub">馬体評価 ${l.phantom?'<b class="phx-t">測定不能</b>':srk({S:95,A:85,B:75,C:65,D:55,E:45,F:30}[l.est])}・開始 ${fmt(l.price)} NOA</div></div>${l.sold?'<span class="hsub">終了</span>':`<button class="btn gold" data-lot="${k}"><i class="ic ic-hammer"></i> セリに参加</button>`}</div>`).join('');
   const inc=ret.reduce((a,h)=>a+studIncome(h),0); $('#incomeInfo').innerHTML=inc?`引退馬からの収入 毎週 <b class="gold">+${fmt(inc)} NOA</b>`:'';
-  renderShop(); renderParts(); renderMarket(); renderFusion(); bindHorseCtl();
+  renderShop(); renderParts(); renderMarket(); renderFusion(); renderGacha(); bindHorseCtl();
   document.querySelectorAll('[data-mkl]').forEach(b=>b.onclick=()=>mktList(b.dataset.mkl));
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ const h=stable.find(x=>x.id===b.dataset.view); const L=h&&h.listed?mkt.list.find(x=>x.id===h.listed):null; viewHorse(h,L?`マーケット出品中：現在 ${mktHigh(L)?fmt(mktHigh(L).amt)+' NOA':'入札なし'}・即落札 ${fmt(L.buyout)} NOA・${mktLeft(L)}`:h.bought?`${h.bought.from} から ${fmt(h.bought.price)} NOA で購入`:''); });
   document.querySelectorAll('[data-open]').forEach(c=>c.onclick=e=>{ if(e.target.closest('select,.fsel,.trbtn')) return; openHorse(c.dataset.open); });
@@ -3314,9 +3341,9 @@ function subBadges(){ try{ const t=Date.now(), keys=onlineDayKeys(), nx=keys.map
     const wk=`${Math.floor(cal.w/4)+1}月 第${cal.w%4+1}週`; document.querySelectorAll('#rsWeek,.rsWeek2').forEach(e=>e.textContent=wk);
     const act=stable.filter(h=>!h.retired), ret=stable.filter(h=>h.retired), plan=act.filter(h=>!h.trained&&!h.inj).length;
     const S=(id,txt,hot)=>{ const e=$('#'+id); if(e){ e.textContent=txt; e.classList.toggle('hot',!!hot); } };
-    S('fsStable',`${act.length}/${CAP()}頭`); S('fsBreed',cal.w%4===0?'セリ開催中':'配合',cal.w%4===0); S('fsParts',`${(typeof parts!=='undefined'?parts.length:0)}個`);
+    S('fsStable',`${act.length}/${CAP()}頭`); S('fsBreed',cal.w%4===0?'セリ開催中':'ガチャ',cal.w%4===0); S('fsParts',`${(typeof parts!=='undefined'?parts.length:0)}個`);
     S('fsManage',`週 ${fmt(weeklyFixed().total)}`); S('fsRet',`${ret.length}頭${ret.some(h=>h.listed)?'・出品中':''}`,ret.some(h=>h.listed));
-    const fb=$('#farmBar'); if(fb) fb.innerHTML=`<div class="fb-i"><small>現役</small><b>${act.length}<span>/${CAP()}</span></b></div>${window.NET&&NET.on?(()=>{ const ri=regInfo(); return `<div class="fb-i"><small>登録料（全体 ${fmt(ri.world)}/${fmt(WORLD_MAX)}）</small><b>${fmt(ri.fee)}<span> NOA</span></b></div>`; })():`<div class="fb-i"><small>引退馬</small><b>${ret.length}</b></div>`}<div class="fb-i"><small>毎週の固定費</small><b>${fmt(weeklyFixed().total)}<span> NOA</span></b></div><div class="fb-i"><small>今週</small><b style="font-size:13px">${cal.w%4===0?'<span class="gold">セリ・輸入牝馬あり</span>':'通常週'}</b></div>`;
+    const fb=$('#farmBar'); if(fb) fb.innerHTML=`<div class="fb-i"><small>現役</small><b>${act.length}<span>/${CAP()}</span></b></div>${window.NET&&NET.on?(()=>{ const ri=regInfo(); return `<div class="fb-i"><small>登録料（全体 ${fmt(ri.world)}/${fmt(WORLD_MAX)}）</small><b>${fmt(ri.fee)}<span> NOA</span></b></div>`; })():`<div class="fb-i"><small>引退馬</small><b>${ret.length}</b></div>`}<div class="fb-i"><small>毎週の固定費</small><b>${fmt(weeklyFixed().total)}<span> NOA</span></b></div><div class="fb-i"><small>今週</small><b style="font-size:13px">${cal.w%4===0?'<span class="gold">セリ開催中</span>':'通常週'}</b></div>`;
   }catch(e){} }
 document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>setRaceSub(b.dataset.rs));
 document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>setFarmSub(b.dataset.fs));
@@ -3656,6 +3683,45 @@ function fusionShow(a,b,res,next){ const el=document.createElement('div'); el.cl
   el.innerHTML=`<div class="fz-cards"><div class="fz-c l">${cardArt(a)}</div><div class="fz-c r">${cardArt(b)}</div><div class="fz-flash"></div></div>
     <div class="fz-txt"><small>${res==='fail'?'FUSION FAILED':res==='perfect'?'PERFECT FUSION':'FUSION SUCCESS'}</small><b>${res==='fail'?'融合失敗…':res==='perfect'?'大成功！':'融合成功'}</b><span>${res==='fail'?`${a.name} と ${b.name} は光の中に消えた`:`${a.name} × ${b.name}`}</span></div>`;
   document.body.appendChild(el); sfx(res==='fail'?'lose':'fanfare'); setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>{ el.remove(); next(); },500); },3600); }
+
+// ======================= 新馬ガチャ・引退馬ランダム購入（配合の代わり） =======================
+// ランク：0F 1E 2D 3C 4B 5A 6AA 7S（最大S・Bが最多）
+const RETBUY_COST=6000;
+// ガチャの値段＝登録料（ログイン中は全体の空きで変動、未ログインは基本の5,000）
+const gachaCost=()=>{ const ri=regInfo(); return (window.NET&&NET.on)?ri.fee:5000; };
+const GACHA_RATE=[3,6,11,20,32,17,8,3];   // 新馬ガチャ（%）
+const RETBUY_RATE=[6,10,15,22,26,13,6,2]; // 引退馬ランダム（%）
+const pickRate=(T,R=Math.random)=>{ let x=R()*100; for(let i=0;i<T.length;i++){ x-=T[i]; if(x<0) return i; } return 4; };
+// ランクに合わせて素質（上限）を整える：F≈62 … S≈93
+function tuneToRank(f,r){ const tgt=62+r*4.5+(Math.random()*4-2), cur=STATS.reduce((a,[k])=>a+f.cap[k],0)/STATS.length, d=tgt-cur;
+  STATS.forEach(([k])=>{ f.cap[k]=+clamp(f.cap[k]+d+(Math.random()*4-2),30,100).toFixed(1); f.st[k]=Math.min(f.st[k],f.cap[k]); }); f.rank=r; }
+function randomFoal(){ const S=ROSTER.filter(m=>m[1]==='牡'), D=ROSTER.filter(m=>m[1]==='牝'); return makeFoal(parentObj(S[Math.floor(Math.random()*S.length)]),parentObj(D[Math.floor(Math.random()*D.length)])); }
+function drawGacha(){ const ri=regInfo(), cost=gachaCost(); if(!ri.ok){ toast(ri.reason); return; } if(balance<cost){ toast(`NOAが足りません（登録料 ${fmt(cost)} NOA）`); return; }
+  setBal(balance-cost); const r=pickRate(GACHA_RATE), f=randomFoal(); tuneToRank(f,r);
+  const g=store.get('gachaLog',[]); g.unshift({r,t:Date.now()}); store.set('gachaLog',g.slice(0,30)); gstat.gacha=(gstat.gacha||0)+1; saveG();
+  rankReveal(f,r,'新馬ガチャ',()=>nameFoal(f,`新馬ガチャで誕生（${RANKS[r]}ランク）`,{free:true})); }
+function buyRetired(){ if(balance<RETBUY_COST){ toast('NOAが足りません'); return; } setBal(balance-RETBUY_COST); const r=pickRate(RETBUY_RATE), f=randomFoal(); tuneToRank(f,r);
+  STATS_ALL.forEach(([k])=>f.st[k]=+(f.cap[k]*(0.8+Math.random()*0.17)).toFixed(1)); f.st.hp=f.cap.hp;
+  f.id='rb'+Date.now().toString(36); f.name=NPC_NM1[Math.floor(Math.random()*NPC_NM1.length)]+NPC_NM2[Math.floor(Math.random()*NPC_NM2.length)];
+  f.retired=true; f.age=5+Math.floor(Math.random()*4); f.races=6+Math.floor(Math.random()*18); f.wins=Math.min(f.races,Math.floor(Math.random()*(1+r*0.9))); f.top3=Math.min(f.races,f.wins*2);
+  f.gw=r>=5&&Math.random()<0.5?1+Math.floor(Math.random()*2):0; f.g1w=r>=6&&Math.random()<0.4?1:0; f.earn=f.wins*9000+f.gw*25000+f.g1w*70000; f.bought={from:'引退馬ショップ',price:RETBUY_COST};
+  stable.push(f); saveStable(); rankReveal(f,r,'引退馬ランダム購入',()=>{ viewHorse(f,`引退馬ショップで購入（${fmt(RETBUY_COST)} NOA）・融合の素材やマーケットで使えます`); renderFarm(); }); }
+// ランクで派手さが変わる演出（0:F〜D 控えめ／1:C〜B ネオン／2:A〜AA 虹の光輪／3:S 金の大演出）
+function rankReveal(f,r,title,next){ const tier=r>=7?3:r>=5?2:r>=3?1:0, dur=[1800,2600,3600,5200][tier], col=RK_COL[r];
+  const el=document.createElement('div'); el.className='gz-ov t'+tier; el.style.setProperty('--rc',col);
+  el.innerHTML=`<div class="gz-rays"></div><div class="gz-ring"></div><div class="gz-core"><div class="gz-cap"></div><div class="gz-card">${cardArt(f)}</div></div>
+    <div class="gz-sp">${Array.from({length:[0,14,28,48][tier]},(_,i)=>`<i style="--a:${(i*137.5)%360}deg;--d:${(i%7)*0.08}s"></i>`).join('')}</div>
+    <div class="gz-txt"><small>${title}</small><b>${RANKS[r]}</b><span>${['','レア！','激レア！！','超激レア！！！'][tier]}</span></div><div class="gz-tap">タップで飛ばす</div>`;
+  document.body.appendChild(el); sfx(tier>=2?'fanfare':'win'); let done=false; const end=()=>{ if(done) return; done=true; el.classList.add('out'); setTimeout(()=>{ el.remove(); next&&next(); },350); };
+  el.onclick=end; setTimeout(end,dur); }
+function renderGacha(){ const el=$('#gachaBox'); if(!el) return; const ri=regInfo(), lg=store.get('gachaLog',[]);
+  const tbl=T=>`<div class="gz-rates">${T.map((p,i)=>`<div style="--rc:${RK_COL[i]}"><b>${RANKS[i]}</b><span>${p}%</span></div>`).join('')}</div>`;
+  el.innerHTML=`<div class="gz-box"><div class="gz-h"><b>新馬ガチャ</b><span class="hsub">名馬の血を引く2歳馬が1頭誕生します。最大Sランク・いちばん出やすいのはB。値段は登録料そのもの（ゲーム全体の馬が増えるほど高くなる）</span></div>${tbl(GACHA_RATE)}
+      <button class="btn gold gz-btn" id="gzDraw" ${ri.ok?'':'disabled'}>1回引く　${fmt(gachaCost())} NOA</button>${window.NET&&NET.on?`<div class="hsub" style="text-align:center">いまの登録料（全体 ${fmt(ri.world)}/${fmt(WORLD_MAX)}頭）</div>`:''}${ri.ok?'':`<div class="bad hsub">${ri.reason}</div>`}
+      ${lg.length?`<div class="hsub" style="margin-top:6px">最近の結果：${lg.slice(0,12).map(x=>`<b style="color:${RK_COL[x.r]}">${RANKS[x.r]}</b>`).join(' ')}</div>`:''}</div>
+    <div class="gz-box ret"><div class="gz-h"><b>引退馬ショップ（ランダム）</b><span class="hsub">現役を終えた馬を1頭、ランダムで購入。融合の素材や、マーケットでの売買に使えます</span></div>${tbl(RETBUY_RATE)}
+      <button class="btn gz-btn" id="gzRet">ランダムで買う　${fmt(RETBUY_COST)} NOA</button></div>`;
+  $('#gzDraw').onclick=drawGacha; $('#gzRet').onclick=buyRetired; }
 
 function renderMarket(){ if(window.NET&&NET.on) return NET.renderMarket(); const el=$('#mktList'); if(!el) return; mktTick(); mktFill(); saveMkt();
   const row=L=>{ const h=mktHorse(L); if(!h) return ''; const hi=mktHigh(L), mine=L.seller==='me', meHi=hi&&hi.me;
