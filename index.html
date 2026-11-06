@@ -1102,6 +1102,93 @@ body .tblwrap{max-width:100%;overflow-x:auto}
 body .rhead{flex-wrap:wrap;gap:8px}
 body .farmbar .fb-i{min-width:0}
 @media(max-width:400px){ body main{padding-left:12px;padding-right:12px} body .subnav{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px} body .tgrid{gap:8px} .tb{grid-template-columns:22px 1fr 18px;gap:4px} body .farmbar{display:grid;grid-template-columns:repeat(2,1fr)} }
+
+/* ===== 調教カットイン v2：近未来HUD ===== */
+.trcut.hx{--hc:#3ff0ff;--hc2:#5b7cff;font-family:"Inter","Hiragino Sans",sans-serif}
+.trcut.hx.great{--hc:#ffd36a;--hc2:#fff3c4}.trcut.hx.fail{--hc:#ff3a5a;--hc2:#ff8a7a}.trcut.hx.meh{--hc:#8d97bb;--hc2:#c3cbea}
+.trcut.hx.go::before{background:radial-gradient(120% 80% at 50% 45%,color-mix(in srgb,var(--hc) 14%,#05070f) 0%,#04060d 60%,#020308 100%)}
+.trcut.hx .tcx-flash{display:none}
+.hx-grid{position:absolute;inset:-2px;opacity:0;background-image:linear-gradient(color-mix(in srgb,var(--hc) 22%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--hc) 22%,transparent) 1px,transparent 1px);background-size:34px 34px;-webkit-mask:radial-gradient(circle at 50% 46%,#000 0%,#0009 40%,transparent 72%);mask:radial-gradient(circle at 50% 46%,#000 0%,#0009 40%,transparent 72%);transform:perspective(600px) rotateX(18deg) scale(1.3);transform-origin:50% 60%}
+.trcut.hx.go .hx-grid{animation:hxGrid 1s ease-out forwards}
+@keyframes hxGrid{0%{opacity:0;background-position:0 -40px}100%{opacity:.9;background-position:0 0}}
+.hx-vig{position:absolute;inset:0;background:repeating-linear-gradient(0deg,#ffffff06 0 1px,transparent 1px 3px);pointer-events:none}
+.hx-scan{position:absolute;left:0;right:0;height:2px;top:0;background:linear-gradient(90deg,transparent,var(--hc),#fff,var(--hc),transparent);box-shadow:0 0 18px var(--hc),0 0 50px var(--hc);opacity:0}
+.trcut.hx.go .hx-scan{animation:hxScan 1.1s cubic-bezier(.4,0,.2,1) .05s forwards}
+@keyframes hxScan{0%{top:0;opacity:1}85%{opacity:1}100%{top:100%;opacity:0}}
+.hx-flare{position:absolute;left:-10%;right:-10%;top:46%;height:2px;margin-top:-1px;background:linear-gradient(90deg,transparent,var(--hc) 30%,#fff 50%,var(--hc) 70%,transparent);box-shadow:0 0 24px var(--hc),0 0 80px var(--hc);opacity:0;transform:scaleX(0)}
+.trcut.hx.go .hx-flare{animation:hxFlare .9s cubic-bezier(.2,.8,.2,1) .35s forwards}
+@keyframes hxFlare{0%{opacity:0;transform:scaleX(0)}30%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1.1) scaleY(.4)}}
+.hx-ring{position:absolute;left:50%;top:46%;width:min(92vw,560px);height:min(92vw,560px);transform:translate(-50%,-50%);overflow:visible;opacity:0}
+.trcut.hx.go .hx-ring{animation:hxRingIn .7s ease-out .1s forwards}
+@keyframes hxRingIn{from{opacity:0;transform:translate(-50%,-50%) scale(.85)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.hx-ring circle{fill:none;stroke:var(--hc);stroke-linecap:round;transform-origin:100px 100px}
+.hx-ring .c1{stroke-width:.6;opacity:.55;stroke-dasharray:4 3}
+.hx-ring .c2{stroke-width:2.2;stroke-dasharray:120 370;filter:drop-shadow(0 0 4px var(--hc))}
+.hx-ring .c3{stroke-width:.8;opacity:.6;stroke-dasharray:60 12 6 12}
+.hx-ring .tk line{stroke:var(--hc);stroke-width:.6;opacity:.6}
+.trcut.hx.go .hx-ring .c2{animation:hxSpin 2.4s cubic-bezier(.5,0,.2,1) infinite}
+.trcut.hx.go .hx-ring .c3{animation:hxSpin 7s linear infinite reverse}
+.trcut.hx.go .hx-ring .c1{animation:hxSpin 16s linear infinite}
+.trcut.hx.go .hx-ring .tk{animation:hxSpin 30s linear infinite;transform-origin:100px 100px}
+@keyframes hxSpin{to{transform:rotate(360deg)}}
+.trcut.hx.meh .hx-ring .c2{stroke-dasharray:40 450}
+.hx-br{position:absolute;width:44px;height:44px;border:2px solid var(--hc);opacity:0;filter:drop-shadow(0 0 6px var(--hc))}
+.hx-br.tl{left:18px;top:18px;border-right:0;border-bottom:0}.hx-br.tr{right:18px;top:18px;border-left:0;border-bottom:0}.hx-br.bl{left:18px;bottom:18px;border-right:0;border-top:0}.hx-br.br{right:18px;bottom:18px;border-left:0;border-top:0}
+.trcut.hx.go .hx-br{animation:hxBr .5s cubic-bezier(.2,1.2,.3,1) .15s forwards}
+.trcut.hx.go .hx-br.tl{--fx:-30px;--fy:-30px}.trcut.hx.go .hx-br.tr{--fx:30px;--fy:-30px}.trcut.hx.go .hx-br.bl{--fx:-30px;--fy:30px}.trcut.hx.go .hx-br.br{--fx:30px;--fy:30px}
+@keyframes hxBr{from{opacity:0;transform:translate(var(--fx),var(--fy))}to{opacity:.9;transform:none}}
+.hx-bits{position:absolute;inset:0;overflow:hidden}
+.hx-bits i{position:absolute;left:var(--x);bottom:-10px;width:var(--s);height:var(--s);background:var(--hc);box-shadow:0 0 8px var(--hc);opacity:0}
+.trcut.hx.go .hx-bits i{animation:hxBit var(--d) linear var(--w) infinite}
+.trcut.hx.fail .hx-bits i{animation-name:hxBitFall}
+@keyframes hxBit{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-105vh)}}
+@keyframes hxBitFall{0%{opacity:0;transform:translateY(-100vh)}15%{opacity:.8}100%{opacity:0;transform:translateY(0)}}
+.hx-txt{position:relative;z-index:2;text-align:center;margin-top:-6vh;width:min(92vw,620px)}
+.hx-tag{font:700 clamp(9px,2.5vw,12px)/1 "Inter",monospace;letter-spacing:.32em;color:color-mix(in srgb,var(--hc) 80%,#fff);opacity:0;white-space:nowrap;overflow:hidden}
+.hx-tag span{background:var(--hc);color:#04060d;padding:2px 6px;margin-right:8px;letter-spacing:.2em}
+.trcut.hx.go .hx-tag{animation:hxType .5s steps(24) .2s forwards}
+@keyframes hxType{from{opacity:1;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+.hx-word{position:relative;margin:14px 0 2px;font:900 clamp(46px,15vw,124px)/1 "Inter Display","Inter",sans-serif;letter-spacing:.06em;color:#fff;text-shadow:0 0 18px var(--hc),0 0 60px color-mix(in srgb,var(--hc) 60%,transparent);clip-path:inset(0 100% 0 0)}
+.trcut.hx.great .hx-word{background:linear-gradient(180deg,#ffffff 0%,#fff3c4 40%,#ffd36a 70%,#e7a52c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 16px #ffb34799) drop-shadow(0 0 40px #ffd36a55)}
+.trcut.hx.ok .hx-word{background:linear-gradient(180deg,#fff,#bff9ff 50%,#3ff0ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 14px #3ff0ff99)}
+.trcut.hx.meh .hx-word{font-size:clamp(38px,11vw,90px);color:#c3cbea;text-shadow:0 0 12px #8d97bb66}
+.trcut.hx.fail .hx-word{color:#ff3a5a;text-shadow:0 0 16px #ff0033aa}
+.trcut.hx.go .hx-word{animation:hxWipe .55s cubic-bezier(.7,0,.2,1) .45s forwards}
+.trcut.hx.go .hx-word::after{content:'';position:absolute;top:-6%;bottom:-6%;width:4px;left:0;background:#fff;box-shadow:0 0 16px var(--hc),0 0 30px var(--hc);animation:hxBar .55s cubic-bezier(.7,0,.2,1) .45s forwards;opacity:0}
+@keyframes hxWipe{to{clip-path:inset(0 0 0 0)}}
+@keyframes hxBar{0%{left:0;opacity:1}90%{opacity:1}100%{left:100%;opacity:0}}
+.trcut.hx.fail.go .hx-word{animation:hxWipe .4s cubic-bezier(.7,0,.2,1) .4s forwards,hxErr .18s steps(2) .85s 6}
+@keyframes hxErr{0%{transform:translate(0,0);clip-path:inset(0 0 0 0)}33%{transform:translate(-6px,0);clip-path:inset(10% 0 55% 0)}66%{transform:translate(5px,0);clip-path:inset(50% 0 8% 0)}100%{transform:none;clip-path:inset(0 0 0 0)}}
+.trcut.hx.great.go .hx-word{animation:hxWipe .6s cubic-bezier(.7,0,.2,1) .45s forwards,hxGlow 1.6s ease-in-out 1.1s infinite}
+@keyframes hxGlow{50%{filter:drop-shadow(0 0 22px #ffd36acc) drop-shadow(0 0 70px #ffb34777)}}
+.hx-jp{font:800 clamp(15px,4.4vw,22px)/1 "Hiragino Sans",sans-serif;letter-spacing:.6em;margin-left:.6em;color:#fff;opacity:0;text-shadow:0 0 10px var(--hc)}
+.trcut.hx.go .hx-jp{animation:hxUp .4s ease-out .9s forwards}
+.hx-line{display:block;height:1px;margin:14px auto 10px;width:0;background:linear-gradient(90deg,transparent,var(--hc),transparent)}
+.trcut.hx.go .hx-line{animation:hxLine .6s ease-out .95s forwards}
+@keyframes hxLine{to{width:80%}}
+@keyframes hxUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hx-gain{font:700 clamp(12px,3.4vw,15px) "Inter",sans-serif;letter-spacing:.3em;color:color-mix(in srgb,var(--hc) 70%,#fff);opacity:0}
+.hx-gain b{font:800 clamp(22px,6.5vw,34px) "Inter Display","Inter",sans-serif;letter-spacing:.02em;color:#fff;margin-left:8px;text-shadow:0 0 14px var(--hc)}
+.hx-gain.dim{color:#8d97bb}
+.trcut.hx.go .hx-gain{animation:hxUp .4s ease-out 1.05s forwards}
+.hx-st{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:#c3cbea;opacity:0}
+.hx-st b{font:800 13px "Inter",sans-serif;color:var(--hc)}
+.trcut.hx.go .hx-st{animation:hxUp .4s ease-out 1.25s forwards}
+.hx-code{margin-top:16px;font:600 10px "Inter",monospace;letter-spacing:.3em;color:#ffffff55;opacity:0}
+.trcut.hx.go .hx-code{animation:hxUp .4s ease-out 1.35s forwards}
+.trov.pulse-great{animation:hxPulse .8s ease-out}
+@keyframes hxPulse{0%{transform:scale(1)}20%{transform:scale(1.015)}100%{transform:scale(1)}}
+.trcut.hx.fail.go::after{content:'';position:absolute;left:0;right:0;top:calc(46% + 120px);height:22px;background:repeating-linear-gradient(-45deg,#ff3a5a55 0 12px,transparent 12px 24px);opacity:0;animation:hxUp .3s ease-out .9s forwards}
+/* 結果パネルも近未来の質感に */
+body .trbox{border-radius:20px;clip-path:none!important;background:linear-gradient(180deg,rgba(14,20,44,.97),rgba(6,9,22,.98));border:1px solid color-mix(in srgb,var(--rc) 55%,transparent);box-shadow:0 0 0 1px #ffffff0d inset,0 24px 70px #000c,0 0 40px color-mix(in srgb,var(--rc) 25%,transparent)}
+body .trbox.great{border:1px solid #ffd36a99;animation:none;box-shadow:0 0 0 1px #fff2 inset,0 24px 70px #000c,0 0 50px #ffd36a44}
+body .trbox .trart{margin:-16px -16px 10px;border-radius:20px 20px 0 0}
+body .trbox .trroll .r{font:900 26px "Inter Display","Inter",sans-serif;letter-spacing:.14em}
+body .trbox.great .trroll .r{font-size:28px}
+body .trbox .trroll{height:auto;margin:8px 0}body .trbox .trroll .r small{display:block;font:700 11px 'Hiragino Sans',sans-serif;letter-spacing:.5em;margin-top:4px;-webkit-text-fill-color:#cfd6f5;color:#cfd6f5;filter:none;opacity:.85}
+body .trbox .tbar{height:6px;border-radius:6px;background:#ffffff12}
+body .trbox .tbar i{border-radius:6px}
+body .trbox .trok{border-radius:14px}
 </style>
 </head>
 <body>
@@ -1612,7 +1699,7 @@ function generateRace(tpl,own,opt={}){
   const c=tpl._cache, race={...tpl,wx:c.wx,going:c.going,weather:c.weather,goingAdd:c.add};
   const ents=c.ents.map(e=>({...e}));
   let add= own? ownEnt(own,race,opt) : (c.extra?{...c.extra}:null);
-  if(tpl.netSnaps&&tpl.netSnaps.length){ const ne=tpl.netSnaps.map(x=>{ const sn=x.snap, e=ownEnt(sn,race,{jockey:mainJockey(sn)||sn.lastJ||'田辺裕信',strat:sn.style}); e.own=false; e.stableId=null; e.netUid=x.uid; e.netAttr=attrOf(sn); e.netRank=rkIdx(sn); e.tag=`${x.bot?'運用：':'馬主：'}${x.owner}`; return e; });
+  if(tpl.netSnaps&&tpl.netSnaps.length){ const ne=tpl.netSnaps.map(x=>{ const sn=x.snap, e=ownEnt(sn,race,{jockey:mainJockey(sn)||sn.lastJ||'田辺裕信',strat:sn.style}); e.own=false; e.stableId=null; e.netUid=x.uid; e.netAttr=attrOf(sn); try{ e.netArt=artOf(sn)[0]; }catch(_){} e.netRank=rkIdx(sn); e.tag=`${x.bot?'運用：':'馬主：'}${x.owner}`; return e; });
     const room=ents.length; ents.splice(0,Math.min(ne.length,room),...ne.slice(0,room)); if(!own&&ne.length>room) add=ne[room]; }
   if(add) ents.splice(Math.min(c.slot,ents.length),0,add);
   const n=ents.length, used=new Set(); ents.forEach(e=>{ if(e.jockeyFixed) used.add(e.jockeyFixed); });
@@ -2095,6 +2182,85 @@ function buildRaceObjs(){ addRain();
   // 馬
   SIM.hs.forEach(h=>{ h.obj=makeHorse(h); sc.add(h.obj.root); });
 }
+// ===== カードのイラストに合わせた3Dの見た目（体・装甲・ネオン・たてがみ・飾り・走るときのエフェクト） =====
+const ART3D={
+ r0:{neon:0x3ac8ff,armor:0xb8c4d8,metal:0.75,np:1.7,hair:1.15,fib:11,parts:['fin'],fx:'spark'},
+ r1:{neon:0xff2a2a,armor:0x1e1a1e,metal:.75,np:1.9,hair:1.0,fib:12,parts:['spikes'],fx:'ember'},
+ r2:{neon:0x5aff3a,armor:0x1e2a1e,metal:.7,np:1.8,hair:1.0,fib:11,parts:['antler'],fx:'leaf'},
+ r3:{neon:0x7fe8ff,armor:0x9ad6ff,metal:0.55,np:1.7,hair:1.35,fib:13,parts:['crystal'],fx:'snow'},
+ r4:{neon:0x3a7cff,armor:0xb8c8ec,metal:0.7,np:1.8,hair:1.25,fib:12,parts:['fin'],fx:'spark'},
+ r5:{neon:0x9a7cff,armor:0x2a2448,metal:.75,np:1.8,hair:1.15,fib:12,parts:['crescent'],fx:'star'},
+ r6:{neon:0xff6ad5,armor:0xff9ad0,metal:0.5,np:1.9,hair:1.3,fib:13,parts:['particles','gem'],fx:'petal'},
+ r7:{neon:0xffb030,armor:0xc07a20,metal:0.8,np:2.0,hair:1.2,fib:12,parts:['crown'],fx:'ember'},
+ r8:{neon:0x3a8cff,armor:0x1a2448,metal:.75,np:1.9,hair:1.2,fib:12,parts:['fin'],fx:'aurora'},
+ r9:{neon:'rainbow',armor:0xe0e4ff,metal:0.7,np:2.1,hair:1.3,fib:13,parts:['gem','halo'],fx:'rainbow'},
+ x0:{neon:0xffd36a,armor:0xf0dca0,metal:0.75,np:2.0,hair:1.4,fib:14,parts:['halo','crownTall'],fx:'light'},
+ x1:{neon:0x4a7cff,armor:0x1a2a6a,metal:.8,np:2.0,hair:1.3,fib:13,parts:['halo'],fx:'star'},
+ x2:{neon:0xff3ad0,armor:0x1a1420,metal:.75,np:2.1,hair:1.1,fib:12,parts:['fin'],fx:'spark'},
+ x3:{neon:0x6aff4a,armor:0xb4dc96,metal:0.5,np:1.7,hair:1.3,fib:13,parts:['antler'],fx:'leaf'},
+ x4:{neon:0x8fe8ff,armor:0x9ad0ff,metal:0.55,np:1.9,hair:1.5,fib:14,parts:['crystal','crownTall'],fx:'snow'},
+ x5:{neon:0xa040ff,armor:0x16121e,metal:.7,np:2.0,hair:1.6,fib:14,parts:['gem'],fx:'wisp'},
+ x6:{neon:0xffe040,armor:0xe0c060,metal:0.8,np:2.1,hair:1.3,fib:13,parts:['dorsal'],fx:'spark'},
+ x7:{neon:0x9fd8ff,armor:0xe8f0ff,metal:0.6,np:1.9,hair:1.4,fib:14,parts:['wingsFolded','halo'],fx:'feather'},
+ x8:{neon:0xff3a2a,armor:0x2a1414,metal:.8,np:2.1,hair:1.2,fib:13,parts:['spikes','dorsal'],fx:'fire'},
+ x9:{neon:'rainbow',armor:0xd8d0ff,metal:0.6,np:2.2,hair:1.4,fib:14,parts:['particles','halo'],fx:'rainbow'},
+ x10:{neon:0x5aa8ff,armor:0x9ab8ec,metal:0.7,np:1.9,hair:1.3,fib:13,parts:['crescent'],fx:'star'},
+ y0:{neon:0x3a8cff,armor:0x6a8ccc,metal:0.7,np:2.0,hair:1.3,fib:13,parts:['fin'],fx:'spark'},
+ y1:{neon:0x4ab8ff,armor:0xa8b4cc,metal:0.7,np:1.8,hair:1.2,fib:12,parts:[],fx:'light'},
+ y2:{neon:0x7a9cff,armor:0xa8b8f0,metal:0.6,np:1.9,hair:1.3,fib:13,parts:['wingsSpread'],fx:'feather'},
+ y3:{neon:0x6ab8ff,armor:0x9ac4f4,metal:0.6,np:1.9,hair:1.3,fib:13,parts:['wingsSpread'],fx:'feather'},
+ y4:{neon:0x9fd8ff,armor:0xb4ccf4,metal:0.6,np:2.0,hair:1.35,fib:13,parts:['wingsSpread','crescent'],fx:'star'},
+ y5:{neon:0xffd36a,armor:0xe0b040,metal:0.85,np:2.1,hair:1.3,fib:13,parts:['crown','aura'],fx:'light'},
+ y6:{neon:0xa040ff,armor:0xa080e0,metal:0.6,np:2.0,hair:1.4,fib:13,parts:['crescent'],fx:'star'},
+ z0:{neon:0xff6a1a,armor:0x3a0e06,metal:.75,np:2.6,hair:1.6,fib:16,parts:['spikes','aura'],fx:'fire'},
+ z1:{neon:0xff8a1a,armor:0xa0200e,metal:.75,np:2.6,hair:1.5,fib:15,parts:['dorsal'],fx:'fire'},
+ z2:{neon:0x4aff6a,armor:0x86e08a,metal:0.5,np:1.9,hair:1.5,fib:15,parts:['antler'],fx:'leaf'},
+ z3:{neon:0x7aff3a,armor:0x2fae46,metal:0.55,np:2.0,hair:1.5,fib:15,parts:['antler'],fx:'leaf'},
+ z4:{neon:0x4aff8a,armor:0x8ad8a6,metal:0.5,np:1.9,hair:1.5,fib:15,parts:['crystal'],fx:'leaf'},
+ z5:{neon:0xff4ad0,armor:0xff86c4,metal:0.5,np:2.1,hair:1.6,fib:16,parts:['gem','crown'],fx:'petal'},
+ z6:{neon:0xff3ad0,armor:0xff4aa8,metal:0.55,np:2.2,hair:1.6,fib:16,parts:['gem'],fx:'petal'},
+ z7:{neon:0xff6ad5,armor:0xffa6d6,metal:0.5,np:2.1,hair:1.7,fib:16,parts:['crownTall','gem','particles'],fx:'petal'},
+};
+function artKey3D(h){ const sh=h.own?stable.find(x=>x.id===h.stableId):null; if(sh) return artOf(sh)[0]; if(h.netArt) return h.netArt; try{ return artOf({name:h.name,attr:h.attr||legendAttr(h.name)})[0]; }catch(e){ return null; } }
+function spec3D(ak){ const a=ART3D[ak]; if(!a) return null; return {neon:a.neon,armor:a.armor,metal:a.metal,neonPower:Math.min(3.4,a.np*1.5),hairLength:a.hair*1.15,fibers:Math.round(a.fib*1.4),parts:a.parts,damage:0,flicker:false}; }
+// 走りながら残すエフェクト（炎・葉・花びら・雪・火花・星・光・羽・虹・闇）
+const TRAIL_TEX={};
+function trailTex(type){ if(TRAIL_TEX[type]) return TRAIL_TEX[type];
+  const tx=canvasTex(64,64,(c,w,h)=>{ c.clearRect(0,0,w,h); const g=(r0,stops)=>{ const gr=c.createRadialGradient(32,32,0,32,32,r0); stops.forEach(([o,col])=>gr.addColorStop(o,col)); c.fillStyle=gr; c.fillRect(0,0,w,h); };
+    c.save(); c.translate(32,32);
+    if(type==='leaf'){ c.rotate(-.6); c.fillStyle='#fff'; c.beginPath(); c.moveTo(-20,0); c.quadraticCurveTo(0,-16,22,0); c.quadraticCurveTo(0,16,-20,0); c.fill(); c.strokeStyle='#0006'; c.lineWidth=2; c.beginPath(); c.moveTo(-18,0); c.lineTo(20,0); c.stroke(); }
+    else if(type==='petal'){ c.rotate(.4); c.fillStyle='#fff'; c.beginPath(); c.moveTo(0,-20); c.bezierCurveTo(16,-16,14,10,0,20); c.bezierCurveTo(-14,10,-16,-16,0,-20); c.fill(); c.fillStyle='#0003'; c.beginPath(); c.moveTo(0,-20); c.lineTo(-4,-12); c.lineTo(4,-12); c.fill(); }
+    else if(type==='feather'){ c.rotate(-.8); c.fillStyle='#fff'; c.beginPath(); c.ellipse(0,0,7,24,0,0,Math.PI*2); c.fill(); c.strokeStyle='#0005'; c.lineWidth=1.5; c.beginPath(); c.moveTo(0,-24); c.lineTo(0,26); c.stroke(); }
+    else if(type==='snow'){ c.strokeStyle='#fff'; c.lineWidth=3; c.shadowColor='#fff'; c.shadowBlur=8; for(let k=0;k<3;k++){ c.rotate(Math.PI/3); c.beginPath(); c.moveTo(-20,0); c.lineTo(20,0); c.stroke(); } }
+    else if(type==='star'||type==='spark'){ c.fillStyle='#fff'; c.shadowColor='#fff'; c.shadowBlur=10; c.beginPath(); const L=type==='spark'?26:22, Wd=type==='spark'?3:5; c.moveTo(0,-L); c.lineTo(Wd,-Wd); c.lineTo(L,0); c.lineTo(Wd,Wd); c.lineTo(0,L); c.lineTo(-Wd,Wd); c.lineTo(-L,0); c.lineTo(-Wd,-Wd); c.closePath(); c.fill(); }
+    c.restore();
+    if(type==='fire'||type==='ember'||type==='light'||type==='rainbow'||type==='aurora') g(32,[[0,'rgba(255,255,255,1)'],[.18,'rgba(255,255,255,.9)'],[.45,'rgba(255,255,255,.35)'],[1,'rgba(255,255,255,0)']]);
+    if(type==='wisp') g(32,[[0,'rgba(255,255,255,.8)'],[.5,'rgba(255,255,255,.3)'],[1,'rgba(255,255,255,0)']]);
+  }); TRAIL_TEX[type]=tx; return tx; }
+const TRAIL_CFG={ fire:{n:90,size:1.1,life:.65,up:2.2,drag:.6,col:[0xffe08a,0xff8a1a,0xff3a1a]}, ember:{n:34,size:.4,life:.8,up:1.4,drag:.5,col:[0xffb030,0xff5a1a]},
+  leaf:{n:34,size:.55,life:1.3,up:.3,fall:.8,spin:1,col:[0x7aff4a,0x3aff6a,0xc8ff5a]}, petal:{n:40,size:.55,life:1.5,up:.5,fall:.6,spin:1,col:[0xff9be6,0xff6ad5,0xffd0f0]},
+  snow:{n:34,size:.45,life:1.2,up:.2,fall:.5,spin:1,col:[0xffffff,0xbff4ff,0x7fe8ff]}, spark:{n:34,size:.5,life:.45,up:.6,col:[0xffffff,null]}, star:{n:30,size:.55,life:1.0,up:.4,col:[0xffffff,null,0xfff3b0]},
+  light:{n:34,size:.7,life:.8,up:.9,col:[0xfff3c4,0xffd36a]}, feather:{n:24,size:.6,life:1.4,up:.5,fall:.7,spin:1,col:[0xffffff,0xdff1ff]}, rainbow:{n:44,size:.6,life:.9,up:.6,rb:true},
+  aurora:{n:34,size:.75,life:1.0,up:.9,col:[0x3affb0,0x3a8cff,0xa060ff]}, wisp:{n:30,size:.9,life:1.0,up:.8,col:[0x7a30ff,0x3a1a6a,0xff3ad0]} };
+function makeTrail(type,neon){ const C=TRAIL_CFG[type]; if(!C||!window.THREE) return null; const n=Math.round(C.n*(innerWidth<700?0.7:1));
+  const pos=new Float32Array(n*3), col=new Float32Array(n*3), P=[]; for(let i=0;i<n;i++){ P.push({life:0,max:C.life,vx:0,vy:0,vz:0,c:new THREE.Color()}); pos[i*3+1]=-99; }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const mat=new THREE.PointsMaterial({size:C.size*1.7,map:trailTex(type==='ember'?'fire':type),vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
+  const pts=new THREE.Points(g,mat); pts.frustumCulled=false; let acc=0, last=performance.now(), rbT=0, lx=null, lz=null, hvx=0, hvz=0; const nc=new THREE.Color(typeof neon==='number'?neon:0xffffff);
+  const pick=()=>{ if(C.rb){ rbT+=.07; return new THREE.Color().setHSL(rbT%1,1,.62); } const a=C.col[Math.floor(Math.random()*C.col.length)]; return a==null?nc.clone():new THREE.Color(a); };
+  const self={pts,update(root,running,speedMul,dtF){ const now=performance.now(); let dt=dtF||Math.min(.05,(now-last)/1000)*(speedMul||1); last=now; if(dt<=0) return;
+    const yaw=root.rotation.y, fx=Math.cos(yaw), fz=-Math.sin(yaw), sx=-fz, sz=fx, rx=root.position.x, rz=root.position.z;
+    if(running){ acc+=dt*n/C.life; while(acc>=1){ acc-=1; const p=P.find(q=>q.life<=0); if(!p) break;
+        const mane=Math.random()<0.62; p.a=mane?0.15+Math.random()*0.5:-1.0+Math.random()*0.3; p.y=mane?1.4+Math.random()*0.4:1.05+Math.random()*0.35; p.l=(Math.random()-.5)*.3;
+        p.va=-(1.2+Math.random()*2.6); p.vl=(Math.random()-.5)*1.0; p.vy=(C.up||0)*(0.5+Math.random());
+        p.life=p.max=C.life*(0.7+Math.random()*0.6); p.c=pick(); p.ph=Math.random()*6.28; } }
+    for(let i=0;i<n;i++){ const p=P[i]; if(p.life<=0){ pos[i*3+1]=-99; continue; } p.life-=dt; const k=Math.max(0,p.life/p.max);
+      if(C.fall) p.vy-=C.fall*dt; if(C.drag){ p.vl*=1-C.drag*dt; }
+      const sw=C.spin?Math.sin(now/300+p.ph)*.5:0;
+      p.a+=p.va*dt; p.l+=(p.vl+sw)*dt; p.y+=p.vy*dt; if(p.y<0.05){ p.y=0.05; p.vy=0; }
+      pos[i*3]=rx+fx*p.a+sx*p.l; pos[i*3+1]=p.y; pos[i*3+2]=rz+fz*p.a+sz*p.l;
+      const f=(type==='fire'?k:Math.sqrt(k))*1.6; col[i*3]=p.c.r*f; col[i*3+1]=p.c.g*f; col[i*3+2]=p.c.b*f; }
+    g.attributes.position.needsUpdate=true; g.attributes.color.needsUpdate=true; } }; return self; }
 const HS=0.0104; // 馬モデルの縮尺
 const ART_COL={r0:'#ff4a3a',r1:'#ff2a3a',r2:'#3aff8a',r3:'#7fd8ff',r4:'#4db8ff',r5:'#b07bff',r6:'#ff5ad8',r7:'#ffb43a',r8:'#7affc8',r9:'#c8a0ff',x0:'#ffe27a',x1:'#9a7bff',x2:'#ff4fd8',x3:'#5aff9a',x4:'#8fe0ff',x5:'#b04aff',x6:'#5ab0ff',x7:'#fff0b0',x8:'#ff5a2a',x9:'#ff6ad5',x10:'#4db8ff',y0:'#4d9cff',y1:'#4db8ff',y2:'#6fb0ff',y3:'#6fb0ff',y4:'#7fc0ff',y5:'#ffcf4a',y6:'#b45aff'};
 // 個体ID（1〜15）：生成時に1回だけ決め、順位では変えない
@@ -2125,8 +2291,12 @@ function makeHorse(h){
   const head=new THREE.Mesh(new THREE.SphereGeometry(0.13,14,10),skin); head.position.set(0.58,0.6,0); J.add(head);
   const hel=new THREE.Mesh(new THREE.SphereGeometry(0.155,14,10,0,Math.PI*2,0,Math.PI*0.55),cap); hel.position.set(0.57,0.62,0); hel.castShadow=true; J.add(hel);
   const arms=[0.19,-0.19].map(z=>{ const g=new THREE.Group(); g.position.set(0.44,0.52,z); g.rotation.z=0.95; J.add(g); const a=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.44,0.1),h.pat===3?silk2:silk); a.position.y=-0.21; a.castShadow=true; g.add(a); return g; });
-  let fx=null; try{ if(window.createHorseVariant){ h.horseVariantId=h.horseVariantId||variantIdFor(h); const sh2=h.own?stable.find(x=>x.id===h.stableId):null; fx=createHorseVariant(THREE,root,m,h.horseVariantId,{extraParts:sh2?eqList(sh2).map(p=>p.def.vis).filter(Boolean):[],pose:false,envMap:T.envTex,phase:(h.no||0)*0.71,hideObjects:[J,cloth],hairWidth:h.own?5:4}); } }catch(e){ console.warn('variant fx',e); }
-  return {root,mesh:m,J,arms,wire,fx};
+  let fx=null, trail=null; const ak3=artKey3D(h), A3=ART3D[ak3];
+  try{ if(window.createHorseVariant){ h.horseVariantId=h.horseVariantId||variantIdFor(h); const sh2=h.own?stable.find(x=>x.id===h.stableId):null; fx=createHorseVariant(THREE,root,m,h.horseVariantId,{spec:spec3D(ak3),extraParts:sh2?eqList(sh2).map(p=>p.def.vis).filter(Boolean):[],pose:false,envMap:T.envTex,phase:(h.no||0)*0.71,hideObjects:[J,cloth],hairWidth:h.own?5:4}); } }catch(e){ console.warn('variant fx',e); }
+  try{ if(A3){ trail=makeTrail(A3.fx,A3.neon); if(trail) T.scene.add(trail.pts);
+      if(!TRAIL_TEX._aura) TRAIL_TEX._aura=canvasTex(128,128,(c,w,hh)=>{ const gr=c.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba(255,255,255,.75)'); gr.addColorStop(.35,'rgba(255,255,255,.28)'); gr.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=gr; c.fillRect(0,0,w,hh); });
+      const au=new THREE.Sprite(new THREE.SpriteMaterial({map:TRAIL_TEX._aura,color:typeof A3.neon==='number'?A3.neon:0xffffff,transparent:true,opacity:.42,blending:THREE.AdditiveBlending,depthWrite:false})); au.scale.set(3.4,2.4,1); au.position.set(0.05,1.15,0); au.userData.rb=A3.neon==='rainbow'; root.add(au); root.userData.aura=au; } }catch(e){ console.warn('trail',e); }
+  return {root,mesh:m,J,arms,wire,fx,trail};
 }
 function animHorse(h,lead){
   const o=h.obj, run=SIM.u>0.05, nT=15;
@@ -2137,6 +2307,7 @@ function animHorse(h,lead){
   o.J.position.y=1.58+(run?0.05*Math.sin(2*t+1):0); o.arms.forEach(a=>a.rotation.z=0.95+(lead&&run?0.35*Math.sin(2*t):0));
   const s=sOf(h.pos), off=LANE(h), p=V3(s,off,0);
   o.root.position.set(p[0],0,p[2]); o.root.rotation.y=yawAt(s,off); h.wp=p;
+  if(o.trail) o.trail.update(o.root,run,SIM.speed||1); const au=o.root.userData.aura; if(au){ au.material.opacity=.34+.12*Math.sin(performance.now()/260+(h.no||0)); if(au.userData.rb) au.material.color.setHSL((performance.now()/4000)%1,1,.6); }
 }
 function setCam(c,st,aspect){ c.position.set(...st.pos); c.fov=st.fov; c.aspect=aspect; c.updateProjectionMatrix(); c.lookAt(...st.look); }
 function renderView(st,vx,vy,vw,vh,cam){
@@ -3649,17 +3820,23 @@ function doTrain(id){ const h=stable.find(x=>x.id===id); if(!h||TR_BUSY) return;
   const R=trainOne(h,C); setBal(balance-C.spent); h.trained=wi; h.trainedK=h.plan; saveStable();
   const after={...h.st}; trainShow(h,m,R,before,after,rkB,fatB); }
 
-// 調教結果のカットイン（大成功＝金の爆発、成功＝青い衝撃波、いまいち＝控えめ、失敗＝赤いグリッチ）
+// 調教結果のカットイン（近未来HUD風：ホログラムの解析画面）
 function trCut(cls,roll,m,h,before,after){
   const gain=STATS.reduce((a,[k])=>a+Math.max(0,after[k]-before[k]),0);
-  const word={great:'大成功!!',ok:'成功!',meh:'いまいち…',fail:'失敗…'}[cls]||(m.n+'完了'), en={great:'PERFECT',ok:'SUCCESS',meh:'SO-SO',fail:'FAILED'}[cls]||'DONE';
-  const N={great:70,ok:34,meh:0,fail:22}[cls]||0, col={great:['#fff3b0','#ffd36a','#ff9f3a','#ffffff','#ff6ad5'],ok:['#9ff4ff','#3ff0ff','#5b7cff','#ffffff'],fail:['#ff4a4a','#ff8a7a','#661111'],meh:['#9aa3b5']}[cls]||['#fff'];
-  let P=''; for(let i=0;i<N;i++){ const a=Math.random()*Math.PI*2, d=(cls==='great'?260:180)+Math.random()*(cls==='great'?420:260), sz=cls==='fail'?(6+Math.random()*14):(3+Math.random()*(cls==='great'?11:7));
-    P+=`<i style="--x:${(Math.cos(a)*d).toFixed(0)}px;--y:${(Math.sin(a)*d).toFixed(0)}px;--s:${sz.toFixed(1)}px;--c:${col[i%col.length]};--d:${(0.7+Math.random()*0.9).toFixed(2)}s;--r:${Math.floor(Math.random()*720-360)}deg;--w:${(Math.random()*0.25).toFixed(2)}s"></i>`; }
-  const stars=cls==='great'?Array.from({length:14},(_,i)=>`<b style="--x:${(Math.random()*100).toFixed(0)}%;--y:${(Math.random()*100).toFixed(0)}%;--w:${(0.3+Math.random()*1.4).toFixed(2)}s;--s:${(10+Math.random()*26).toFixed(0)}px">✦</b>`).join(''):'';
-  return `<div class="trcut ${cls}"><i class="tcx-flash"></i><i class="tcx-rays"></i><i class="tcx-ring"></i><i class="tcx-ring r2"></i><i class="tcx-ring r3"></i>
-    <div class="tcx-parts">${P}</div><div class="tcx-stars">${stars}</div>
-    <div class="tcx-txt"><small>${en}</small><div class="tcx-word" data-t="${word}">${word}</div>${gain>0.05?`<div class="tcx-gain">能力 合計 <b>+${gain.toFixed(1)}</b></div>`:''}</div></div>`; }
+  const W={great:['PERFECT','大成功'],ok:['SUCCESS','成功'],meh:['LOW GAIN','いまいち'],fail:['FAILED','失敗']}[cls]||['COMPLETE',m.n+'完了'];
+  const EN={hill:'SLOPE',wood:'WOOD CHIP',pool:'POOL',pair:'SPARRING',gate:'GATE',rest:'REST',farm:'PASTURE',gaikyu:'EXTERNAL'}[h.plan]||'TRAINING';
+  const nb=cls==='great'?26:cls==='ok'?14:cls==='fail'?10:0; let B='';
+  for(let i=0;i<nb;i++) B+=`<i style="--x:${(Math.random()*100).toFixed(1)}%;--d:${(1.2+Math.random()*1.4).toFixed(2)}s;--w:${(Math.random()*.9).toFixed(2)}s;--s:${(2+Math.random()*4).toFixed(1)}px"></i>`;
+  const ticks=Array.from({length:60},(_,k)=>{ const a=k*6*Math.PI/180, r1=k%5?88:84; return `<line x1="${(100+Math.cos(a)*r1).toFixed(1)}" y1="${(100+Math.sin(a)*r1).toFixed(1)}" x2="${(100+Math.cos(a)*92).toFixed(1)}" y2="${(100+Math.sin(a)*92).toFixed(1)}"/>`; }).join('');
+  const st=STATS.map(([k,n])=>{ const d=after[k]-before[k]; return d>0.05?`<span>${n} <b>+${d.toFixed(1)}</b></span>`:''; }).join('');
+  return `<div class="trcut hx ${cls}"><i class="hx-grid"></i><i class="hx-vig"></i><i class="hx-scan"></i><i class="hx-flare"></i>
+    <svg class="hx-ring" viewBox="0 0 200 200"><circle class="c1" cx="100" cy="100" r="96"/><circle class="c2" cx="100" cy="100" r="78"/><circle class="c3" cx="100" cy="100" r="70"/><g class="tk">${ticks}</g></svg>
+    <b class="hx-br tl"></b><b class="hx-br tr"></b><b class="hx-br bl"></b><b class="hx-br br"></b>
+    <div class="hx-bits">${B}</div>
+    <div class="hx-txt"><div class="hx-tag"><span>NOA-LINK</span> TRAINING ANALYSIS // ${EN}</div>
+      <div class="hx-word" data-t="${W[0]}">${W[0]}</div><div class="hx-jp">${W[1]}</div><i class="hx-line"></i>
+      ${gain>0.05?`<div class="hx-gain">TOTAL <b data-g="${gain.toFixed(1)}">+0.0</b></div><div class="hx-st">${st}</div>`:`<div class="hx-gain dim">NO GROWTH DETECTED</div>`}
+      <div class="hx-code">${h.name} · ${RANKS[rkIdx(h)]} · ${Date.now().toString(16).slice(-6).toUpperCase()}</div></div></div>`; }
 function trainShow(h,m,R,before,after,rkB,fatB){ TR_BUSY=true;
   const roll=R.roll, cls=roll==='大成功'?'great':roll==='失敗'?'fail':roll==='いまいち'?'meh':'ok';
   const ICON={hill:'mountain',wood:'log',pool:'wave',pair:'users',gate:'door',rest:'moon',farm:'leaf',gaikyu:'build'}[h.plan]||'bolt';
@@ -3677,7 +3854,7 @@ function trainShow(h,m,R,before,after,rkB,fatB){ TR_BUSY=true;
     <div class="trbox ${cls}" style="--rc:${RK_COL[rkIdx(h)]}">
     <div class="trart full"><img src="${img}" style="filter:${flt}" alt=""><div class="trfx"></div></div>
     <div class="trhead"><i class="ic ic-${ICON}"></i><b>${m.n}</b>${hotOf(h)===h.plan?'<span class="hot-b" style="margin-left:8px">HOT ×1.5</span>':''}<span>${h.name}</span></div>
-    <div class="trroll">${roll?`<span class="r ${cls}">${roll==='大成功'?'★ 大成功！':roll==='失敗'?'失敗…':roll}</span>`:`<span class="r ok">${m.n}完了</span>`}</div>
+    <div class="trroll">${roll?`<span class="r ${cls}">${{great:'PERFECT',ok:'SUCCESS',meh:'LOW GAIN',fail:'FAILED'}[cls]||''}<small>${roll}</small></span>`:`<span class="r ok">COMPLETE<small>${m.n}完了</small></span>`}</div>
     <div class="trstats">${rows}</div>
     <div class="trfat"><span>疲労</span><div class="tbar fat"><i style="width:${fatB}%" data-to="${h.fat}"></i></div><b>${(h.fat||0).toFixed(0)}</b></div>
     <div class="trlog">${R.L.filter(x=>!x.includes('hot-b')).slice(1).filter(x=>!x.includes('覚醒')).join('<br>')}${R.aw?'<div class="awk"><i class="ic ic-bolt"></i> 調教中に覚醒！ 全能力の上限アップ（OKで覚醒演出へ）</div>':''}</div>
@@ -3686,7 +3863,8 @@ function trainShow(h,m,R,before,after,rkB,fatB){ TR_BUSY=true;
   document.body.appendChild(ov); try{ sfx(cls==='great'?'awaken':'gate'); }catch(e){}
   const box=ov.querySelector('.trbox'), intro=ov.querySelector('.trintro'), cut=ov.querySelector('.trcut'); const CUT={great:2300,ok:1500,meh:1000,fail:1500}[cls]||1200; let D=1500+CUT;
   const skip=()=>{ intro.classList.add('gone'); }; intro.onclick=skip; setTimeout(skip,1300);
-  setTimeout(()=>{ cut.classList.add('go'); if(cls==='great'||cls==='fail') ov.classList.add('quake-'+cls); try{ if(cls==='great'){ sfx('awaken'); setTimeout(()=>{ try{ sfx('awaken'); }catch(e){} },420); } else if(cls==='fail') sfx('gate'); }catch(e){} if(navigator.vibrate) try{ navigator.vibrate(cls==='great'?[60,40,120]:cls==='fail'?[200]:30); }catch(e){} },1350);
+  setTimeout(()=>{ const gb=cut.querySelector('[data-g]'); if(gb){ const to=+gb.dataset.g, t0=performance.now()+650; const f=t=>{ const p=Math.max(0,Math.min(1,(t-t0)/700)); gb.textContent='+'+(to*(1-Math.pow(1-p,3))).toFixed(1); if(p<1) requestAnimationFrame(f); }; requestAnimationFrame(f); } },1350);
+  setTimeout(()=>{ cut.classList.add('go'); if(cls==='fail') ov.classList.add('quake-fail'); if(cls==='great') ov.classList.add('pulse-great'); try{ if(cls==='great'){ sfx('awaken'); setTimeout(()=>{ try{ sfx('awaken'); }catch(e){} },420); } else if(cls==='fail') sfx('gate'); }catch(e){} if(navigator.vibrate) try{ navigator.vibrate(cls==='great'?[60,40,120]:cls==='fail'?[200]:30); }catch(e){} },1350);
   cut.onclick=()=>cut.classList.add('done'); setTimeout(()=>cut.classList.add('done'),1350+CUT);
   setTimeout(()=>box.classList.add('s1'),D+150);
   setTimeout(()=>{ box.classList.add('s2');

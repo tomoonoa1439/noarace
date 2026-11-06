@@ -40,7 +40,7 @@ function merge(T,items,withColor){ let n=0; const parts=items.map(it=>{ const ge
  const out=new T.BufferGeometry(); out.setAttribute('position',new T.BufferAttribute(pos,3)); out.setAttribute('normal',new T.BufferAttribute(nor,3)); if(col) out.setAttribute('color',new T.BufferAttribute(col,3)); return out; }
 
 function createVariant(T,root,mesh,id,opt={}){
- THREE_=T; const spec=V[id]; if(!spec) throw Error('horseVariantIdは1〜15'); const scene=opt.pose===false?{...S[id],pose:'gallop'}:S[id];
+ THREE_=T; if(!V[id]) throw Error('horseVariantIdは1〜15'); const spec=opt.spec?{...V[id],...opt.spec}:V[id]; const scene=opt.pose===false?{...S[id],pose:'gallop'}:S[id];
  if(root.userData.horseVariantId!==undefined) throw Error('個体IDは変更できません'); Object.defineProperty(root.userData,'horseVariantId',{value:id,writable:false,enumerable:true});
  const isRB=spec.neon===RB, neonC=new T.Color(isRB?0xffffff:spec.neon);
  // 体格（輪郭差）
