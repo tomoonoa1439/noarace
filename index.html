@@ -1176,7 +1176,7 @@ const CLOUD={db:null,uid:null,dirty:new Set(),timer:null,busy:false,state:'接�
 CLOUD.fresh=CLOUD.keys().length===0;
 function apologyGift(){ store.set('gift1',true); return; if(store.get('gift1',false)) return; store.set('gift1',true); setBal(balance+10000); toast('<i class="ic ic-gift"></i> お詫びの 10,000 NOA をお届けしました！'); }
 let _cloudReady; CLOUD.ready=new Promise(r=>_cloudReady=r); setTimeout(()=>CLOUD.init().finally(()=>{ try{ apologyGift(); }catch(e){} _cloudReady(); }),0);
-let balance = store.get('balance', 100000);
+let balance = store.get('balance', 30000);
 let history = store.get('history', []);
 function setBal(v){ balance=Math.max(0,Math.round(v)); store.set('balance',balance); $('#bal').textContent=fmt(balance); if(window.updRescue) updRescue(); }
 setBal(balance);
